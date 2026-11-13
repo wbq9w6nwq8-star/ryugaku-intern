@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RyugakuIntern | 海外大生のための匿名情報交換ボード＆短期インターン</title>
+  <meta name="description" content="6〜9月のサマー休暇、12月の冬休み、現地からのフルリモート案件に特化。海外大生同士がリアルな就活・帰国・インターン情報を匿名で交換できるコミュニティ＆ジョブボード。">
+  <link rel="icon" type="image/png" href="favicon.png?v=99">
+  <meta property="og:title" content="RyugakuIntern | 海外大生のための匿名情報交換ボード＆短期インターン">
+  <meta property="og:description" content="海外大生同士がリアルな就活・帰国・インターン情報を匿名で交換できる掲示板＆帰国期間特化ジョブボード。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ryugaku-intern.com/">
+  <meta property="og:image" content="https://ryugaku-intern.com/websamune.png?v=2">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@ryugakuintern">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9644749026345882" crossorigin="anonymous"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/custom.css">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen antialiased flex flex-col">
+  <div id="common-header"></div>
+
+  <!-- ヒーローセクション -->
+  <section class="hero-gradient pt-12 pb-16 sm:pt-16 sm:pb-20 px-4 border-b border-slate-200/60">
+    <div class="max-w-4xl mx-auto text-center">
+      <div class="inline-flex items-center space-x-2 bg-white border border-slate-200 shadow-2xs rounded-full px-3.5 py-1.5 mb-6">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-xs font-semibold text-slate-700">海外正規大生からの先行登録＆コミュニティ参加受付中！</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.15]">
+        海外大生のための、<br>
+        <span class="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">「帰国期間だけ」</span>のインターン
+      </h1>
+      <p class="mt-5 text-slate-600 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed">
+        6〜9月のサマー休暇、12月の冬休み、留学先からのフルリモート案件に特化。<br class="hidden sm:inline">
+        さらに匿名情報交換ボード＆毎朝更新のAI就活ニュースも搭載。
+      </p>
+
+      <div class="mt-8 bg-white p-5 sm:p-6 rounded-2xl shadow-md border border-slate-200/90 max-w-2xl mx-auto">
+        <p class="text-xs sm:text-sm font-bold text-slate-800 mb-3">
+          📮 新着求人が公開され次第、優先的にメールで通知を受け取る
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <a href="https://tally.so/r/DqKkvE" target="_blank" rel="noopener noreferrer" class="sm:col-span-1 inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm px-4 py-3.5 rounded-xl shadow-sm transition">
+            先行通知に登録（無料）
+          </a>
+          <a href="board.html" class="inline-flex items-center justify-center bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm px-4 py-3.5 rounded-xl transition">
+            💬 掲示板へ
+          </a>
+          <a href="news.html" class="inline-flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs sm:text-sm px-4 py-3.5 rounded-xl transition">
+            🤖 AI就活ニュースへ
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 検索＆フィルターバー（求人サンプル） -->
+  <section id="jobs" class="max-w-5xl w-full mx-auto px-4 pt-10">
+    <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200/80">
+      <div class="flex flex-col md:flex-row gap-3">
+        <div class="relative flex-1">
+          <input type="text" id="search-input" oninput="applyFilters()" placeholder="求人キーワード検索（例：AI、リサーチ、M&A、SaaS、リモート...）" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+        </div>
+        <div class="flex flex-wrap gap-1.5">
+          <button onclick="setCategory('all', this)" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-600 text-white cursor-pointer">すべて</button>
+          <button onclick="setCategory('summer', this)" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">☀️ 6〜9月サマー</button>
+          <button onclick="setCategory('winter', this)" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">❄️ 12月冬休み</button>
+          <button onclick="setCategory('remote', this)" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">🌍 完全リモート</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 取り扱い求人イメージ -->
+  <main class="max-w-5xl w-full mx-auto px-4 py-8">
+    <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4 sm:p-5 mb-6">
+      <span class="text-xs font-extrabold uppercase bg-indigo-600 text-white px-2.5 py-0.5 rounded-md">Sample</span>
+      <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1">当サイトで取り扱う求人のイメージ（サンプル例）</h2>
+      <p class="text-xs text-slate-600 mt-1">※以下は対象職種・条件のサンプル例です。実際の求人が掲載され次第、先行登録者へ優先案内いたします。</p>
+    </div>
+
+    <div id="job-list" class="grid gap-4">
+      <div class="job-card bg-white p-6 rounded-2xl border border-slate-200/90 shadow-2xs" data-category="summer remote">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="space-y-2">
+            <div class="flex flex-wrap gap-2">
+              <span class="text-xs font-semibold bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full">☀️ 6〜9月サマー</span>
+              <span class="text-xs font-semibold bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full">🌍 完全リモート</span>
+            </div>
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-900">【案件例】AI・ITスタートアップ：海外市場・競合リサーチ＆英語圏トレンド調査</h3>
+            <p class="text-xs sm:text-sm text-slate-600">北米・欧州における最新の生成AIユースケース調査、英語論文・現地メディアのリサーチレポート作成など。</p>
+            <div class="flex flex-wrap gap-x-5 text-xs font-medium text-slate-500">
+              <span>💰 想定時給 1,500円 〜 2,500円</span>
+              <span>⏰ 週15時間〜</span>
+            </div>
+          </div>
+          <a href="https://tally.so/r/DqKkvE" target="_blank" rel="noopener noreferrer" class="text-center text-xs sm:text-sm bg-slate-100 hover:bg-indigo-600 hover:text-white text-slate-700 font-bold px-4 py-2.5 rounded-xl transition shrink-0">新着通知に登録 →</a>
+        </div>
+      </div>
+
+      <div class="job-card bg-white p-6 rounded-2xl border border-slate-200/90 shadow-2xs" data-category="summer">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="space-y-2">
+            <div class="flex flex-wrap gap-2">
+              <span class="text-xs font-semibold bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full">☀️ 6〜9月サマー</span>
+              <span class="text-xs font-semibold bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full">🏢 東京</span>
+            </div>
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-900">【案件例】クロスボーダーM&A・コンサルティング：海外企業リサーチ＆英文資料作成補助</h3>
+            <p class="text-xs sm:text-sm text-slate-600">東南アジア・欧米企業のリスト作成、英文資料の要約・翻訳、初期リサーチ補助など。</p>
+            <div class="flex flex-wrap gap-x-5 text-xs font-medium text-slate-500">
+              <span>💰 想定時給 1,800円 〜 3,000円</span>
+              <span>⏰ 6〜9月のうち2ヶ月以上</span>
+            </div>
+          </div>
+          <a href="https://tally.so/r/DqKkvE" target="_blank" rel="noopener noreferrer" class="text-center text-xs sm:text-sm bg-slate-100 hover:bg-indigo-600 hover:text-white text-slate-700 font-bold px-4 py-2.5 rounded-xl transition shrink-0">新着通知に登録 →</a>
+        </div>
+      </div>
+
+      <div class="job-card bg-white p-6 rounded-2xl border border-slate-200/90 shadow-2xs" data-category="remote summer winter">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="space-y-2">
+            <div class="flex flex-wrap gap-2">
+              <span class="text-xs font-semibold bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full">🌍 完全リモート</span>
+              <span class="text-xs font-semibold bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full">🕒 通年・時差ワークOK</span>
+            </div>
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-900">【案件例】グローバル展開SaaS企業：英語圏マーケティング＆ローカライズ推進</h3>
+            <p class="text-xs sm:text-sm text-slate-600">海外ユーザー向けプロダクトの英語ローカライズ、海外SNS・コミュニティでのPR運用など。</p>
+            <div class="flex flex-wrap gap-x-5 text-xs font-medium text-slate-500">
+              <span>💰 想定時給 1,500円 〜 2,200円</span>
+              <span>⏰ 週10時間〜</span>
+            </div>
+          </div>
+          <a href="https://tally.so/r/DqKkvE" target="_blank" rel="noopener noreferrer" class="text-center text-xs sm:text-sm bg-slate-100 hover:bg-indigo-600 hover:text-white text-slate-700 font-bold px-4 py-2.5 rounded-xl transition shrink-0">新着通知に登録 →</a>
+        </div>
+      </div>
+    </div>
+    <div id="empty-state" class="hidden text-center py-10 bg-white rounded-2xl border border-slate-200 mt-4 text-xs text-slate-500">該当する案件が見つかりませんでした。</div>
+  </main>
+
+  <!-- AIニュース 最新4件ダイジェスト -->
+  <section class="max-w-5xl w-full mx-auto px-4 pb-12">
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+        <div>
+          <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">🤖 最新のAI厳選就活ニュース（ピックアップ）</h2>
+          <p class="text-xs text-slate-500 mt-0.5" id="ai-news-updated">毎朝自動更新中</p>
+        </div>
+        <a href="news.html" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition self-start sm:self-auto">
+          全ニュース一覧を見る →
+        </a>
+      </div>
+      <div id="ai-news-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5"></div>
+    </div>
+  </section>
+
+  <!-- 設立の経緯 -->
+  <section id="story" class="bg-slate-100/70 border-t border-slate-200 py-14 px-4">
+    <div class="max-w-3xl mx-auto bg-white rounded-3xl p-7 sm:p-10 border border-slate-200/90 shadow-2xs">
+      <span class="text-xs font-bold uppercase text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">Founder's Story</span>
+      <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-4">なぜ「RyugakuIntern」を作ったのか？</h2>
+      <div class="mt-4 space-y-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
+        <p>海外大のサマー休暇は6月〜9月と約3ヶ月以上ありますが、日本の長期インターンは<strong>「最低半年以上・通年での勤務が必須」</strong>という条件ばかりで、帰国期間中に実務経験を積める場が極めて限られています。</p>
+        <p>「帰国中の2〜3ヶ月やリモートでも、海外大生の語学力と行動力を歓迎してくれる企業と学生を直接繋ぎたい。そして海外大生同士がリアルな情報を交換できる場所を作りたい」という思いから『RyugakuIntern』を立ち上げました。</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="common-footer"></div>
+
+  <script src="js/common.js"></script>
+  <script src="js/news.js"></script>
+  <script>
+    let currentCategory = 'all';
+    function setCategory(category, btnElement) {
+      currentCategory = category;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.className = 'filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer';
+      });
+      btnElement.className = 'filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-600 text-white cursor-pointer';
+      applyFilters();
+    }
+    function applyFilters() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      let visibleCount = 0;
+      document.querySelectorAll('.job-card').forEach(card => {
+        const matchCat = currentCategory === 'all' || card.getAttribute('data-category').includes(currentCategory);
+        const matchQ = !query || card.innerText.toLowerCase().includes(query);
+        card.style.display = (matchCat && matchQ) ? 'block' : 'none';
+        if (matchCat && matchQ) visibleCount++;
+      });
+      document.getElementById('empty-state').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+    window.addEventListener('DOMContentLoaded', () => loadAiNews(4));
+  </script>
+</body>
+</html>
