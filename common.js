@@ -115,7 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="flex flex-wrap gap-4 sm:gap-6 justify-center items-center">
             <a href="index.html" class="hover:text-slate-900 transition">トップ</a>
             <a href="board.html" class="hover:text-slate-900 transition">匿名掲示板</a>
-            <a href="news.html" class="hover:text-slate-900 transition">AIニュース</a>
+            <a href="news.html" class="hover:text-slate-900 transition">ニュース</a>
+            <a href="terms.html" class="hover:text-slate-900 transition">利用規約</a>
             <button onclick="openModal('info-modal')" class="hover:text-slate-900 transition cursor-pointer">運営概要</button>
             <button onclick="openModal('privacy-modal')" class="hover:text-slate-900 transition cursor-pointer">プライバシーポリシー</button>
             <a href="https://x.com/ryugakuintern" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-slate-700 font-semibold hover:text-indigo-600 transition">
