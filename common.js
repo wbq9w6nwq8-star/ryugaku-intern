@@ -75,10 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap justify-between items-center gap-2">
           <a href="index.html" class="flex items-center space-x-2.5 group">
             <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm group-hover:border-indigo-300 transition">
-              <img src="favicon.png" alt="RyugakuIntern" class="w-full h-full object-cover">
+              <img src="favicon.png" alt="Atrium" class="w-full h-full object-cover">
             </div>
             <div class="flex items-center space-x-2">
-              <span class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900">RyugakuIntern</span>
+              <span class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900">Atrium</span>
               <span class="text-[10px] uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-2 py-0.5 rounded-full font-bold">Beta</span>
             </div>
           </a>
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </nav>
 
           <div class="flex items-center space-x-2 order-2 sm:order-3">
-            <button onclick="shareSite('https://ryugaku-intern.com/', 'RyugakuIntern | 海外大生のための匿名情報交換ボード＆短期インターン')" title="サイトURLをシェア" class="text-xs font-bold text-slate-600 hover:text-indigo-600 bg-slate-100 hover:bg-indigo-50 px-2.5 py-1.5 rounded-lg transition cursor-pointer">
+            <button onclick="shareSite('https://ryugaku-intern.com/', 'Atrium | 海外大生のための匿名情報交換ボード＆キャリアプラットフォーム')" title="サイトURLをシェア" class="text-xs font-bold text-slate-600 hover:text-indigo-600 bg-slate-100 hover:bg-indigo-50 px-2.5 py-1.5 rounded-lg transition cursor-pointer">
               🔗 共有
             </button>
             <a href="https://tally.so/r/gbeey4" target="_blank" rel="noopener noreferrer" class="hidden md:inline-flex items-center text-xs bg-slate-900 text-white px-3.5 py-2 rounded-xl font-semibold hover:bg-indigo-600 shadow-sm transition">
@@ -109,10 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-6">
           <div class="text-center sm:text-left space-y-1">
             <div class="flex items-center justify-center sm:justify-start space-x-2">
-              <span class="font-extrabold text-slate-900 text-sm">RyugakuIntern</span>
-              <span>— 海外大生特化の匿名掲示板＆短期・リモート求人</span>
+              <span class="font-extrabold text-slate-900 text-sm">Atrium</span>
+              <span>— 海外大生特化の匿名コミュニティ＆キャリアプラットフォーム</span>
             </div>
-            <p class="text-[11px] text-slate-400">© 2026 RyugakuIntern Project. All rights reserved.</p>
+            <p class="text-[11px] text-slate-400">© 2026 Atrium Project. All rights reserved.</p>
           </div>
           <div class="flex flex-wrap gap-4 sm:gap-6 justify-center items-center">
             <a href="index.html" class="hover:text-slate-900 transition">トップ</a>
@@ -135,9 +135,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <button onclick="closeModal('info-modal')" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer">×</button>
           </div>
           <div class="space-y-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
-            <p><strong>プロジェクト名：</strong>RyugakuIntern（留学インターン）</p>
-            <p><strong>運営主体：</strong>RyugakuIntern 運営事務局（現役英国正規留学生によるプロジェクト）</p>
-            <p><strong>事業内容：</strong>海外大生・バイリンガル学生向けの匿名情報交換コミュニティ運営および短期インターン・リモート求人情報の掲載</p>
+            <p><strong>プロジェクト名：</strong>Atrium（アトリウム）</p>
+            <p><strong>運営主体：</strong>Atrium 運営事務局（現役英国正規留学生によるプロジェクト）</p>
+            <p><strong>事業内容：</strong>海外大生・バイリンガル学生向けの匿名情報交換コミュニティ運営およびキャリア・求人情報の掲載</p>
             <p><strong>連絡先メールアドレス：</strong><a href="mailto:ryugakuintern.official@gmail.com" class="text-indigo-600 underline">ryugakuintern.official@gmail.com</a></p>
             <p><strong>公式SNS：</strong><a href="https://x.com/ryugakuintern" target="_blank" rel="noopener noreferrer" class="text-indigo-600 underline">https://x.com/ryugakuintern</a></p>
           </div>
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <button onclick="closeModal('privacy-modal')" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer">×</button>
           </div>
           <div class="space-y-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
-            <p><strong>1. 情報の取得と利用目的</strong><br>当サイト（RyugakuIntern）で収集したメールアドレスおよび回答情報は、新着インターン・求人情報の配信およびサービス改善の目的にのみ利用いたします。</p>
+            <p><strong>1. 情報の取得と利用目的</strong><br>当サイト（Atrium）で収集したメールアドレスおよび回答情報は、新着求人情報の配信およびサービス改善の目的にのみ利用いたします。</p>
             <p><strong>2. 第三者への非提供</strong><br>ご登録いただいた個人情報を、本人の同意なく第三者や外部企業へ販売・提供・貸与することは一切ございません。</p>
             <p><strong>3. 配信停止・削除について</strong><br>通知の配信停止や登録情報の削除をご希望の場合は、配信メール内の解除リンクまたは運営連絡先（ryugakuintern.official@gmail.com）までご連絡いただくことで速やかに削除いたします。</p>
           </div>
