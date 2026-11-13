@@ -70,6 +70,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       .subscribe();
   }
 
+  // 文字キーで保存されている過去データを正しい絵文字に変換するマップ
+  const emojiMap = {
+    'thumbs': '👍',
+    'coffee': '☕',
+    'fire': '🔥',
+    'heart': '❤️',
+    'smile': '😊'
+  };
+
   function renderPulses(pulses) {
     if (!feedContainer) return;
 
@@ -97,14 +106,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       const displayName = p.name && p.name.trim() !== '' ? escapeHTML(p.name) : '名無しの海外大生';
       const displayCity = p.city && p.city.trim() !== '' ? escapeHTML(p.city) : '世界どこか';
 
-      // リアクションデータ（JSONBで保持。例: { "👍": 3, "🔥": 1 }）
       const reactions = p.reactions || {};
-      const reactionHtml = Object.entries(reactions).map(([emoji, count]) => `
-        <button onclick="window.addReaction('${p.id}', '${emoji}')" class="inline-flex items-center space-x-1 text-[11px] bg-white border border-slate-200 hover:bg-indigo-50 text-slate-700 px-2.5 py-1 rounded-lg transition cursor-pointer">
-          <span>${emoji}</span>
-          <span class="font-mono font-bold">${count}</span>
-        </button>
-      `).join('');
+      const reactionHtml = Object.entries(reactions).map(([key, count]) => {
+        // 文字キーなら絵文字に変換、すでに絵文字ならそのまま表示
+        const displayEmoji = emojiMap[key] || key;
+        return `
+          <button onclick="window.addReaction('${p.id}', '${key}')" class="inline-flex items-center space-x-1 text-[11px] bg-white border border-slate-200 hover:bg-indigo-50 text-slate-700 px-2.5 py-1 rounded-lg transition cursor-pointer">
+            <span>${displayEmoji}</span>
+            <span class="font-mono font-bold">${count}</span>
+          </button>
+        `;
+      }).join('');
 
       return `
         <div class="bg-slate-50/70 border border-slate-200/60 rounded-xl p-3.5 hover:border-indigo-200 transition relative group">
@@ -117,17 +129,14 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
           <p class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap mb-3">${escapeHTML(p.text)}</p>
           
-          <!-- リアクション一覧 ＆ 追加ボタン -->
           <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-200/50" id="reactions-${p.id}">
             ${reactionHtml}
             
-            <!-- Discord風「+」リアクションボタン -->
             <div class="relative inline-block">
               <button onclick="window.toggleEmojiPicker('${p.id}')" class="inline-flex items-center justify-center text-[11px] bg-white border border-dashed border-slate-300 hover:border-indigo-500 text-slate-500 hover:text-indigo-600 w-7 h-7 rounded-lg transition cursor-pointer" title="リアクションを追加">
                 +
               </button>
               
-              <!-- 絵文字ピッカーポップアップ（初期は非表示） -->
               <div id="picker-${p.id}" class="hidden absolute bottom-full left-0 mb-2 bg-white border border-slate-200 shadow-lg rounded-xl p-2 flex space-x-2 z-50 whitespace-nowrap">
                 <button onclick="window.addReaction('${p.id}', '👍')" class="hover:scale-125 transition text-base p-1 cursor-pointer">👍</button>
                 <button onclick="window.addReaction('${p.id}', '🔥')" class="hover:scale-125 transition text-base p-1 cursor-pointer">🔥</button>
@@ -194,34 +203,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// Discord風ピッカーの開閉
 window.toggleEmojiPicker = function(id) {
   const picker = document.getElementById(`picker-${id}`);
   if (picker) {
-    // 他が開いていれば閉じるなどの処理をしつつトグル
     picker.classList.toggle('hidden');
   }
 };
 
-// 絵文字リアクションをDBに保存・加算する関数
 window.addReaction = async function(id, emoji) {
   if (!supabaseClient) return;
 
   try {
-    // 現在のリアクションデータを取得
     const { data, error } = await supabaseClient.from('atrium_pulses').select('reactions').eq('id', id).single();
     if (error) throw error;
 
     let reactions = data?.reactions || {};
     reactions[emoji] = (reactions[emoji] || 0) + 1;
 
-    // Supabaseを更新（リアルタイムで全ユーザーの画面に即反映されます）
     await supabaseClient
       .from('atrium_pulses')
       .update({ reactions: reactions })
       .eq('id', id);
 
-    // ピッカーを閉じる
     const picker = document.getElementById(`picker-${id}`);
     if (picker) picker.classList.add('hidden');
   } catch (err) {
