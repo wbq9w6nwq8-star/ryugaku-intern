@@ -2,15 +2,8 @@ const globalCities = [
   { name: 'ロサンゼルス', zone: 'America/Los_Angeles', country: 'US' },
   { name: 'ニューヨーク', zone: 'America/New_York', country: 'US' },
   { name: 'トロント', zone: 'America/Toronto', country: 'Canada' },
-  { name: 'バンクーバー', zone: 'America/Vancouver', country: 'Canada' },
   { name: 'ロンドン', zone: 'Europe/London', country: 'UK' },
   { name: 'パリ', zone: 'Europe/Paris', country: 'France' },
-  { name: 'ワルシャワ', zone: 'Europe/Warsaw', country: 'Poland' },
-  { name: 'イスタンブール', zone: 'Europe/Istanbul', country: 'Turkey' },
-  { name: 'ドバイ', zone: 'Asia/Dubai', country: 'UAE' },
-  { name: 'タイ', zone: 'Asia/Bangkok', country: 'Thailand' },
-  { name: 'マレーシア', zone: 'Asia/Kuala_Lumpur', country: 'Malaysia' },
-  { name: '台湾', zone: 'Asia/Taipei', country: 'Taiwan' },
   { name: '東京', zone: 'Asia/Tokyo', country: 'Japan' },
   { name: 'シドニー', zone: 'Australia/Sydney', country: 'Australia' }
 ];
