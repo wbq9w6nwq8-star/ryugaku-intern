@@ -3,6 +3,15 @@ const SUPABASE_ANON_KEY = 'sb_publishable_DZK0J_qUnYzK-0p6P6xezg_jEe8Ypzd';
 
 let supabaseClient = null;
 
+// 文字キーを絵文字に変換するマップ（先に定義）
+const emojiMap = {
+  'thumbs': '👍',
+  'coffee': '☕',
+  'fire': '🔥',
+  'heart': '❤️',
+  'smile': '😊'
+};
+
 function loadSupabaseScript() {
   return new Promise((resolve, reject) => {
     if (window.supabase) {
@@ -70,15 +79,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       .subscribe();
   }
 
-  // 文字キーで保存されている過去データを正しい絵文字に変換するマップ
-  const emojiMap = {
-    'thumbs': '👍',
-    'coffee': '☕',
-    'fire': '🔥',
-    'heart': '❤️',
-    'smile': '😊'
-  };
-
   function renderPulses(pulses) {
     if (!feedContainer) return;
 
@@ -108,7 +108,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const reactions = p.reactions || {};
       const reactionHtml = Object.entries(reactions).map(([key, count]) => {
-        // 文字キーなら絵文字に変換、すでに絵文字ならそのまま表示
         const displayEmoji = emojiMap[key] || key;
         return `
           <button onclick="window.addReaction('${p.id}', '${key}')" class="inline-flex items-center space-x-1 text-[11px] bg-white border border-slate-200 hover:bg-indigo-50 text-slate-700 px-2.5 py-1 rounded-lg transition cursor-pointer">
