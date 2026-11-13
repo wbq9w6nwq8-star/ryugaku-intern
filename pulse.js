@@ -3,10 +3,10 @@ const SUPABASE_ANON_KEY = 'sb_publishable_DZK0J_qUnYzK-0p6P6xezg_jEe8Ypzd';
 
 let supabaseClient = null;
 
-// 簡易的に自分の投稿をブラウザごとに識別するためのID（ローカルストレージに保存）
+// 自分の発言を判別するためのID
 let myUserId = localStorage.getItem('atrium_my_uid');
 if (!myUserId) {
-  myUserId = 'user_' + Math.random().toString(36.subString(2, 9));
+  myUserId = 'user_' + Math.random().toString(36).substring(2, 9);
   localStorage.setItem('atrium_my_uid', myUserId);
 }
 
@@ -43,7 +43,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (feedContainer) {
-    // ブラウザの横幅にゆとりを持たせ、LINE風のトークルーム背景と高さを設定
     feedContainer.className = "space-y-4 max-h-[520px] overflow-y-auto p-4 sm:p-6 bg-slate-100/70 rounded-2xl border border-slate-200/80 shadow-inner";
     feedContainer.innerHTML = '<div class="text-xs text-slate-400 text-center py-6">チャットルームを読み込んでいます...</div>';
   }
@@ -114,7 +113,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const displayName = p.name && p.name.trim() !== '' ? escapeHTML(p.name) : '名無しの海外大生';
       const displayCity = p.city && p.city.trim() !== '' ? escapeHTML(p.city) : '世界どこか';
 
-      // 自分が投稿したメッセージかどうかの判定（user_idカラムがある場合の想定。なければデフォルト左側）
       const isMyMessage = p.user_id && p.user_id === myUserId;
 
       const reactions = p.reactions || {};
@@ -128,9 +126,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
       }).join('');
 
-      // 自分の投稿は右側＆薄い青背景（インディゴ系）、他人の投稿は左側＆白背景＋吹き出しの「くちばし」をCSSで表現
       if (isMyMessage) {
-        // 自分のメッセージ（右寄せ・薄い青背景）
         return `
           <div class="flex flex-col items-end space-y-1 mb-3">
             <div class="flex items-center space-x-2 text-[11px] text-slate-500 mr-1">
@@ -140,7 +136,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="relative max-w-[80%] sm:max-w-[70%] bg-indigo-50 border border-indigo-100 text-slate-800 rounded-2xl rounded-tr-xs px-4 py-2.5 shadow-2xs">
               <p class="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">${escapeHTML(p.text)}</p>
               
-              <!-- リアクション表示 ＆ ＋ボタン -->
               <div class="flex flex-wrap items-center gap-1.5 pt-1.5 mt-1.5 border-t border-indigo-200/50 justify-end">
                 ${reactionHtml}
                 <div class="relative inline-block">
@@ -161,7 +156,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
         `;
       } else {
-        // 他人のメッセージ（左寄せ・白背景・吹き出しの左側にくちばし）
         return `
           <div class="flex flex-col items-start space-y-1 mb-3">
             <div class="flex items-center space-x-2 text-[11px] text-slate-500 ml-1">
@@ -172,7 +166,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="relative max-w-[80%] sm:max-w-[70%] bg-white border border-slate-200/90 text-slate-800 rounded-2xl rounded-tl-xs px-4 py-2.5 shadow-2xs">
               <p class="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">${escapeHTML(p.text)}</p>
               
-              <!-- リアクション表示 ＆ ＋ボタン -->
               <div class="flex flex-wrap items-center gap-1.5 pt-1.5 mt-1.5 border-t border-slate-100">
                 ${reactionHtml}
                 <div class="relative inline-block">
@@ -185,7 +178,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <button onclick="window.addReaction('${p.id}', '☕')" class="hover:scale-125 transition text-base p-1 cursor-pointer">☕</button>
                     <button onclick="window.addReaction('${p.id}', '🎉')" class="hover:scale-125 transition text-base p-1 cursor-pointer">🎉</button>
                     <button onclick="window.addReaction('${p.id}', '👀')" class="hover:scale-125 transition text-base p-1 cursor-pointer">👀</button>
-                    <button onclick="window.addReaction(', '${p.id}', '😭')" class="hover:scale-125 transition text-base p-1 cursor-pointer">😭</button>
+                    <button onclick="window.addReaction('${p.id}', '😭')" class="hover:scale-125 transition text-base p-1 cursor-pointer">😭</button>
                   </div>
                 </div>
               </div>
@@ -233,7 +226,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             name: nameInput.value.trim() || '名無しの海外大生',
             text: text,
             reactions: {},
-            user_id: myUserId // 自分の発言を判別するためのIDを一緒に保存
+            user_id: myUserId
           }
         ]);
 
