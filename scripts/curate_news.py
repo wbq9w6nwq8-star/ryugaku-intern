@@ -7,21 +7,23 @@ from datetime import datetime, timezone, timedelta
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
-# 取得元の良質RSSリスト（海外大生・外資・商社・サマーインターン関連）
-RSS_FEEDS = [
-    "https://news.google.com/rss/search?q=海外大生+就活+OR+ボスキャリ+OR+サマーインターン&hl=ja&gl=JP&ceid=JP:ja",
-    "https://news.google.com/rss/search?q=site:gaishishukatsu.com+インターン+OR+外資+OR+商社&hl=ja&gl=JP&ceid=JP:ja",
-    "https://news.google.com/rss/search?q=site:onecareer.jp+サマーインターン+OR+外資+OR+グローバル&hl=ja&gl=JP&ceid=JP:ja",
+# 検索クエリ（日本語を自動URLエンコードして確実に取得する）
+QUERIES = [
+    "海外大生 就活 OR ボスキャリ OR サマーインターン",
+    "外資系 就活 インターン 選考",
+    "総合商社 サマーインターン 選考",
+    "留学 就活 ボストンキャリアフォーラム"
 ]
 
-# 明らかに不要なプレスリリースやノイズを弾くNGワード
 NG_WORDS = ["PR TIMES", "人事異動", "訃報", "株式分割", "決算短信", "パチンコ", "競馬"]
 
 def fetch_raw_articles():
     articles = []
     seen_titles = set()
 
-    for url in RSS_FEEDS:
+    for q in QUERIES:
+        encoded_q = urllib.parse.quote(q)
+        url = f"https://news.google.com/rss/search?q={encoded_q}&hl=ja&gl=JP&ceid=JP:ja"
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
             with urllib.request.urlopen(req, timeout=15) as res:
@@ -45,12 +47,13 @@ def fetch_raw_articles():
                     "pubDate": pub_date[:16]
                 })
         except Exception as e:
-            print(f"RSS fetch error ({url}): {e}")
+            print(f"RSS fetch error ({q}): {e}")
 
-    return articles[:35]  # AIに評価させる候補を最大35件渡す
+    return articles[:35]
 
 def curate_with_gemini(raw_articles):
     if not raw_articles:
+        print("No raw articles fetched.")
         return []
 
     prompt = f"""
