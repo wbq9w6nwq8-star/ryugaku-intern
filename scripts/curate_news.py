@@ -1,18 +1,19 @@
 import os
+import sys
 import json
 import urllib.request
 import urllib.parse
+import urllib.error
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone, timedelta
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+GEMINI_API_KEY = (os.environ.get("GEMINI_API_KEY") or "").strip()
 
-# 検索クエリ（日本語を自動URLエンコードして確実に取得する）
 QUERIES = [
-    "海外大生 就活 OR ボスキャリ OR サマーインターン",
-    "外資系 就活 インターン 選考",
-    "総合商社 サマーインターン 選考",
-    "留学 就活 ボストンキャリアフォーラム"
+    "海外大生 就活",
+    "ボスキャリ 就活",
+    "サマーインターン 外資",
+    "総合商社 インターン 選考"
 ]
 
 NG_WORDS = ["PR TIMES", "人事異動", "訃報", "株式分割", "決算短信", "パチンコ", "競馬"]
@@ -25,7 +26,9 @@ def fetch_raw_articles():
         encoded_q = urllib.parse.quote(q)
         url = f"https://news.google.com/rss/search?q={encoded_q}&hl=ja&gl=JP&ceid=JP:ja"
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            req = urllib.request.Request(url, headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            })
             with urllib.request.urlopen(req, timeout=15) as res:
                 xml_data = res.read()
             root = ET.fromstring(xml_data)
@@ -47,21 +50,22 @@ def fetch_raw_articles():
                     "pubDate": pub_date[:16]
                 })
         except Exception as e:
-            print(f"RSS fetch error ({q}): {e}")
+            print(f"RSS fetch warning ({q}): {e}")
 
-    return articles[:35]
+    return articles[:30]
 
 def curate_with_gemini(raw_articles):
+    if not GEMINI_API_KEY:
+        print("ERROR: GEMINI_API_KEY is empty! Please check Repository Secrets in Settings.")
+        sys.exit(1)
+
     if not raw_articles:
-        print("No raw articles fetched.")
-        return []
+        print("ERROR: Fetched 0 articles from RSS.")
+        sys.exit(1)
 
     prompt = f"""
 あなたは英国・北米・豪州などの海外正規大学に通う日本人学生向けのキャリアアドバイザーです。
 以下のニュース候補リストの中から、海外大生（特に1〜3年生やボスキャリ・夏休み帰国インターン志望者）にとって「本当に読む価値がある有益な記事」だけを厳しく評価し、トップ12件を厳選してください。
-
-【除外基準】
-- 単なる企業の宣伝プレスリリース、海外大生に無関係な国内ローカルニュース、釣り記事は必ず除外すること。
 
 【出力ルール】
 以下のJSON配列形式のみを出力してください（Markdownの ```json などは不要）。
@@ -91,10 +95,18 @@ def curate_with_gemini(raw_articles):
         headers={"Content-Type": "application/json"}
     )
 
-    with urllib.request.urlopen(req, timeout=45) as res:
-        result = json.loads(res.read().decode("utf-8"))
-        text = result["candidates"][0]["content"]["parts"][0]["text"]
-        return json.loads(text)
+    try:
+        with urllib.request.urlopen(req, timeout=45) as res:
+            result = json.loads(res.read().decode("utf-8"))
+            text = result["candidates"][0]["content"]["parts"][0]["text"]
+            return json.loads(text)
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode("utf-8", errors="ignore")
+        print(f"GEMINI API HTTP ERROR {e.code}: {error_body}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"GEMINI API ERROR: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     raw = fetch_raw_articles()
