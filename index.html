@@ -28,6 +28,24 @@
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen antialiased flex flex-col">
   <div id="common-header"></div>
 
+  <!-- ページ内クイックナビゲーションバー（目次バー） -->
+  <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 py-2.5 px-4 shadow-2xs">
+    <div class="max-w-5xl mx-auto flex items-center justify-between overflow-x-auto text-xs font-semibold whitespace-nowrap gap-4 scrollbar-none">
+      <div class="flex items-center space-x-4">
+        <a href="#clock" class="text-slate-600 hover:text-indigo-600 transition">世界時計</a>
+        <a href="#pulse" class="text-slate-600 hover:text-indigo-600 transition">リアルタイムつぶやき</a>
+        <a href="#jobs" class="text-slate-600 hover:text-indigo-600 transition">求人サンプル</a>
+        <a href="#news" class="text-slate-600 hover:text-indigo-600 transition">AIニュース</a>
+        <a href="#story" class="text-slate-600 hover:text-indigo-600 transition">設立理由</a>
+      </div>
+      <div>
+        <a href="https://tally.so/r/DqKkvE" target="_blank" rel="noopener noreferrer" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-lg transition font-bold shadow-2xs">
+          先行登録
+        </a>
+      </div>
+    </div>
+  </nav>
+
   <!-- ヒーローセクション -->
   <section class="hero-gradient pt-12 pb-16 sm:pt-16 sm:pb-20 px-4 border-b border-slate-200/60">
     <div class="max-w-4xl mx-auto text-center">
@@ -43,7 +61,6 @@
         6〜9月のサマー休暇、12月の冬休み、留学先からのフルリモート案件に特化。<br class="hidden sm:inline">
         さらに匿名情報交換ボード＆毎朝更新のAI就活ニュースも搭載。
       </p>
-
       <div class="mt-8 bg-white p-5 sm:p-6 rounded-2xl shadow-md border border-slate-200/90 max-w-2xl mx-auto">
         <p class="text-xs sm:text-sm font-bold text-slate-800 mb-3">
           新着求人が公開され次第、優先的にメールで通知を受け取る
@@ -62,31 +79,65 @@
       </div>
     </div>
   </section>
-<section class="max-w-6xl mx-auto px-4 sm:px-6 my-8">
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 text-white shadow-sm">
-<section class="max-w-6xl mx-auto px-4 sm:px-6 my-8">
-  <!-- 背景を白、文字を黒や濃いグレーに変更 -->
-  <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 text-slate-900 shadow-xs">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
-      <div>
-        <h3 class="text-xs sm:text-sm font-extrabold tracking-wider text-indigo-600 uppercase">Global Campus Time</h3>
-        <p class="text-xs text-slate-500">世界各地で学ぶAtriumメンバーの現在時刻</p>
+
+  <!-- リアルタイム世界時計（Atrium Global Clock） -->
+  <section id="clock" class="max-w-6xl mx-auto px-4 sm:px-6 my-8 scroll-mt-20">
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 text-slate-900 shadow-xs">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-xs sm:text-sm font-extrabold tracking-wider text-indigo-600 uppercase">Global Campus Time</h3>
+          <p class="text-xs text-slate-500">世界各地で学ぶAtriumメンバーの現在時刻</p>
+        </div>
+        <div class="text-[11px] text-emerald-700 font-mono bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-lg self-start sm:self-auto">
+          Live Update
+        </div>
       </div>
-      <div class="text-[11px] text-emerald-700 font-mono bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-lg self-start sm:self-auto">
-        🟢 Live Update
-      </div>
+     
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3" id="global-clock-grid"></div>
     </div>
-    
-    <!-- 時計のカードが並ぶグリッド（7列） -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3" id="global-clock-grid"></div>
-  </div>
-</section>
-  <!-- ▼▼▼ ここでさきほどのJSファイルを読み込む ▼▼▼ -->
+  </section>
   <script src="clock.js"></script>
+
+  <!-- Atrium Pulse（リアルタイムつぶやきセクション：都市フリー入力対応） -->
+  <section id="pulse" class="max-w-6xl mx-auto px-4 sm:px-6 my-8 scroll-mt-20">
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 text-slate-900 shadow-xs">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-xs sm:text-sm font-extrabold tracking-wider text-indigo-600 uppercase">Atrium Pulse</h3>
+          <p class="text-xs text-slate-500">世界中のメンバーの「今」をリアルタイムシェア（80字以内）</p>
+        </div>
+        <div class="text-[11px] text-indigo-700 font-mono bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-lg self-start sm:self-auto">
+          Live Feed
+        </div>
       </div>
-    </section>
+
+      <form id="pulse-form" class="mb-6 bg-slate-50 border border-slate-200/80 rounded-xl p-3 sm:p-4 space-y-3">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- 都市名は自由入力に変更 -->
+          <div>
+            <input type="text" id="pulse-city" placeholder="現在の都市 (例: ボストン, リヨン...)" maxlength="30" required class="w-full text-xs bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <input type="text" id="pulse-name" placeholder="お名前 / 匿名 (例: 経済学部2年)" maxlength="20" class="w-full text-xs bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:border-indigo-500">
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-5 py-2 rounded-lg transition cursor-pointer">
+              つぶやく
+            </button>
+          </div>
+        </div>
+        <div>
+          <textarea id="pulse-text" placeholder="今何してる？（80字以内で入力）" rows="2" maxlength="80" required class="w-full text-xs bg-white border border-slate-300 rounded-lg p-3 text-slate-700 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+        </div>
+      </form>
+
+      <div id="pulse-feed" class="space-y-3"></div>
+    </div>
+  </section>
+  <script src="pulse.js"></script>
+
   <!-- 検索＆フィルターバー（求人サンプル） -->
-  <section id="jobs" class="max-w-5xl w-full mx-auto px-4 pt-10">
+  <section id="jobs" class="max-w-5xl w-full mx-auto px-4 pt-10 scroll-mt-20">
     <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200/80">
       <div class="flex flex-col md:flex-row gap-3">
         <div class="relative flex-1">
@@ -94,9 +145,9 @@
         </div>
         <div class="flex flex-wrap gap-1.5">
           <button onclick="setCategory('all', this)" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-600 text-white cursor-pointer">すべて</button>
-          <button onclick="setCategory('summer', this)" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">☀️ 6〜9月サマー</button>
-          <button onclick="setCategory('winter', this)" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">❄️ 12月冬休み</button>
-          <button onclick="setCategory('remote', this)" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">🌍 完全リモート</button>
+          <button onclick="setCategory('summer', this)" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">6〜9月サマー</button>
+          <button onclick="setCategory('winter', this)" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">12月冬休み</button>
+          <button onclick="setCategory('remote', this)" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">完全リモート</button>
         </div>
       </div>
     </div>
@@ -109,7 +160,6 @@
       <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1">当サイトで取り扱う求人のイメージ（サンプル例）</h2>
       <p class="text-xs text-slate-600 mt-1">※以下は対象職種・条件のサンプル例です。実際の求人が掲載され次第、先行登録者へ優先案内いたします。</p>
     </div>
-
     <div id="job-list" class="grid gap-4">
       <div class="job-card bg-white p-6 rounded-2xl border border-slate-200/90 shadow-2xs" data-category="summer remote">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -128,13 +178,12 @@
           <a href="https://tally.so/r/DqKkvE" target="_blank" rel="noopener noreferrer" class="text-center text-xs sm:text-sm bg-slate-100 hover:bg-indigo-600 hover:text-white text-slate-700 font-bold px-4 py-2.5 rounded-xl transition shrink-0">新着通知に登録 →</a>
         </div>
       </div>
-
       <div class="job-card bg-white p-6 rounded-2xl border border-slate-200/90 shadow-2xs" data-category="summer">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="space-y-2">
             <div class="flex flex-wrap gap-2">
               <span class="text-xs font-semibold bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full">6〜9月サマー</span>
-              <span class="text-xs font-semibold bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full">🏢 東京</span>
+              <span class="text-xs font-semibold bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full">東京</span>
             </div>
             <h3 class="text-base sm:text-lg font-extrabold text-slate-900">【案件例】クロスボーダーM&A・コンサルティング：海外企業リサーチ＆英文資料作成補助</h3>
             <p class="text-xs sm:text-sm text-slate-600">東南アジア・欧米企業のリスト作成、英文資料の要約・翻訳、初期リサーチ補助など。</p>
@@ -146,7 +195,6 @@
           <a href="https://tally.so/r/DqKkvE" target="_blank" rel="noopener noreferrer" class="text-center text-xs sm:text-sm bg-slate-100 hover:bg-indigo-600 hover:text-white text-slate-700 font-bold px-4 py-2.5 rounded-xl transition shrink-0">新着通知に登録 →</a>
         </div>
       </div>
-
       <div class="job-card bg-white p-6 rounded-2xl border border-slate-200/90 shadow-2xs" data-category="remote summer winter">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="space-y-2">
@@ -169,11 +217,11 @@
   </main>
 
   <!-- AIニュース 最新4件ダイジェスト -->
-  <section class="max-w-5xl w-full mx-auto px-4 pb-12">
+  <section id="news" class="max-w-5xl w-full mx-auto px-4 pb-12 scroll-mt-20">
     <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
         <div>
-          <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">🤖 最新のAI厳選就活ニュース（ピックアップ）</h2>
+          <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">最新のAI厳選就活ニュース（ピックアップ）</h2>
           <p class="text-xs text-slate-500 mt-0.5" id="ai-news-updated">毎朝自動更新中</p>
         </div>
         <a href="news.html" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition self-start sm:self-auto">
@@ -185,7 +233,7 @@
   </section>
 
   <!-- 設立の経緯 -->
-  <section id="story" class="bg-slate-100/70 border-t border-slate-200 py-14 px-4">
+  <section id="story" class="bg-slate-100/70 border-t border-slate-200 py-14 px-4 scroll-mt-20">
     <div class="max-w-3xl mx-auto bg-white rounded-3xl p-7 sm:p-10 border border-slate-200/90 shadow-2xs">
       <span class="text-xs font-bold uppercase text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">Founder's Story</span>
       <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-4">なぜ「Atrium」を作ったのか？</h2>
@@ -195,6 +243,7 @@
       </div>
     </div>
   </section>
+
   <!-- 企業向け掲載募集セクション -->
   <section class="max-w-6xl mx-auto px-4 sm:px-6 my-12">
     <div class="bg-gradient-to-r from-slate-900 to-indigo-950 rounded-2xl p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md border border-slate-800">
@@ -216,7 +265,6 @@
   </section>
 
   <div id="common-footer"></div>
-
   <script src="common.js"></script>
   <script src="news.js"></script>
   <script>
