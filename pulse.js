@@ -3,7 +3,6 @@ const SUPABASE_ANON_KEY = 'sb_publishable_DZK0J_qUnYzK-0p6P6xezg_jEe8Ypzd';
 
 let supabaseClient = null;
 
-// 文字キーを絵文字に変換するマップ（先に定義）
 const emojiMap = {
   'thumbs': '👍',
   'coffee': '☕',
@@ -37,6 +36,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (feedContainer) {
+    // スクロール可能なタイムラインコンテナのスタイルを付与
+    feedContainer.className = "space-y-3 max-h-[500px] overflow-y-auto pr-1";
     feedContainer.innerHTML = '<div class="text-xs text-slate-400 text-center py-6 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">リアルタイムフィードを読み込んでいます...</div>';
   }
 
@@ -59,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       .from('atrium_pulses')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(30);
+      .limit(30); // 最新30件に制限
 
     if (error) {
       console.error('データ取得エラー:', error);
