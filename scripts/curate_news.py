@@ -101,7 +101,7 @@ def curate_with_gemini(raw_articles):
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=45) as res:
+        with urllib.request.urlopen(req, timeout=120) as res:
             result = json.loads(res.read().decode("utf-8"))
             text = result["candidates"][0]["content"]["parts"][0]["text"]
             return json.loads(text)
