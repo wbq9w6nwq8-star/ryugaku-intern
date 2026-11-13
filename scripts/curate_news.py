@@ -85,7 +85,7 @@ def curate_with_gemini(raw_articles):
 """
 
     api_host = "generativelanguage" + ".googleapis.com"
-    api_url = f"https://{api_host}/v1beta/models/models/gemini-3.8-flash:generateContent"
+    api_url = f"https://{api_host}/v1beta/models/gemini-3.8-flash:generateContent"
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {"responseMimeType": "application/json"}
