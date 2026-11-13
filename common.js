@@ -74,9 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <header class="border-b border-slate-200/80 bg-white/95 backdrop-blur-md sticky top-0 z-30">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap justify-between items-center gap-2">
           <a href="index.html" class="flex items-center space-x-2.5 group">
-            <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items<div class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm group-hover:border-indigo-300 transition">
-  <img src="favicon.png" alt="RyugakuIntern" class="w-full h-full object-cover">
-</div>-center justify-center text-white font-extrabold text-lg shadow-sm shadow-indigo-200 group-hover:bg-indigo-700 transition">R</div>
+            <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-extrabold text-lg shadow-sm shadow-indigo-200 group-hover:bg-indigo-700 transition">R</div>
             <div class="flex items-center space-x-2">
               <span class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900">RyugakuIntern</span>
               <span class="text-[10px] uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-2 py-0.5 rounded-full font-bold">Beta</span>
