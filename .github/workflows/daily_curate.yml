@@ -24,9 +24,9 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/curate_news.py
 
-      - name: Commit and push updated news.json
+     - name: Commit and push updated news.json
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "RyugakuIntern AI Bot"
           git add news.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update curated job news" && git pull --rebase && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update curated job news" && git push --force)
