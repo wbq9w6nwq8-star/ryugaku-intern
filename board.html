@@ -37,10 +37,12 @@
           <input type="text" id="new-author" placeholder="名前（省略可：名無しの海外大生）" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
           <input type="text" id="new-uni" placeholder="留学先・学年（任意：UK 2年など）" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
           <select id="new-tag" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
-            <option value="💼 ボスキャリ・就活">💼 ボスキャリ・就活</option>
-            <option value="☀️ 夏休み・帰国">☀️ 夏休み・帰国</option>
-            <option value="💻 リモート・バイト">💻 リモート・バイト</option>
-            <option value="🌍 留学生活・悩み">🌍 留学生活・悩み</option>
+            <option value="就活・インターン">就活・インターン</option>
+            <option value="雑談・日常">雑談・日常</option>
+            <option value="生活・お金">生活・お金</option>
+            <option value="大学・勉強">大学・勉強</option>
+            <option value="帰国・旅行">帰国・旅行</option>
+            <option value="その他">その他</option>
           </select>
         </div>
         <input type="text" id="new-title" placeholder="スレッドタイトル（例：【27卒】ボスキャリ選考状況・ES通過スレ）" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold">
@@ -53,13 +55,15 @@
     </div>
 
     <!-- 板カテゴリタブ -->
-    <div class="flex flex-wrap gap-1.5 mb-5">
-      <button onclick="setBoardCat('all', this)" class="board-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white cursor-pointer">すべて</button>
-      <button onclick="setBoardCat('💼 ボスキャリ・就活', this)" class="board-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">💼 ボスキャリ・就活</button>
-      <button onclick="setBoardCat('☀️ 夏休み・帰国', this)" class="board-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">☀️ 夏休み・帰国</button>
-      <button onclick="setBoardCat('💻 リモート・バイト', this)" class="board-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">💻 リモート・バイト</button>
-      <button onclick="setBoardCat('🌍 留学生活・悩み', this)" class="board-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">🌍 留学生活・悩み</button>
-    </div>
+    <div class="flex flex-wrap gap-2 mb-4">
+  <button onclick="setBoardCat('all', this)" class="board-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white cursor-pointer">すべて</button>
+  <button onclick="setBoardCat('就活・インターン', this)" class="board-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">就活・インターン</button>
+  <button onclick="setBoardCat('雑談・日常', this)" class="board-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">雑談・日常</button>
+  <button onclick="setBoardCat('生活・お金', this)" class="board-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">生活・お金</button>
+  <button onclick="setBoardCat('大学・勉強', this)" class="board-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">大学・勉強</button>
+  <button onclick="setBoardCat('帰国・旅行', this)" class="board-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">帰国・旅行</button>
+  <button onclick="setBoardCat('その他', this)" class="board-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">その他</button>
+</div>
 
     <!-- スレッド一覧 / 詳細描画エリア -->
     <div id="board-root">
