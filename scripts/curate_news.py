@@ -56,7 +56,7 @@ def fetch_raw_articles():
 
 def curate_with_gemini(raw_articles):
     if not GEMINI_API_KEY:
-        print("ERROR: GEMINI_API_KEY is empty! Please check Repository Secrets in Settings.")
+        print("ERROR: GEMINI_API_KEY is empty!")
         sys.exit(1)
 
     if not raw_articles:
