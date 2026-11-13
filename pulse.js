@@ -1,67 +1,164 @@
-let aiNewsCache = [];
-let currentNewsCat = 'all';
-let newsLimitCount = null;
+const SUPABASE_URL = 'https://mhsnyngfyqqsfexutskj.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_DZK0J_qUnYzK-0p6P6xezg_jEe8Ypzd';
 
-async function loadAiNews(limit = null) {
-  newsLimitCount = limit;
-  try {
-    const res = await fetch('news.json?v=' + Date.now());
-    if (!res.ok) return;
-    const data = await res.json();
-    aiNewsCache = data.items || [];
-    const updatedEl = document.getElementById('ai-news-updated');
-    if (updatedEl && data.updated_at) {
-      updatedEl.innerText = `最終AI更新: ${data.updated_at}`;
+let supabaseClient = null;
+
+function loadSupabaseScript() {
+  return new Promise((resolve, reject) => {
+    if (window.supabase) {
+      resolve(window.supabase);
+      return;
     }
-    renderAiNews();
-  } catch (e) {
-    console.log('news.json standby');
-  }
-}
-
-function filterAiNews(cat, btn) {
-  currentNewsCat = cat;
-  document.querySelectorAll('.news-tab').forEach(b => {
-    b.className = 'news-tab px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer';
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    script.onload = () => resolve(window.supabase);
+    script.onerror = reject;
+    document.head.appendChild(script);
   });
-  btn.className = 'news-tab px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white cursor-pointer';
-  renderAiNews();
 }
 
-function renderAiNews() {
-  const grid = document.getElementById('ai-news-grid');
-  if (!grid) return;
+document.addEventListener('DOMContentLoaded', async () => {
+  const form = document.getElementById('pulse-form');
+  const feedContainer = document.getElementById('pulse-feed');
+  const textInput = document.getElementById('pulse-text');
 
-  let list = aiNewsCache;
-  if (currentNewsCat !== 'all') {
-    list = list.filter(item => item.category === currentNewsCat);
-  }
-  if (newsLimitCount) {
-    list = list.slice(0, newsLimitCount);
+  if (textInput) {
+    textInput.setAttribute('maxlength', '80');
+    textInput.setAttribute('placeholder', '今何してる？（80字以内で今の状況をつぶやこう）');
   }
 
-  if (list.length === 0) {
-    grid.innerHTML = `<div class="col-span-full text-center py-8 text-xs text-slate-400">AI厳選ニュースを読み込み中、または該当記事がありません。</div>`;
-    return;
+  // 読み込み中の表示
+  if (feedContainer) {
+    feedContainer.innerHTML = '<div class="text-xs text-slate-400 text-center py-6 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">リアルタイムフィードを読み込んでいます...</div>';
   }
 
-  grid.innerHTML = list.map(item => `
-    <a href="${escapeHTML(item.link)}" target="_blank" rel="noopener noreferrer" class="bg-slate-50/80 hover:bg-indigo-50/40 p-5 rounded-2xl border border-slate-200/90 hover:border-indigo-300 transition flex flex-col justify-between group">
-      <div>
-        <div class="flex items-center justify-between gap-2 mb-2">
-          <span class="text-[11px] font-bold bg-white text-indigo-700 px-2.5 py-0.5 rounded-full border border-indigo-100">${escapeHTML(item.category)}</span>
-          <span class="text-[10px] text-slate-400">${escapeHTML(item.date || '')}</span>
+  try {
+    const supabaseLib = await loadSupabaseScript();
+    supabaseClient = supabaseLib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    await fetchPulses();
+    setupRealtimeSubscription();
+  } catch (e) {
+    console.error('Supabase初期化エラー:', e);
+    if (feedContainer) {
+      feedContainer.innerHTML = '<div class="text-xs text-rose-500 text-center py-4 bg-rose-50 rounded-xl">データベース接続エラー：設定を確認してください</div>';
+    }
+  }
+
+  async function fetchPulses() {
+    if (!supabaseClient) return;
+    const { data, error } = await supabaseClient
+      .from('atrium_pulses')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(30);
+
+    if (error) {
+      console.error('データ取得エラー:', error);
+      return;
+    }
+
+    renderPulses(data || []);
+  }
+
+  function setupRealtimeSubscription() {
+    if (!supabaseClient) return;
+    supabaseClient
+      .channel('public:atrium_pulses')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'atrium_pulses' }, payload => {
+        fetchPulses();
+      })
+      .subscribe();
+  }
+
+  function renderPulses(pulses) {
+    if (!feedContainer) return;
+
+    if (pulses.length === 0) {
+      feedContainer.innerHTML = `
+        <div class="text-center py-8 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+          <p class="text-xs font-bold text-slate-700 mb-1">まだつぶやきはありません</p>
+          <p class="text-[11px] text-slate-400">上のフォームから最初のつぶやきを投稿してみよう！</p>
         </div>
-        <h3 class="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-indigo-600 transition leading-snug mb-2.5">
-          ${escapeHTML(item.title)}
-        </h3>
-        <div class="bg-white p-3 rounded-xl border border-slate-200/70 text-[11px] sm:text-xs text-slate-600 leading-relaxed">
-          <span class="font-bold text-indigo-600">🤖 AI視点：</span>${escapeHTML(item.ai_comment)}
+      `;
+      return;
+    }
+
+    feedContainer.innerHTML = pulses.map(p => {
+      const timeDiffSec = Math.floor((Date.now() - new Date(p.created_at).getTime()) / 1000);
+      let timeStr = 'たった今';
+      if (timeDiffSec >= 60 && timeDiffSec < 3600) {
+        timeStr = `${Math.floor(timeDiffSec / 60)}分前`;
+      } else if (timeDiffSec >= 3600 && timeDiffSec < 86400) {
+        timeStr = `${Math.floor(timeDiffSec / 3600)}時間前`;
+      } else if (timeDiffSec >= 86400) {
+        timeStr = `${Math.floor(timeDiffSec / 86400)}日前`;
+      }
+
+      const displayName = p.name && p.name.trim() !== '' ? escapeHTML(p.name) : '名無しの海外大生';
+
+      return `
+        <div class="bg-slate-50/70 border border-slate-200/60 rounded-xl p-3.5 hover:border-indigo-200 transition">
+          <div class="flex items-center justify-between text-xs mb-1.5">
+            <div class="flex items-center space-x-2">
+              <span class="font-bold text-slate-900">${displayName}</span>
+              <span class="bg-indigo-50 text-indigo-700 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-indigo-100">${escapeHTML(p.city)}</span>
+            </div>
+            <span class="text-[11px] text-slate-400 font-mono">${timeStr}</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">${escapeHTML(p.text)}</p>
         </div>
-      </div>
-      <div class="mt-3 pt-2 border-t border-slate-200/60 flex justify-end">
-        <span class="text-[11px] font-bold text-indigo-600 group-hover:translate-x-0.5 transition">元記事を読む ↗</span>
-      </div>
-    </a>
-  `).join('');
-}
+      `;
+    }).join('');
+  }
+
+  function escapeHTML(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>'"]/g, tag => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[tag]));
+  }
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!supabaseClient) return;
+
+      const cityInput = document.getElementById('pulse-city');
+      const nameInput = document.getElementById('pulse-name');
+      const textInput = document.getElementById('pulse-text');
+
+      const city = cityInput.value.trim();
+      const text = textInput.value.trim();
+      
+      if (!city || !text) return;
+      if (text.length > 80) {
+        alert('80字以内で入力してください！');
+        return;
+      }
+
+      const { error } = await supabaseClient
+        .from('atrium_pulses')
+        .insert([
+          {
+            city: city,
+            name: nameInput.value.trim(),
+            text: text
+          }
+        ]);
+
+      if (error) {
+        console.error('投稿エラー:', error);
+        alert('投稿に失敗しました。Supabaseのテーブル構造や権限設定を確認してください。');
+        return;
+      }
+
+      textInput.value = '';
+      nameInput.value = '';
+    });
+  }
+});
