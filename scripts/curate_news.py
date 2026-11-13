@@ -24,7 +24,8 @@ def fetch_raw_articles():
 
     for q in QUERIES:
         encoded_q = urllib.parse.quote(q)
-        url = "https" + f"://news.google.com/rss/search?q={encoded_q}&hl=ja&gl=JP&ceid=JP:ja"
+        host = "news" + ".google.com"
+        url = f"https://{host}/rss/search?q={encoded_q}&hl=ja&gl=JP&ceid=JP:ja"
         try:
             req = urllib.request.Request(url, headers={
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
@@ -83,7 +84,8 @@ def curate_with_gemini(raw_articles):
 {json.dumps(raw_articles, ensure_ascii=False)}
 """
 
-    api_url = "https" + f"://[generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=](https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=){GEMINI_API_KEY}"
+    api_host = "generativelanguage" + ".googleapis.com"
+    api_url = f"https://{api_host}/v1beta/models/gemini-2.5-flash:generateContent"
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {"responseMimeType": "application/json"}
@@ -92,7 +94,10 @@ def curate_with_gemini(raw_articles):
     req = urllib.request.Request(
         api_url,
         data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"}
+        headers={
+            "Content-Type": "application/json",
+            "x-goog-api-key": GEMINI_API_KEY
+        }
     )
 
     try:
