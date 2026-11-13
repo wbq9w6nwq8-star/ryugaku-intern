@@ -151,13 +151,6 @@ function toggleBookmark(id, event) {
 
 function toggleBookmarkFilter(btn) {
   showOnlyBookmarks = !showOnlyBookmarks;
-  if (showOnlyBookmarks) {
-    btn.className = 'px-4 py-2 bg-amber-50 border border-amber-300 text-amber-800 text-xs font-bold rounded-xl shadow-sm transition cursor-pointer flex items-center justify-center gap-1.5';
-    btn.textContent = '★ 保存済みを表示中（解除）';
-  } else {
-    btn.className = 'px-4 py-2 bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 text-xs font-bold rounded-xl shadow-sm transition cursor-pointer flex items-center justify-center gap-1.5';
-    btn.textContent = '☆ 保存済みスレッドを見る';
-  }
   renderBoard();
 }
 
@@ -169,6 +162,7 @@ function renderBoard() {
   const root = document.getElementById('board-root');
   if (!root) return;
 
+  // 1. スレッド詳細画面を開いている場合
   if (activeThreadId) {
     const t = allThreads.find(item => String(item.id) === String(activeThreadId));
     if (!t) {
@@ -224,7 +218,7 @@ function renderBoard() {
             <span class="font-bold text-emerald-800">${escapeHTML(t.author)}</span>
             ${t.uni ? `<span class="text-[11px] text-slate-500">(${escapeHTML(t.uni)})</span>` : ''}
             <span class="text-[11px] text-slate-500">${formatThreadDate(t.created_at)}</span>
-            <button onclick="insertAnchor(1)" class="text-[10px] bg-slate-100 hover:bg-indigo-100 text-slate-600 px-1.5 py-0.5 rounded cursor-pointer">返信(&gt;&gt;1)</button>
+            <button onclick="insertAnchor(1)" class="text-[10px] bg-slate-100 hover:bg-indigo-100 text-slate-600 hover:text-indigo-700 px-1.5 py-0.5 rounded cursor-pointer">返信(&gt;&gt;1)</button>
           </div>
           <div class="text-xs sm:text-sm text-slate-900 leading-relaxed whitespace-pre-line pl-2">${formatThreadBody(t.body, t.id)}</div>
         </div>
@@ -253,23 +247,25 @@ function renderBoard() {
     return;
   }
 
-  // 一覧表示時のフィルタリング（カテゴリ・検索・ブックマーク）
-  const keyword = document.getElementById('board-search')?.value.toLowerCase() || '';
+  // 2. スレッド一覧画面の場合（検索窓やブックマーク一覧を綺麗に1つに統合）
+  // 既存の入力値やフォーカスが外れないよう、現在の入力欄からキーワードを安全に取得
+  const existingInput = document.getElementById('board-search');
+  const keyword = existingInput ? existingInput.value.toLowerCase() : '';
   const bookmarks = getBookmarks();
 
   let list = [...allThreads];
 
-  // 1. ブックマークフィルター
+  // A. ブックマークフィルター
   if (showOnlyBookmarks) {
     list = list.filter(t => bookmarks.includes(t.id));
   }
 
-  // 2. カテゴリフィルター
+  // B. カテゴリフィルター
   if (currentBoardCat !== 'all') {
     list = list.filter(t => t.tag === currentBoardCat);
   }
 
-  // 3. キーワード検索
+  // C. キーワード検索
   if (keyword) {
     list = list.filter(t => {
       const matchTitle = t.title.toLowerCase().includes(keyword);
@@ -302,7 +298,6 @@ function renderBoard() {
     `;
   }).join('');
 
-  // 検索バーやブックマークボタンを反映するHTML構造
   root.innerHTML = `
     <div class="flex flex-col sm:flex-row gap-3 mb-4 items-stretch sm:items-center justify-between">
       <div class="relative flex-1">
@@ -324,6 +319,13 @@ function renderBoard() {
       </div>
     </div>
   `;
+
+  // 入力中にフォーカスが外れないよう、再描画後にカーソル位置を末尾に戻す
+  const newInput = document.getElementById('board-search');
+  if (newInput && keyword) {
+    newInput.focus();
+    newInput.setSelectionRange(newInput.value.length, newInput.value.length);
+  }
 }
 
 async function submitNewThread(event) {
