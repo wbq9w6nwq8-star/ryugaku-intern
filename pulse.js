@@ -3,12 +3,8 @@ const SUPABASE_ANON_KEY = 'sb_publishable_DZK0J_qUnYzK-0p6P6xezg_jEe8Ypzd';
 
 let supabaseClient = null;
 
-// 自分の発言を判別するためのID
-let myUserId = localStorage.getItem('atrium_my_uid');
-if (!myUserId) {
-  myUserId = 'user_' + Math.random().toString(36).substring(2, 9);
-  localStorage.setItem('atrium_my_uid', myUserId);
-}
+// 自分が投稿したメッセージのIDをブラウザのLocalStorageに保存・管理
+let myPostIds = JSON.parse(localStorage.getItem('atrium_my_posts') || '[]');
 
 const emojiMap = {
   'thumbs': '👍',
@@ -42,10 +38,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     textInput.setAttribute('placeholder', '今何してる？（20字以内でチャット送信）');
   }
 
-  if (feedContainer) {
-    feedContainer.className = "space-y-4 max-h-[520px] overflow-y-auto p-4 sm:p-6 bg-slate-100/70 rounded-2xl border border-slate-200/80 shadow-inner";
-    feedContainer.innerHTML = '<div class="text-xs text-slate-400 text-center py-6">チャットルームを読み込んでいます...</div>';
+  // レイアウトを「上がフィード、下が入力欄」のチャットルーム仕様に自動整理
+  const pulseSection = document.getElementById('pulse');
+  if (pulseSection && form && feedContainer) {
+    const cardContainer = pulseSection.querySelector('div.bg-white') || pulseSection.firstElementChild;
+    if (cardContainer) {
+      // 横幅を広げ、チャット風のコンテナ構造に並べ替え
+      cardContainer.className = "bg-white border border-slate-200 rounded-2xl p-4 sm:p-8 text-slate-900 shadow-sm max-w-4xl mx-auto";
+      
+      // フィードを上に、フォームを下へDOMの順序を入れ替え
+      cardContainer.innerHTML = `
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+          <div>
+            <h2 class="font-extrabold text-base sm:text-lg tracking-tight text-slate-900">ATRIUM PULSE</h2>
+            <p class="text-xs text-slate-500">世界中のメンバーの「今」をリアルタイムシェア（20字以内）</p>
+          </div>
+          <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200/60">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1.5"></span> Live Chat
+          </span>
+        </div>
+
+        <!-- タイムライン（上部） -->
+        <div id="pulse-feed" class="space-y-4 h-[420px] overflow-y-auto p-4 sm:p-5 bg-slate-50/80 rounded-2xl border border-slate-200/80 mb-4 shadow-inner">
+          <div class="text-xs text-slate-400 text-center py-6">チャットルームを読み込んでいます...</div>
+        </div>
+
+        <!-- 入力フォーム（下部） -->
+      `;
+      cardContainer.appendChild(form);
+
+      // フォーム内も横幅いっぱいに使いやすく整理
+      form.className = "bg-slate-50 border border-slate-200/80 rounded-xl p-3 sm:p-4 space-y-3";
+    }
   }
+
+  const activeFeedContainer = document.getElementById('pulse-feed');
 
   try {
     const supabaseLib = await loadSupabaseScript();
@@ -55,8 +82,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupRealtimeSubscription();
   } catch (e) {
     console.error('Supabase初期化エラー:', e);
-    if (feedContainer) {
-      feedContainer.innerHTML = '<div class="text-xs text-rose-500 text-center py-4 bg-rose-50 rounded-xl">データベース接続エラー：設定を確認してください</div>';
+    if (activeFeedContainer) {
+      activeFeedContainer.innerHTML = '<div class="text-xs text-rose-500 text-center py-4 bg-rose-50 rounded-xl">データベース接続エラー：設定を確認してください</div>';
     }
   }
 
@@ -87,19 +114,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderPulses(pulses) {
-    if (!feedContainer) return;
+    const container = document.getElementById('pulse-feed');
+    if (!container) return;
 
     if (pulses.length === 0) {
-      feedContainer.innerHTML = `
+      container.innerHTML = `
         <div class="text-center py-12">
           <p class="text-xs font-bold text-slate-600 mb-1">まだメッセージはありません</p>
-          <p class="text-[11px] text-slate-400">上のフォームから最初のメッセージを送ってみよう！</p>
+          <p class="text-[11px] text-slate-400">下のフォームから最初のメッセージを送ってみよう！</p>
         </div>
       `;
       return;
     }
 
-    feedContainer.innerHTML = pulses.map(p => {
+    container.innerHTML = pulses.map(p => {
       const timeDiffSec = Math.floor((Date.now() - new Date(p.created_at).getTime()) / 1000);
       let timeStr = 'たった今';
       if (timeDiffSec >= 60 && timeDiffSec < 3600) {
@@ -113,7 +141,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const displayName = p.name && p.name.trim() !== '' ? escapeHTML(p.name) : '名無しの海外大生';
       const displayCity = p.city && p.city.trim() !== '' ? escapeHTML(p.city) : '世界どこか';
 
-      const isMyMessage = p.user_id && p.user_id === myUserId;
+      // LocalStorageに保存されているIDリストに含まれていれば「自分の投稿」と判定
+      const isMyMessage = myPostIds.includes(p.id);
 
       const reactions = p.reactions || {};
       const reactionHtml = Object.entries(reactions).map(([key, count]) => {
@@ -127,13 +156,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       }).join('');
 
       if (isMyMessage) {
+        // 自分の投稿（右寄せ・薄い青背景・右側にくちばし）
         return `
           <div class="flex flex-col items-end space-y-1 mb-3">
             <div class="flex items-center space-x-2 text-[11px] text-slate-500 mr-1">
               <span class="font-mono">${timeStr}</span>
               <span class="font-bold text-indigo-700">${displayName} (${displayCity})</span>
             </div>
-            <div class="relative max-w-[80%] sm:max-w-[70%] bg-indigo-50 border border-indigo-100 text-slate-800 rounded-2xl rounded-tr-xs px-4 py-2.5 shadow-2xs">
+            <div class="relative max-w-[85%] sm:max-w-[70%] bg-indigo-50 border border-indigo-100 text-slate-800 rounded-2xl rounded-tr-xs px-4 py-2.5 shadow-2xs">
               <p class="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">${escapeHTML(p.text)}</p>
               
               <div class="flex flex-wrap items-center gap-1.5 pt-1.5 mt-1.5 border-t border-indigo-200/50 justify-end">
@@ -156,6 +186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
         `;
       } else {
+        // 他人の投稿（左寄せ・白背景・左側にくちばし）
         return `
           <div class="flex flex-col items-start space-y-1 mb-3">
             <div class="flex items-center space-x-2 text-[11px] text-slate-500 ml-1">
@@ -163,7 +194,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               <span class="bg-indigo-50 text-indigo-700 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-indigo-100">${displayCity}</span>
               <span class="font-mono">${timeStr}</span>
             </div>
-            <div class="relative max-w-[80%] sm:max-w-[70%] bg-white border border-slate-200/90 text-slate-800 rounded-2xl rounded-tl-xs px-4 py-2.5 shadow-2xs">
+            <div class="relative max-w-[85%] sm:max-w-[70%] bg-white border border-slate-200/90 text-slate-800 rounded-2xl rounded-tl-xs px-4 py-2.5 shadow-2xs">
               <p class="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">${escapeHTML(p.text)}</p>
               
               <div class="flex flex-wrap items-center gap-1.5 pt-1.5 mt-1.5 border-t border-slate-100">
@@ -188,7 +219,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }).join('');
 
-    feedContainer.scrollTop = feedContainer.scrollHeight;
+    container.scrollTop = container.scrollHeight;
   }
 
   function escapeHTML(str) {
@@ -218,17 +249,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
 
-      const { error } = await supabaseClient
+      // データベースに送信
+      const { data, error } = await supabaseClient
         .from('atrium_pulses')
         .insert([
           {
             city: cityInput.value.trim() || '世界どこか',
             name: nameInput.value.trim() || '名無しの海外大生',
             text: text,
-            reactions: {},
-            user_id: myUserId
+            reactions: {}
           }
-        ]);
+        ])
+        .select(); // 挿入されたデータを取得してIDを得る
 
       if (error) {
         console.error('投稿エラー:', error);
@@ -236,7 +268,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
 
+      // 成功した場合、返ってきたデータのIDをブラウザのLocalStorageに記憶する
+      if (data && data.length > 0) {
+        const newId = data[0].id;
+        myPostIds.push(newId);
+        localStorage.setItem('atrium_my_posts', JSON.stringify(myPostIds));
+      }
+
       textInput.value = '';
+      await fetchPulses();
     });
   }
 });
