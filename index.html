@@ -64,22 +64,26 @@
   </section>
 <section class="max-w-6xl mx-auto px-4 sm:px-6 my-8">
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 text-white shadow-sm">
-        const globalCities = [
-      { name: 'ロンドン', zone: 'Europe/London', country: 'UK' },
-      { name: 'パリ', zone: 'Europe/Paris', country: 'France' },
-      { name: 'ニューヨーク', zone: 'America/New_York', country: 'US' },
-      { name: 'ロサンゼルス', zone: 'America/Los_Angeles', country: 'US' },
-      { name: 'トロント', zone: 'America/Toronto', country: 'Canada' },
-      { name: 'バンクーバー', zone: 'America/Vancouver', country: 'Canada' },
-      { name: 'シドニー', zone: 'Australia/Sydney', country: 'Australia' },
-      { name: 'ワルシャワ', zone: 'Europe/Warsaw', country: 'Poland' },
-      { name: 'ドバイ', zone: 'Asia/Dubai', country: 'UAE' },
-      { name: 'イスタンブール', zone: 'Europe/Istanbul', country: 'Turkey' },
-      { name: '台湾', zone: 'Asia/Taipei', country: 'Taiwan' },
-      { name: 'タイ', zone: 'Asia/Bangkok', country: 'Thailand' },
-      { name: 'マレーシア', zone: 'Asia/Kuala_Lumpur', country: 'Malaysia' },
-      { name: '東京', zone: 'Asia/Tokyo', country: 'Japan' }
-    ];
+        <!-- リアルタイム世界時計（見た目の部分） -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 my-8">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 text-white shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-800">
+        <div>
+          <h3 class="text-xs sm:text-sm font-extrabold tracking-wider text-indigo-400 uppercase">Global Campus Time</h3>
+          <p class="text-xs text-slate-400">世界各地で学ぶAtriumメンバーの現在時刻</p>
+        </div>
+        <div class="text-[11px] text-slate-400 font-mono bg-slate-800/80 px-3 py-1 rounded-lg self-start sm:self-auto">
+          🟢 Live Update
+        </div>
+      </div>
+
+      <!-- 都市グリッド（ここにJSが流し込まれます） -->
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3" id="global-clock-grid"></div>
+    </div>
+  </section>
+
+  <!-- ▼▼▼ ここでさきほどのJSファイルを読み込む ▼▼▼ -->
+  <script src="clock.js"></script>
       </div>
     </section>
   <!-- 検索＆フィルターバー（求人サンプル） -->
@@ -170,7 +174,7 @@
     <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xs">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
         <div>
-          <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">最新の厳選就活ニュース（ピックアップ）</h2>
+          <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">🤖 最新のAI厳選就活ニュース（ピックアップ）</h2>
           <p class="text-xs text-slate-500 mt-0.5" id="ai-news-updated">毎朝自動更新中</p>
         </div>
         <a href="news.html" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition self-start sm:self-auto">
