@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     textInput.setAttribute('placeholder', '今何してる？（80字以内で今の状況をつぶやこう）');
   }
 
-  // 読み込み中の表示
   if (feedContainer) {
     feedContainer.innerHTML = '<div class="text-xs text-slate-400 text-center py-6 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">リアルタイムフィードを読み込んでいます...</div>';
   }
@@ -61,11 +60,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderPulses(data || []);
   }
 
+  // リアルタイム購読（INSERTだけでなく、リアクションのUPDATEも監視するように拡張）
   function setupRealtimeSubscription() {
     if (!supabaseClient) return;
     supabaseClient
       .channel('public:atrium_pulses')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'atrium_pulses' }, payload => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'atrium_pulses' }, payload => {
         fetchPulses();
       })
       .subscribe();
@@ -95,18 +95,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         timeStr = `${Math.floor(timeDiffSec / 86400)}日前`;
       }
 
+      // 名前と都市が未入力（オプショナル）の場合のフォールバック
       const displayName = p.name && p.name.trim() !== '' ? escapeHTML(p.name) : '名無しの海外大生';
+      const displayCity = p.city && p.city.trim() !== '' ? escapeHTML(p.city) : '世界どこか';
+
+      // リアクションのカウント（DBにカラムがない場合の安全対策として0にフォールバック）
+      const reactions = p.reactions || { thumbs: 0, coffee: 0, fire: 0 };
 
       return `
         <div class="bg-slate-50/70 border border-slate-200/60 rounded-xl p-3.5 hover:border-indigo-200 transition">
           <div class="flex items-center justify-between text-xs mb-1.5">
             <div class="flex items-center space-x-2">
               <span class="font-bold text-slate-900">${displayName}</span>
-              <span class="bg-indigo-50 text-indigo-700 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-indigo-100">${escapeHTML(p.city)}</span>
+              <span class="bg-indigo-50 text-indigo-700 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-indigo-100">${displayCity}</span>
             </div>
             <span class="text-[11px] text-slate-400 font-mono">${timeStr}</span>
           </div>
-          <p class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">${escapeHTML(p.text)}</p>
+          <p class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap mb-3">${escapeHTML(p.text)}</p>
+          
+          <!-- 絵文字リアクションボタン群 -->
+          <div class="flex items-center space-x-2 pt-2 border-t border-slate-200/50">
+            <button onclick="addReaction('${p.id}', 'thumbs', ${reactions.thumbs || 0})" class="inline-flex items-center space-x-1 text-[11px] bg-white border border-slate-200 hover:bg-indigo-50 text-slate-600 px-2.5 py-1 rounded-lg transition cursor-pointer">
+              <span>👍</span>
+              <span class="font-mono">${reactions.thumbs || 0}</span>
+            </button>
+            <button onclick="addReaction('${p.id}', 'coffee', ${reactions.coffee || 0})" class="inline-flex items-center space-x-1 text-[11px] bg-white border border-slate-200 hover:bg-indigo-50 text-slate-600 px-2.5 py-1 rounded-lg transition cursor-pointer">
+              <span>☕</span>
+              <span class="font-mono">${reactions.coffee || 0}</span>
+            </button>
+            <button onclick="addReaction('${p.id}', 'fire', ${reactions.fire || 0})" class="inline-flex items-center space-x-1 text-[11px] bg-white border border-slate-200 hover:bg-indigo-50 text-slate-600 px-2.5 py-1 rounded-lg transition cursor-pointer">
+              <span>🔥</span>
+              <span class="font-mono">${reactions.fire || 0}</span>
+            </button>
+          </div>
         </div>
       `;
     }).join('');
@@ -123,6 +144,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }[tag]));
   }
 
+  // フォーム送信（都市名や名前が空でも「世界どこか」「名無しの海外大生」として投稿可能に）
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -132,10 +154,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const nameInput = document.getElementById('pulse-name');
       const textInput = document.getElementById('pulse-text');
 
-      const city = cityInput.value.trim();
       const text = textInput.value.trim();
-      
-      if (!city || !text) return;
+      if (!text) return;
       if (text.length > 80) {
         alert('80字以内で入力してください！');
         return;
@@ -145,20 +165,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         .from('atrium_pulses')
         .insert([
           {
-            city: city,
-            name: nameInput.value.trim(),
-            text: text
+            city: cityInput.value.trim() || '世界どこか',
+            name: nameInput.value.trim() || '名無しの海外大生',
+            text: text,
+            reactions: { thumbs: 0, coffee: 0, fire: 0 }
           }
         ]);
 
       if (error) {
         console.error('投稿エラー:', error);
-        alert('投稿に失敗しました。Supabaseのテーブル構造や権限設定を確認してください。');
+        alert('投稿に失敗しました。');
         return;
       }
 
       textInput.value = '';
       nameInput.value = '';
+      cityInput.value = '';
     });
   }
 });
+
+// グローバルスコープでリアクション関数を定義（ボタンから呼べるようにする）
+window.addReaction = async function(id, type, currentCount) {
+  if (!supabaseClient) return;
+  
+  // 現在のカウントに+1
+  const updatedReactions = {};
+  // ※簡易的に現在の値をベースにインクリメント
+  // 本格的には一度データを取得するかJSONB操作をしますが、まずは動く形に
+  try {
+    // 該当行の現在のreactionsを取得して加算
+    const { data } = await supabaseClient.from('atrium_pulses').select('reactions').eq('id', id).single();
+    const current = data?.reactions || { thumbs: 0, coffee: 0, fire: 0 };
+    current[type] = (current[type] || 0) + 1;
+
+    await supabaseClient
+      .from('atrium_pulses')
+      .update({ reactions: current })
+      .eq('id', id);
+  } catch (err) {
+    console.error('リアクション更新エラー:', err);
+  }
+};
