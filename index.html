@@ -64,26 +64,23 @@
   </section>
 <section class="max-w-6xl mx-auto px-4 sm:px-6 my-8">
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 text-white shadow-sm">
-        <!-- リアルタイム世界時計（見た目の部分） -->
-  <section class="max-w-6xl mx-auto px-4 sm:px-6 my-8">
-    <!-- HTML側のグリッドクラスを 7列 にする -->
-<div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3" id="global-clock-grid"></div>
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 text-white shadow-sm">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-800">
-        <div>
-          <h3 class="text-xs sm:text-sm font-extrabold tracking-wider text-indigo-400 uppercase">Global Campus Time</h3>
-          <p class="text-xs text-slate-400">世界各地で学ぶAtriumメンバーの現在時刻</p>
-        </div>
-        <div class="text-[11px] text-slate-400 font-mono bg-slate-800/80 px-3 py-1 rounded-lg self-start sm:self-auto">
-          🟢 Live Update
-        </div>
+<section class="max-w-6xl mx-auto px-4 sm:px-6 my-8">
+  <!-- 背景を白、文字を黒や濃いグレーに変更 -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 text-slate-900 shadow-xs">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+      <div>
+        <h3 class="text-xs sm:text-sm font-extrabold tracking-wider text-indigo-600 uppercase">Global Campus Time</h3>
+        <p class="text-xs text-slate-500">世界各地で学ぶAtriumメンバーの現在時刻</p>
       </div>
-
-      <!-- 都市グリッド（ここにJSが流し込まれます） -->
-      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3" id="global-clock-grid"></div>
+      <div class="text-[11px] text-emerald-700 font-mono bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-lg self-start sm:self-auto">
+        🟢 Live Update
+      </div>
     </div>
-  </section>
-
+    
+    <!-- 時計のカードが並ぶグリッド（7列） -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3" id="global-clock-grid"></div>
+  </div>
+</section>
   <!-- ▼▼▼ ここでさきほどのJSファイルを読み込む ▼▼▼ -->
   <script src="clock.js"></script>
       </div>
