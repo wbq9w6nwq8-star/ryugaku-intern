@@ -2,9 +2,7 @@ name: Daily AI Job News Curation
 
 on:
   schedule:
-    # 毎日 日本時間 06:00（UTC 21:00）に自動実行
     - cron: '0 21 * * *'
-  # GitHub画面から手動で「今すぐ実行」テストもできるボタンを有効化
   workflow_dispatch:
 
 jobs:
@@ -24,7 +22,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/curate_news.py
 
-     - name: Commit and push updated news.json
+      - name: Commit and push updated news.json
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "RyugakuIntern AI Bot"
