@@ -31,12 +31,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const textInput = document.getElementById('pulse-text');
 
   if (textInput) {
-    textInput.setAttribute('maxlength', '80');
-    textInput.setAttribute('placeholder', '今何してる？（80字以内で今の状況をつぶやこう）');
+    textInput.setAttribute('maxlength', '20'); // 文字数を20文字以内に変更
+    textInput.setAttribute('placeholder', '今何してる？（20字以内で今の状況をつぶやこう）');
   }
 
   if (feedContainer) {
-    // スクロール可能なタイムラインコンテナのスタイルを付与
     feedContainer.className = "space-y-3 max-h-[500px] overflow-y-auto pr-1";
     feedContainer.innerHTML = '<div class="text-xs text-slate-400 text-center py-6 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">リアルタイムフィードを読み込んでいます...</div>';
   }
@@ -60,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       .from('atrium_pulses')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(30); // 最新30件に制限
+      .limit(30);
 
     if (error) {
       console.error('データ取得エラー:', error);
@@ -174,8 +173,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const text = textInput.value.trim();
       if (!text) return;
-      if (text.length > 80) {
-        alert('80字以内で入力してください！');
+      if (text.length > 20) {
+        alert('20文字以内で入力してください！');
         return;
       }
 
