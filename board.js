@@ -11,6 +11,7 @@ let allThreads = [];
 let activeThreadId = null;
 let currentBoardCat = 'all';
 let lastPostTime = 0;
+let showOnlyBookmarks = false; // ブックマークフィルター用
 
 function getDailyUserId() {
   let seed = localStorage.getItem('ri_user_seed');
@@ -126,6 +127,44 @@ function backToThreadList() {
   renderBoard();
 }
 
+// --- ブックマーク機能のロジック ---
+function getBookmarks() {
+  const saved = localStorage.getItem('ryugaku_bookmarks');
+  return saved ? JSON.parse(saved) : [];
+}
+
+function checkIsBookmarked(id) {
+  return getBookmarks().includes(id);
+}
+
+function toggleBookmark(id, event) {
+  event.stopPropagation();
+  let bookmarks = getBookmarks();
+  if (bookmarks.includes(id)) {
+    bookmarks = bookmarks.filter(bId => bId !== id);
+  } else {
+    bookmarks.push(id);
+  }
+  localStorage.setItem('ryugaku_bookmarks', JSON.stringify(bookmarks));
+  renderBoard();
+}
+
+function toggleBookmarkFilter(btn) {
+  showOnlyBookmarks = !showOnlyBookmarks;
+  if (showOnlyBookmarks) {
+    btn.className = 'px-4 py-2 bg-amber-50 border border-amber-300 text-amber-800 text-xs font-bold rounded-xl shadow-sm transition cursor-pointer flex items-center justify-center gap-1.5';
+    btn.textContent = '★ 保存済みを表示中（解除）';
+  } else {
+    btn.className = 'px-4 py-2 bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 text-xs font-bold rounded-xl shadow-sm transition cursor-pointer flex items-center justify-center gap-1.5';
+    btn.textContent = '☆ 保存済みスレッドを見る';
+  }
+  renderBoard();
+}
+
+function filterBoardThreads() {
+  renderBoard();
+}
+
 function renderBoard() {
   const root = document.getElementById('board-root');
   if (!root) return;
@@ -140,6 +179,7 @@ function renderBoard() {
 
     const totalRes = 1 + (t.replies || []).length;
     const shareUrl = `${SITE_BASE_URL}board.html?thread=${encodeURIComponent(t.id)}`;
+    const isBookmarked = checkIsBookmarked(t.id);
 
     const repliesHtml = (t.replies || []).map((r, idx) => {
       const resNum = idx + 2;
@@ -164,43 +204,46 @@ function renderBoard() {
           ← スレッド一覧に戻る
         </button>
         <div class="flex items-center gap-2">
-          <button onclick="fetchThreads()" class="text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl cursor-pointer">🔄 新着レス読込</button>
-          <button onclick="shareSite('${shareUrl}', '${escapeHTML(t.title)}｜RyugakuIntern 匿名掲示板')" class="text-xs font-bold bg-slate-900 text-white px-3.5 py-2 rounded-xl cursor-pointer">🔗 このスレを共有</button>
+          <button onclick="toggleBookmark('${t.id}', event)" class="text-xs font-bold px-3.5 py-2 rounded-xl border transition cursor-pointer ${isBookmarked ? 'bg-amber-50 border-amber-300 text-amber-800' : 'bg-white border-slate-200 text-slate-700 hover:border-indigo-300'}">
+            ${isBookmarked ? '★ 保存済み' : '☆ スレッドを保存'}
+          </button>
+          <button onclick="fetchThreads()" class="text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl cursor-pointer">🔄 更新</button>
+          <button onclick="shareSite('${shareUrl}', '${escapeHTML(t.title)}｜RyugakuIntern')" class="text-xs font-bold bg-slate-900 text-white px-3.5 py-2 rounded-xl cursor-pointer">🔗 共有</button>
         </div>
       </div>
 
-      <div class="bg-[#f6f6f6] border border-slate-300 rounded-2xl p-4 sm:p-6">
-        <div class="pb-4 border-b-2 border-slate-300">
-          <span class="text-[11px] font-bold bg-indigo-600 text-white px-2 py-0.5 rounded">${escapeHTML(t.tag)}</span>
-          <h2 class="text-lg sm:text-xl font-extrabold text-rose-700 mt-2">${escapeHTML(t.title)} (${totalRes})</h2>
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-xs">
+        <div class="pb-4 border-b border-slate-200">
+          <span class="text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 px-2 py-0.5 rounded">${escapeHTML(t.tag)}</span>
+          <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 mt-2">${escapeHTML(t.title)} <span class="text-slate-400 font-normal text-sm">(${totalRes})</span></h2>
         </div>
 
-        <div class="py-4 border-b border-slate-300">
+        <div class="py-4 border-b border-slate-200">
           <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs mb-1.5">
             <button onclick="insertAnchor(1)" class="font-extrabold text-indigo-700 hover:underline cursor-pointer">1</button>
             <span class="font-bold text-emerald-800">${escapeHTML(t.author)}</span>
             ${t.uni ? `<span class="text-[11px] text-slate-500">(${escapeHTML(t.uni)})</span>` : ''}
             <span class="text-[11px] text-slate-500">${formatThreadDate(t.created_at)}</span>
-            <button onclick="insertAnchor(1)" class="text-[10px] bg-slate-200 hover:bg-indigo-100 text-slate-700 px-1.5 py-0.5 rounded cursor-pointer">返信(&gt;&gt;1)</button>
+            <button onclick="insertAnchor(1)" class="text-[10px] bg-slate-100 hover:bg-indigo-100 text-slate-600 px-1.5 py-0.5 rounded cursor-pointer">返信(&gt;&gt;1)</button>
           </div>
           <div class="text-xs sm:text-sm text-slate-900 leading-relaxed whitespace-pre-line pl-2">${formatThreadBody(t.body, t.id)}</div>
         </div>
 
-        <div>${repliesHtml || '<p class="py-6 text-center text-xs text-slate-400">まだレスがありません。最初の書き込みをどうぞ！</p>'}</div>
+        <div>${repliesHtml || '<p class="py-6 text-center text-xs text-slate-400">まだレスがありません。最初の書き込みをどうぞ。</p>'}</div>
 
-        <form onsubmit="submitThreadReply(event, '${t.id}')" class="mt-6 bg-white p-4 sm:p-5 rounded-xl border border-slate-300 space-y-3">
+        <form onsubmit="submitThreadReply(event, '${t.id}')" class="mt-6 bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200 space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
-            <span class="text-xs font-extrabold text-slate-800">✍️ このスレッドに書き込む</span>
-            <span class="text-[11px] text-slate-500 font-mono">本日のID: ${getDailyUserId()}</span>
+            <span class="text-xs font-extrabold text-slate-800">書き込む</span>
+            <span class="text-[11px] text-slate-500 font-mono">ID: ${getDailyUserId()}</span>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <input type="text" id="thread-reply-author" placeholder="名前（省略可：名無しの海外大生）" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <input type="text" id="thread-reply-author" placeholder="名前（省略可：名無しの海外大生）" class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
             <label class="flex items-center space-x-2 text-xs text-slate-600 px-2">
               <input type="checkbox" id="thread-reply-sage" class="rounded text-indigo-600">
-              <span><strong>sage</strong>（スレッドを上に上げずに書き込む）</span>
+              <span><strong>sage</strong>（スレッドを上げずに書き込む）</span>
             </label>
           </div>
-          <textarea id="thread-reply-body" rows="4" placeholder="コメント内容（>>1 のように番号を書くとアンカーになります）" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+          <textarea id="thread-reply-body" rows="4" placeholder="コメント内容（>>1 のように番号を書くとアンカーになります）" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
           <div class="flex justify-end">
             <button type="submit" id="reply-submit-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-xl cursor-pointer">書き込む</button>
           </div>
@@ -210,36 +253,74 @@ function renderBoard() {
     return;
   }
 
+  // 一覧表示時のフィルタリング（カテゴリ・検索・ブックマーク）
+  const keyword = document.getElementById('board-search')?.value.toLowerCase() || '';
+  const bookmarks = getBookmarks();
+
   let list = [...allThreads];
+
+  // 1. ブックマークフィルター
+  if (showOnlyBookmarks) {
+    list = list.filter(t => bookmarks.includes(t.id));
+  }
+
+  // 2. カテゴリフィルター
   if (currentBoardCat !== 'all') {
     list = list.filter(t => t.tag === currentBoardCat);
   }
+
+  // 3. キーワード検索
+  if (keyword) {
+    list = list.filter(t => {
+      const matchTitle = t.title.toLowerCase().includes(keyword);
+      const matchBody = t.body.toLowerCase().includes(keyword);
+      const matchTag = t.tag.toLowerCase().includes(keyword);
+      const matchUni = (t.uni || '').toLowerCase().includes(keyword);
+      return matchTitle || matchBody || matchTag || matchUni;
+    });
+  }
+
   list.sort((a, b) => new Date(b.lastBump) - new Date(a.lastBump));
 
   const listRows = list.map((t, idx) => {
     const resCount = 1 + (t.replies || []).length;
+    const isBookmarked = bookmarks.includes(t.id);
     return `
-      <div onclick="openThread('${t.id}')" class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 px-4 py-3 border-b border-slate-200 hover:bg-indigo-50/70 transition cursor-pointer">
-        <div class="flex items-start sm:items-center gap-2">
-          <span class="text-xs font-mono font-bold text-slate-400 w-6 shrink-0">${idx + 1}:</span>
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 hover:bg-slate-50 transition">
+        <div onclick="openThread('${t.id}')" class="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer pr-3">
+          <span class="text-xs font-mono font-bold text-slate-400 shrink-0">${idx + 1}</span>
           <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded shrink-0">${escapeHTML(t.tag)}</span>
-          <span class="text-xs sm:text-sm font-bold text-blue-700 hover:underline">${escapeHTML(t.title)} <span class="text-slate-600 font-extrabold">(${resCount})</span></span>
+          <span class="text-xs sm:text-sm font-bold text-slate-900 truncate hover:text-indigo-600">${escapeHTML(t.title)} <span class="text-slate-400 font-semibold">(${resCount})</span></span>
         </div>
-        <div class="text-[11px] text-slate-400 pl-8 sm:pl-0 shrink-0">
-          最終更新: ${formatRelativeTime(t.lastBump)}
+        <div class="flex items-center gap-3 shrink-0">
+          <button onclick="toggleBookmark('${t.id}', event)" class="text-xs p-1 rounded transition cursor-pointer ${isBookmarked ? 'text-amber-500' : 'text-slate-300 hover:text-amber-500'}" title="${isBookmarked ? '保存済み' : '保存する'}">
+            ${isBookmarked ? '★' : '☆'}
+          </button>
+          <span class="text-[11px] text-slate-400 hidden sm:inline">${formatRelativeTime(t.lastBump)}</span>
         </div>
       </div>
     `;
   }).join('');
 
+  // 検索バーやブックマークボタンを反映するHTML構造
   root.innerHTML = `
+    <div class="flex flex-col sm:flex-row gap-3 mb-4 items-stretch sm:items-center justify-between">
+      <div class="relative flex-1">
+        <input type="text" id="board-search" value="${escapeHTML(keyword)}" placeholder="キーワードでスレッドを検索（例：ボスキャリ、ビザ、寮）" oninput="filterBoardThreads()" class="w-full px-3.5 py-2.5 pl-9 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-xs">
+        <span class="absolute left-3 top-3 text-slate-400 text-xs">🔍</span>
+      </div>
+      <button onclick="toggleBookmarkFilter(this)" id="bookmark-filter-btn" class="px-4 py-2.5 ${showOnlyBookmarks ? 'bg-amber-50 border border-amber-300 text-amber-800' : 'bg-white border border-slate-200 hover:border-indigo-300 text-slate-700'} text-xs font-bold rounded-xl shadow-xs transition cursor-pointer flex items-center justify-center gap-1.5 shrink-0">
+        ${showOnlyBookmarks ? '★ 保存済みを表示中（解除）' : '☆ 保存済みスレッドを見る'}
+      </button>
+    </div>
+
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
       <div class="bg-slate-900 text-white px-4 py-2.5 flex justify-between items-center text-xs font-bold">
-        <span>📋 スレッド一覧（最新レス順 / タップでスレッドを開く）</span>
+        <span>スレッド一覧（最新レス順）</span>
         <span>全 ${list.length} スレ</span>
       </div>
       <div>
-        ${listRows || '<div class="p-8 text-center text-xs text-slate-400">まだスレッドがありません。上の「新規スレッドを立てる」から作成してみてください！</div>'}
+        ${listRows || '<div class="p-8 text-center text-xs text-slate-400">該当するスレッドが見つかりませんでした。</div>'}
       </div>
     </div>
   `;
