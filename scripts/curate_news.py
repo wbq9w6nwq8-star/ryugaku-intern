@@ -19,10 +19,10 @@ QUERIES = [
 
 NG_WORDS = ["PR TIMES", "人事異動", "訃報", "株式分割", "決算短信", "パチンコ", "競馬"]
 
-# 高負荷時に自動で切り替えるモデル順（メイン → 軽量予備）
+# API公式メッセージ指定の最新モデル順（メイン → 軽量予備）
 MODELS = [
-    "gemini-2.5-flash",
-    "gemini-2.5-flash-lite"
+    "gemini-3.8-flash",
+    "gemini-3.5-flash-lite"
 ]
 
 def fetch_raw_articles():
@@ -60,8 +60,7 @@ def fetch_raw_articles():
         except Exception as e:
             print(f"RSS fetch warning ({q}): {e}")
 
-    # 高負荷・タイムアウト防止のため候補は15件に絞る
-    return articles[:15]
+    return articles[:12]
 
 def curate_with_gemini(raw_articles):
     if not GEMINI_API_KEY:
@@ -83,7 +82,7 @@ def curate_with_gemini(raw_articles):
     "title": "元の記事タイトル（そのまま）",
     "link": "元の記事URL（そのまま）",
     "category": "「💼 外資・商社」「☀️ インターン」「🌍 ボスキャリ」「💡 就活戦略」のいずれか1つ",
-    "ai_comment": "この記事がなぜ海外大生に重要なのか、どう活かすべきかの独自解説コメント（90〜120文字程度・敬語）",
+    "ai_comment": "この記事がなぜ海外大生に重要なのか、どう活かすべきかの独自解説コメント（80〜110文字程度・敬語）",
     "date": "公開日"
   }}
 ]
@@ -99,7 +98,6 @@ def curate_with_gemini(raw_articles):
     }
     encoded_payload = json.dumps(payload).encode("utf-8")
 
-    # モデル切り替え × リトライ（最大4回試行）
     for model in MODELS:
         api_url = f"https://{api_host}/v1beta/models/{model}:generateContent"
         for attempt in range(1, 3):
@@ -123,7 +121,6 @@ def curate_with_gemini(raw_articles):
             except urllib.error.HTTPError as e:
                 error_body = e.read().decode("utf-8", errors="ignore")
                 print(f"HTTP ERROR {e.code} on {model}: {error_body[:200]}")
-                # 429(混雑)や503(高負荷)なら10秒待ってリトライ／次のモデルへ
                 if e.code in (429, 500, 502, 503, 504):
                     time.sleep(10)
                 else:
@@ -132,8 +129,7 @@ def curate_with_gemini(raw_articles):
                 print(f"ERROR on {model}: {e}")
                 time.sleep(10)
 
-    # すべて失敗してもエラー終了せず、前日のnews.jsonを壊さず維持する
-    print("WARNING: All retries failed due to high load. Keeping previous news.json.")
+    print("WARNING: All retries failed. Keeping previous news.json.")
     sys.exit(0)
 
 if __name__ == "__main__":
