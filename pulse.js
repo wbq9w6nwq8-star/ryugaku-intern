@@ -60,7 +60,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderPulses(data || []);
   }
 
-  // リアルタイム購読（INSERTだけでなく、リアクションのUPDATEも監視するように拡張）
   function setupRealtimeSubscription() {
     if (!supabaseClient) return;
     supabaseClient
@@ -95,15 +94,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         timeStr = `${Math.floor(timeDiffSec / 86400)}日前`;
       }
 
-      // 名前と都市が未入力（オプショナル）の場合のフォールバック
       const displayName = p.name && p.name.trim() !== '' ? escapeHTML(p.name) : '名無しの海外大生';
       const displayCity = p.city && p.city.trim() !== '' ? escapeHTML(p.city) : '世界どこか';
 
-      // リアクションのカウント（DBにカラムがない場合の安全対策として0にフォールバック）
-      const reactions = p.reactions || { thumbs: 0, coffee: 0, fire: 0 };
+      // リアクションデータ（JSONBで保持。例: { "👍": 3, "🔥": 1 }）
+      const reactions = p.reactions || {};
+      const reactionHtml = Object.entries(reactions).map(([emoji, count]) => `
+        <button onclick="window.addReaction('${p.id}', '${emoji}')" class="inline-flex items-center space-x-1 text-[11px] bg-white border border-slate-200 hover:bg-indigo-50 text-slate-700 px-2.5 py-1 rounded-lg transition cursor-pointer">
+          <span>${emoji}</span>
+          <span class="font-mono font-bold">${count}</span>
+        </button>
+      `).join('');
 
       return `
-        <div class="bg-slate-50/70 border border-slate-200/60 rounded-xl p-3.5 hover:border-indigo-200 transition">
+        <div class="bg-slate-50/70 border border-slate-200/60 rounded-xl p-3.5 hover:border-indigo-200 transition relative group">
           <div class="flex items-center justify-between text-xs mb-1.5">
             <div class="flex items-center space-x-2">
               <span class="font-bold text-slate-900">${displayName}</span>
@@ -113,20 +117,26 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
           <p class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap mb-3">${escapeHTML(p.text)}</p>
           
-          <!-- 絵文字リアクションボタン群 -->
-          <div class="flex items-center space-x-2 pt-2 border-t border-slate-200/50">
-            <button onclick="addReaction('${p.id}', 'thumbs', ${reactions.thumbs || 0})" class="inline-flex items-center space-x-1 text-[11px] bg-white border border-slate-200 hover:bg-indigo-50 text-slate-600 px-2.5 py-1 rounded-lg transition cursor-pointer">
-              <span>👍</span>
-              <span class="font-mono">${reactions.thumbs || 0}</span>
-            </button>
-            <button onclick="addReaction('${p.id}', 'coffee', ${reactions.coffee || 0})" class="inline-flex items-center space-x-1 text-[11px] bg-white border border-slate-200 hover:bg-indigo-50 text-slate-600 px-2.5 py-1 rounded-lg transition cursor-pointer">
-              <span>☕</span>
-              <span class="font-mono">${reactions.coffee || 0}</span>
-            </button>
-            <button onclick="addReaction('${p.id}', 'fire', ${reactions.fire || 0})" class="inline-flex items-center space-x-1 text-[11px] bg-white border border-slate-200 hover:bg-indigo-50 text-slate-600 px-2.5 py-1 rounded-lg transition cursor-pointer">
-              <span>🔥</span>
-              <span class="font-mono">${reactions.fire || 0}</span>
-            </button>
+          <!-- リアクション一覧 ＆ 追加ボタン -->
+          <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-200/50" id="reactions-${p.id}">
+            ${reactionHtml}
+            
+            <!-- Discord風「+」リアクションボタン -->
+            <div class="relative inline-block">
+              <button onclick="window.toggleEmojiPicker('${p.id}')" class="inline-flex items-center justify-center text-[11px] bg-white border border-dashed border-slate-300 hover:border-indigo-500 text-slate-500 hover:text-indigo-600 w-7 h-7 rounded-lg transition cursor-pointer" title="リアクションを追加">
+                +
+              </button>
+              
+              <!-- 絵文字ピッカーポップアップ（初期は非表示） -->
+              <div id="picker-${p.id}" class="hidden absolute bottom-full left-0 mb-2 bg-white border border-slate-200 shadow-lg rounded-xl p-2 flex space-x-2 z-50 whitespace-nowrap">
+                <button onclick="window.addReaction('${p.id}', '👍')" class="hover:scale-125 transition text-base p-1 cursor-pointer">👍</button>
+                <button onclick="window.addReaction('${p.id}', '🔥')" class="hover:scale-125 transition text-base p-1 cursor-pointer">🔥</button>
+                <button onclick="window.addReaction('${p.id}', '☕')" class="hover:scale-125 transition text-base p-1 cursor-pointer">☕</button>
+                <button onclick="window.addReaction('${p.id}', '🎉')" class="hover:scale-125 transition text-base p-1 cursor-pointer">🎉</button>
+                <button onclick="window.addReaction('${p.id}', '👀')" class="hover:scale-125 transition text-base p-1 cursor-pointer">👀</button>
+                <button onclick="window.addReaction('${p.id}', '😭')" class="hover:scale-125 transition text-base p-1 cursor-pointer">😭</button>
+              </div>
+            </div>
           </div>
         </div>
       `;
@@ -144,7 +154,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }[tag]));
   }
 
-  // フォーム送信（都市名や名前が空でも「世界どこか」「名無しの海外大生」として投稿可能に）
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -168,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             city: cityInput.value.trim() || '世界どこか',
             name: nameInput.value.trim() || '名無しの海外大生',
             text: text,
-            reactions: { thumbs: 0, coffee: 0, fire: 0 }
+            reactions: {}
           }
         ]);
 
@@ -185,24 +194,36 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// グローバルスコープでリアクション関数を定義（ボタンから呼べるようにする）
-window.addReaction = async function(id, type, currentCount) {
-  if (!supabaseClient) return;
-  
-  // 現在のカウントに+1
-  const updatedReactions = {};
-  // ※簡易的に現在の値をベースにインクリメント
-  // 本格的には一度データを取得するかJSONB操作をしますが、まずは動く形に
-  try {
-    // 該当行の現在のreactionsを取得して加算
-    const { data } = await supabaseClient.from('atrium_pulses').select('reactions').eq('id', id).single();
-    const current = data?.reactions || { thumbs: 0, coffee: 0, fire: 0 };
-    current[type] = (current[type] || 0) + 1;
+// Discord風ピッカーの開閉
+window.toggleEmojiPicker = function(id) {
+  const picker = document.getElementById(`picker-${id}`);
+  if (picker) {
+    // 他が開いていれば閉じるなどの処理をしつつトグル
+    picker.classList.toggle('hidden');
+  }
+};
 
+// 絵文字リアクションをDBに保存・加算する関数
+window.addReaction = async function(id, emoji) {
+  if (!supabaseClient) return;
+
+  try {
+    // 現在のリアクションデータを取得
+    const { data, error } = await supabaseClient.from('atrium_pulses').select('reactions').eq('id', id).single();
+    if (error) throw error;
+
+    let reactions = data?.reactions || {};
+    reactions[emoji] = (reactions[emoji] || 0) + 1;
+
+    // Supabaseを更新（リアルタイムで全ユーザーの画面に即反映されます）
     await supabaseClient
       .from('atrium_pulses')
-      .update({ reactions: current })
+      .update({ reactions: reactions })
       .eq('id', id);
+
+    // ピッカーを閉じる
+    const picker = document.getElementById(`picker-${id}`);
+    if (picker) picker.classList.add('hidden');
   } catch (err) {
     console.error('リアクション更新エラー:', err);
   }
