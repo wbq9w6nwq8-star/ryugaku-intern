@@ -288,7 +288,7 @@ def main():
 
     # 新着があればそれを、なければ既存の最新1件をXに投稿
     items_to_post = approved_new if approved_new else normalized_existing[:1]
-    post_top_news_to_x(items_to_post)
+    #post_top_news_to_x(items_to_post)
 
     combined = approved_new + normalized_existing
     combined.sort(key=lambda x: x.get("timestamp", 0), reverse=True)
