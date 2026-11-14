@@ -15,7 +15,6 @@ const PRESET_CITIES = [
   { name: 'Tokyo', ja: '東京', country: 'Japan', lat: 35.6762, lon: 139.6503, tz: 'Asia/Tokyo' }
 ];
 
-// 2点間の距離（km）を計算
 function getDistanceKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -26,7 +25,6 @@ function getDistanceKm(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// 天気コードをアイコンと日本語に変換
 function getWeatherInfo(code) {
   if (code === 0) return { icon: '☀️', label: '快晴' };
   if (code <= 3) return { icon: '⛅', label: '晴れ時々曇り' };
@@ -37,14 +35,11 @@ function getWeatherInfo(code) {
   return { icon: '⛈️', label: '雷雨・荒天' };
 }
 
-// ① ページ最上部のナビゲーションバーに「local.html」のタブを自動で先頭追加する関数
+// 最上部ナビゲーションバーに「🌍 現地ライフ・天気」タブを先頭追加
 function injectTopNavTab() {
   setTimeout(() => {
     const header = document.getElementById('common-header') || document.querySelector('header');
-    if (!header) return;
-
-    // すでに追加済みならスキップ
-    if (header.querySelector('a[href="local.html"]')) return;
+    if (!header || header.querySelector('a[href="local.html"]')) return;
 
     const navContainer = header.querySelector('nav') || header.querySelector('.flex.items-center.space-x-6, .flex.space-x-4, ul');
     const isLocalPage = window.location.pathname.includes('local.html');
@@ -57,19 +52,11 @@ function injectTopNavTab() {
       : 'text-xs sm:text-sm font-bold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg transition shrink-0';
 
     if (navContainer) {
-      // ナビゲーションの一番先頭（左端）に挿入
       navContainer.insertBefore(tabLink, navContainer.firstChild);
-    } else {
-      // ナビが見つからない場合はページ最上部に専用タブバーを表示
-      const topBar = document.createElement('div');
-      topBar.className = 'bg-indigo-600 text-white text-xs font-bold py-2 px-4 text-center';
-      topBar.innerHTML = `<a href="local.html" class="hover:underline">🌍 都市別ローカル生活情報・現地ニュースはこちら →</a>`;
-      document.body.insertBefore(topBar, document.body.firstChild);
     }
-  }, 150);
+  }, 100);
 }
 
-// 現在の都市データを取得
 async function initUserLocation() {
   const saved = localStorage.getItem('atrium_user_city');
   if (saved) {
@@ -80,7 +67,6 @@ async function initUserLocation() {
     const res = await fetch('https://ipapi.co/json/');
     const data = await res.json();
     if (data && data.latitude && data.longitude) {
-      // プリセットの中に近い都市があれば日本語名を補完
       const matchedPreset = PRESET_CITIES.find(
         c => c.name.toLowerCase() === (data.city || '').toLowerCase()
       );
@@ -95,83 +81,115 @@ async function initUserLocation() {
       localStorage.setItem('atrium_user_city', JSON.stringify(detected));
       return detected;
     }
-  } catch (e) {
-    console.warn('IP位置情報の取得をスキップしました');
-  }
+  } catch (e) {}
 
   return PRESET_CITIES[0];
 }
 
-// ② 自由記入した都市名から座標を取得（日本語でも英語でもヒットするように改善）
+// 自由記入した都市名から座標を取得（日本語・英語を同時並列検索して高速化）
 async function searchCityByName(query) {
-  // まずプリセットに一致するものがあるかチェック
   const preset = PRESET_CITIES.find(
     c => c.ja === query || c.name.toLowerCase() === query.toLowerCase()
   );
   if (preset) return preset;
 
-  // Open-Meteo Geocoding（日本語指定で検索 → なければ英語で再検索）
-  for (const lang of ['ja', 'en']) {
-    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=${lang}&format=json`;
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data.results && data.results.length > 0) {
-      const r = data.results[0];
-      return {
-        name: r.name,
-        ja: query, // ユーザーが入力した分かりやすい名前をそのまま表示用に使う
-        country: r.country || '',
-        lat: r.latitude,
-        lon: r.longitude,
-        tz: r.timezone || 'UTC'
-      };
-    }
+  const [resEn, resJa] = await Promise.all([
+    fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`).then(r => r.json()).catch(() => ({})),
+    fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=ja&format=json`).then(r => r.json()).catch(() => ({}))
+  ]);
+
+  const rEn = resEn.results?.[0];
+  const rJa = resJa.results?.[0];
+  const r = rEn || rJa;
+
+  if (r) {
+    return {
+      name: rEn ? rEn.name : r.name, // ニュース検索用に英語名を保持
+      ja: query,                     // 画面表示用に入力名を保持
+      country: r.country || '',
+      lat: r.latitude,
+      lon: r.longitude,
+      tz: r.timezone || 'UTC'
+    };
   }
   return null;
 }
 
-// ③ ニュースRSSを確実に取得する関数（複数プロキシ＆XML直接パース対応）
-async function fetchGoogleNewsRss(searchQuery, lang = 'ja') {
-  const rssUrl = lang === 'ja'
-    ? `https://news.google.com/rss/search?q=${encodeURIComponent(searchQuery)}&hl=ja&gl=JP&ceid=JP:ja`
-    : `https://news.google.com/rss/search?q=${encodeURIComponent(searchQuery)}&hl=en-US&gl=US&ceid=US:en`;
+// XML文字列から記事リストを抽出
+function parseRssXml(xmlText) {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(xmlText, 'text/xml');
+  const items = Array.from(xml.querySelectorAll('item')).slice(0, 10).map(item => ({
+    title: (item.querySelector('title')?.textContent || '').replace(/\s*-\s*[^-]+$/, ''), // 末尾のメディア名をスッキリ整理
+    source: item.querySelector('source')?.textContent || 'Local Media',
+    link: item.querySelector('link')?.textContent || '#',
+    pubDate: item.querySelector('pubDate')?.textContent || ''
+  }));
+  if (items.length === 0) throw new Error('Empty RSS');
+  return items;
+}
 
-  // 方法A: allorigins プロキシ経由でXMLを直接パース（キャッシュや文字化け・制限に一番強い）
-  try {
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
-    const res = await fetch(proxyUrl);
-    const json = await res.json();
-    if (json && json.contents) {
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(json.contents, 'text/xml');
-      const items = Array.from(xml.querySelectorAll('item')).map(item => ({
-        title: item.querySelector('title')?.textContent || '',
-        link: item.querySelector('link')?.textContent || '#',
-        pubDate: item.querySelector('pubDate')?.textContent || ''
+// ⚡ 複数の高速プロキシを同時競争（Promise.any）させて最速の1つを採用する関数
+async function fetchLocalRssFast(cityObj) {
+  const isJapan = cityObj.country === 'Japan' || cityObj.name === 'Tokyo';
+  const query = isJapan ? cityObj.ja : `${cityObj.name} ${cityObj.country || ''}`.trim();
+  const rssUrl = isJapan
+    ? `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=ja&gl=JP&ceid=JP:ja`
+    : `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:en`;
+
+  // 3つの異なるルートで一斉にリクエストし、一番早く返ってきたものを採用！
+  const p1 = fetch(`https://corsproxy.io/?url=${encodeURIComponent(rssUrl)}`)
+    .then(r => { if (!r.ok) throw new Error(); return r.text(); })
+    .then(parseRssXml);
+
+  const p2 = fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`)
+    .then(r => { if (!r.ok) throw new Error(); return r.text(); })
+    .then(parseRssXml);
+
+  const p3 = fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`)
+    .then(r => r.json())
+    .then(d => {
+      if (!d.items || d.items.length === 0) throw new Error();
+      return d.items.slice(0, 10).map(i => ({
+        title: (i.title || '').replace(/\s*-\s*[^-]+$/, ''),
+        source: i.author || 'Local News',
+        link: i.link,
+        pubDate: i.pubDate
       }));
-      if (items.length > 0) return items;
-    }
-  } catch (e) {
-    console.warn('Primary RSS proxy fallback:', e);
-  }
+    });
 
-  // 方法B: rss2json API（バックアップ）
+  return await Promise.any([p1, p2, p3]);
+}
+
+// ⚡ 英語のニュース見出し10件を「1回のリクエスト（約0.2秒）」で一括日本語翻訳する関数
+async function translateTitlesBatch(items) {
+  if (!items || items.length === 0) return items;
+
   try {
-    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
-    const res = await fetch(apiUrl);
+    // 改行でつないで1回の通信でまとめて翻訳にかける
+    const combinedText = items.map(i => i.title.replace(/\n/g, ' ')).join('\n');
+    const trUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=ja&dt=t&q=${encodeURIComponent(combinedText)}`;
+    
+    const res = await fetch(trUrl);
     const data = await res.json();
-    if (data && data.items && data.items.length > 0) {
-      return data.items;
+    
+    if (data && data[0]) {
+      const fullTranslated = data[0].map(part => part[0]).join('');
+      const translatedLines = fullTranslated.split('\n');
+      
+      return items.map((item, idx) => ({
+        ...item,
+        originalTitle: item.title,
+        title: (translatedLines[idx] || item.title).trim()
+      }));
     }
   } catch (e) {
-    console.warn('Secondary RSS proxy failed:', e);
+    console.warn('翻訳スキップ（原文表示）:', e);
   }
-
-  return [];
+  return items;
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // 最上部ヘッダーにタブを追加
   injectTopNavTab();
 
   const widgetContainer = document.getElementById('local-life-widget');
@@ -286,8 +304,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (found) {
           currentCity = found;
           localStorage.setItem('atrium_user_city', JSON.stringify(currentCity));
-          await renderWeatherWidget();
-          if (newsContainer) await renderLocalNews();
+          renderWeatherWidget();
+          if (newsContainer) renderLocalNews();
         }
       });
     }
@@ -304,8 +322,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         currentCity = result;
         localStorage.setItem('atrium_user_city', JSON.stringify(currentCity));
-        await renderWeatherWidget();
-        if (newsContainer) await renderLocalNews();
+        renderWeatherWidget();
+        if (newsContainer) renderLocalNews();
       });
     }
   }
@@ -315,61 +333,71 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const titleEl = document.getElementById('news-city-title');
     if (titleEl) {
-      titleEl.textContent = `📍 ${currentCity.ja} (${currentCity.country || currentCity.name}) 周辺の最新ニュース＆生活情報`;
+      titleEl.textContent = `📍 ${currentCity.ja} (${currentCity.country || currentCity.name}) の現地ニュース（自動日本語翻訳）`;
     }
 
-    newsContainer.innerHTML = `<div class="col-span-full text-xs text-slate-400 text-center py-10">「${currentCity.ja}」の現地ニュースを取得しています...</div>`;
+    // 10分間有効なキャッシュをチェック（同じ都市なら0秒で即表示！）
+    const cacheKey = `atrium_news_cache_${currentCity.name}`;
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (Date.now() - parsed.time < 10 * 60 * 1000) {
+          drawNewsCards(parsed.items);
+          return;
+        }
+      } catch (e) {}
+    }
+
+    newsContainer.innerHTML = `<div class="col-span-full text-xs text-slate-400 text-center py-10 animate-pulse">⚡ 「${currentCity.ja}」の現地ニュースを高速取得＆日本語に翻訳しています...</div>`;
 
     try {
-      // Step 1: まず日本語名（例: ロンドン）でシンプルに検索
-      let items = await fetchGoogleNewsRss(currentCity.ja, 'ja');
+      // 1. 最速プロキシで現地ニュースを取得
+      let rawItems = await fetchLocalRssFast(currentCity);
 
-      // Step 2: もし少なければ英語名（例: London）で日本語ニュースを検索
-      if (items.length === 0 && currentCity.name !== currentCity.ja) {
-        items = await fetchGoogleNewsRss(currentCity.name, 'ja');
-      }
+      // 2. 日本以外の都市なら一括で日本語に高速翻訳
+      const isJapan = currentCity.country === 'Japan' || currentCity.name === 'Tokyo';
+      const finalItems = isJapan ? rawItems : await translateTitlesBatch(rawItems);
 
-      // Step 3: リスト外の都市などで日本語ニュースが0件なら、現地の英語ニュースを直接取得！
-      let isEnglishFallback = false;
-      if (items.length === 0) {
-        isEnglishFallback = true;
-        items = await fetchGoogleNewsRss(`${currentCity.name} ${currentCity.country || ''}`.trim(), 'en');
-      }
+      // キャッシュに保存
+      sessionStorage.setItem(cacheKey, JSON.stringify({ time: Date.now(), items: finalItems }));
 
-      if (!items || items.length === 0) {
-        newsContainer.innerHTML = `<div class="col-span-full text-xs text-slate-500 text-center py-8">現在この都市に関するニュースが見つかりませんでした。</div>`;
-        return;
-      }
-
-      newsContainer.innerHTML = items.slice(0, 12).map(item => {
-        let pubDate = '';
-        if (item.pubDate) {
-          const d = new Date(item.pubDate);
-          if (!isNaN(d)) pubDate = d.toLocaleDateString('ja-JP');
-        }
-        const badgeLabel = isEnglishFallback ? `${currentCity.name} 現地英語ニュース` : `${currentCity.ja} ローカル`;
-
-        return `
-          <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="flex flex-col justify-between bg-slate-50/70 border border-slate-200/80 hover:border-indigo-300 hover:bg-white rounded-2xl p-4 transition shadow-2xs hover:shadow-md">
-            <div>
-              <div class="flex items-center justify-between text-[11px] text-slate-400 mb-2">
-                <span class="font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md">${badgeLabel}</span>
-                <span class="font-mono">${pubDate}</span>
-              </div>
-              <h3 class="text-xs sm:text-sm font-bold text-slate-800 leading-relaxed">${item.title}</h3>
-            </div>
-            <div class="mt-3 pt-2 border-t border-slate-200/50 text-right">
-              <span class="text-[11px] font-bold text-indigo-600">記事を読む →</span>
-            </div>
-          </a>
-        `;
-      }).join('');
+      drawNewsCards(finalItems);
     } catch (err) {
       console.error('ニュース取得エラー:', err);
-      newsContainer.innerHTML = `<div class="col-span-full text-xs text-rose-500 text-center py-8">ニュースの読み込みに失敗しました。</div>`;
+      newsContainer.innerHTML = `<div class="col-span-full text-xs text-slate-500 text-center py-8">現在この都市のニュースを取得できませんでした。時間をおいて再度お試しください。</div>`;
     }
   }
 
-  await renderWeatherWidget();
-  await renderLocalNews();
+  function drawNewsCards(items) {
+    newsContainer.innerHTML = items.map(item => {
+      let pubDate = '';
+      if (item.pubDate) {
+        const d = new Date(item.pubDate);
+        if (!isNaN(d)) pubDate = d.toLocaleDateString('ja-JP');
+      }
+      const hasOriginal = item.originalTitle && item.originalTitle !== item.title;
+
+      return `
+        <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="flex flex-col justify-between bg-slate-50/70 border border-slate-200/80 hover:border-indigo-300 hover:bg-white rounded-2xl p-4 transition shadow-2xs hover:shadow-md">
+          <div>
+            <div class="flex items-center justify-between text-[11px] text-slate-400 mb-2">
+              <span class="font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md">${currentCity.ja} 現地メディア</span>
+              <span class="font-mono">${pubDate}</span>
+            </div>
+            <h3 class="text-xs sm:text-sm font-bold text-slate-800 leading-relaxed mb-1">${item.title}</h3>
+            ${hasOriginal ? `<p class="text-[10px] text-slate-400 line-clamp-1">${item.originalTitle}</p>` : ''}
+          </div>
+          <div class="mt-3 pt-2 border-t border-slate-200/50 flex items-center justify-between">
+            <span class="text-[10px] text-slate-400 font-semibold">🌐 AI自動翻訳</span>
+            <span class="text-[11px] font-bold text-indigo-600">現地記事を読む →</span>
+          </div>
+        </a>
+      `;
+    }).join('');
+  }
+
+  // 天気とニュースを待たずに同時並列でスタート！
+  renderWeatherWidget();
+  renderLocalNews();
 });
