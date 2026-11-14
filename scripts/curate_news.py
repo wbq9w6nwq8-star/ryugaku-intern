@@ -6,12 +6,15 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone, timedelta
 from email.utils import parsedate_to_datetime
+import tweepy
+
+# ▼ ご自身のサイトの news.html の公開URLに書き換えてください
+SITE_NEWS_URL = "https://あなたのドメイン/news.html"
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 NEWS_JSON_PATH = "news.json"
 MAX_ARCHIVE_ITEMS = 120
 
-# 大学広報・体験記を徹底排除し、企業の公式募集・イベント発表だけを狙うクエリ
 EXCLUSIONS = '-"大学" -"学部" -"交換留学" -"体験記" -"ランキング" -"入試"'
 
 SEARCH_QUERIES = [
@@ -33,13 +36,11 @@ SEARCH_QUERIES = [
     }
 ]
 
-# タイトルに含まれていたら無条件で弾くNGワード（大学広報・体験記対策）
 NG_KEYWORDS = [
     "体験記", "交換留学", "派遣留学", "オープンキャンパス", "入試", "偏差値",
     "学園祭", "大学プレスセンター", "教授が", "准教授", "高校生向け", "中学生"
 ]
 
-# タイトルまたは本文に最低1つは含まれていてほしい「動きのあるワード」
 ACTION_KEYWORDS = [
     "募集", "エントリー", "開催", "締切", "インターン", "選考", "説明会",
     "ワークショップ", "セミナー", "フォーラム", "採用", "受付開始", "解禁"
@@ -57,10 +58,8 @@ def clean_category(cat_str):
     return "就活戦略"
 
 def is_high_quality_title(title):
-    """ルールベースで大学広報や体験記を即座に弾く"""
     if any(ng in title for ng in NG_KEYWORDS):
         return False
-    # 「〜大学 - 」のように大学公式ページが配信元の記事を除外
     if "大学 -" in title or "大学｜" in title:
         return False
     if not any(act in title for act in ACTION_KEYWORDS):
@@ -84,8 +83,6 @@ def fetch_rss_items(query_info, max_age_days=21):
 
             if not title or not link:
                 continue
-
-            # ノイズ記事をここでフィルタリング
             if not is_high_quality_title(title):
                 continue
 
@@ -126,7 +123,6 @@ def build_fallback_summary(title, category):
     )
 
 def screen_and_generate_ai_contents(new_items):
-    """Gemini APIで『本当に掲載すべき採用・募集情報か』を厳格審査し、合格したものだけ要約を生成"""
     if not new_items:
         return []
 
@@ -165,11 +161,51 @@ def screen_and_generate_ai_contents(new_items):
         except Exception as e:
             print(f"Gemini screening fallback: {e}")
 
-    # API未設定またはエラー時のフォールバック
     for item in new_items:
         item["ai_comment"] = "最新のインターン募集・採用イベント情報です。応募条件と締切を早めに確認しましょう。"
         item["ai_summary"] = build_fallback_summary(item["title"], item["category"])
     return new_items
+
+def post_top_news_to_x(approved_new):
+    """新着記事があれば、一番上の1件を公式Xに自動投稿する"""
+    if not approved_new:
+        print("No new approved items to post to X.")
+        return
+
+    api_key = os.environ.get("X_API_KEY")
+    api_secret = os.environ.get("X_API_SECRET")
+    access_token = os.environ.get("X_ACCESS_TOKEN")
+    access_secret = os.environ.get("X_ACCESS_TOKEN_SECRET")
+
+    if not all([api_key, api_secret, access_token, access_secret]):
+        print("X API keys not set, skipping auto-post.")
+        return
+
+    top_item = approved_new[0]
+    article_url = f"{SITE_NEWS_URL}?article={top_item['id']}"
+    clean_title = top_item["title"].rsplit(" - ", 1)[0][:55]
+    comment_short = (top_item.get("ai_comment") or "")[:60]
+
+    tweet_text = (
+        f"【{top_item['category']}｜最新募集・イベント】\n"
+        f"{clean_title}\n\n"
+        f"AI要点：{comment_short}...\n\n"
+        f"▼AI詳細解説・応募リンクはこちら\n"
+        f"{article_url}\n"
+        f"#海外大生 #就活 #インターン"
+    )
+
+    try:
+        client = tweepy.Client(
+            consumer_key=api_key,
+            consumer_secret=api_secret,
+            access_token=access_token,
+            access_token_secret=access_secret
+        )
+        res = client.create_tweet(text=tweet_text)
+        print(f"Successfully posted to X! Tweet ID: {res.data['id']}")
+    except Exception as e:
+        print(f"X auto-post failed: {e}")
 
 def main():
     existing_items = []
@@ -181,7 +217,6 @@ def main():
         except Exception as e:
             print(f"Existing news.json load error: {e}")
 
-    # 既存のタイムラインから、大学の体験記などノイズだった過去記事もクリーニングして引き継ぐ
     normalized_existing = []
     for item in existing_items:
         title = item.get("title", "")
@@ -213,8 +248,10 @@ def main():
             existing_titles.add(key)
             unique_new.append(it)
 
-    # AI編集長による厳格審査＆長文要約生成
     approved_new = screen_and_generate_ai_contents(unique_new)
+
+    # 新着記事があれば公式Xへ自動投稿
+    post_top_news_to_x(approved_new)
 
     combined = approved_new + normalized_existing
     combined.sort(key=lambda x: x.get("timestamp", 0), reverse=True)
