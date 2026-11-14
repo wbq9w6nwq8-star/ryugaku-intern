@@ -31,6 +31,10 @@ SEARCH_QUERIES = [
         "query": f'("ボストンキャリアフォーラム" OR "ボスキャリ" OR "キャリアフォーラム" OR "海外大生") ("採用" OR "選考" OR "募集" OR "セミナー" OR "企業") {EXCLUSIONS} when:30d'
     },
     {
+        "category": "奨学金",
+        "query": f'("海外留学" OR "海外大学" OR "正規留学" OR "留学生") ("奨学金" OR "給付型奨学金" OR "財団") ("募集" OR "応募" OR "締切" OR "支援") -"学内" when:60d'
+    },
+    {
         "category": "就活戦略",
         "query": f'site:prtimes.jp ("新卒採用" OR "就活") ("ワークショップ" OR "説明会" OR "選考" OR "イベント") when:14d'
     }
@@ -52,7 +56,7 @@ def make_article_id(title):
 def clean_category(cat_str):
     if not cat_str:
         return "就活戦略"
-    for valid in ["外資・商社", "インターン", "ボスキャリ", "就活戦略"]:
+    for valid in ["外資・商社", "インターン", "ボスキャリ", "奨学金", "就活戦略"]:
         if valid in cat_str:
             return valid
     return "就活戦略"
