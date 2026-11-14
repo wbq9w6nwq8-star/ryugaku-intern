@@ -2,7 +2,7 @@ name: Daily AI Job News Curation
 
 on:
   schedule:
-    - cron: '0 21 * * *'
+    - cron: '0 5,13,21 * * *'
   workflow_dispatch:
 
 jobs:
@@ -27,4 +27,4 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "RyugakuIntern AI Bot"
           git add news.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update curated job news" && git push --force)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update curated job news" && git pull --rebase && git push)
