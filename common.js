@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <a href="index.html" class="${navClass('home')}">求人・トップ</a>
             <a href="board.html" class="${navClass('board')}">匿名掲示板</a>
             <a href="news.html" class="${navClass('news')}">就活ニュース</a>
+            <a href="local.html" class="text-xs sm:text-sm font-bold text-slate-600 hover:text-indigo-600 transition">現地ライフ・天気</a>
           </nav>
 
           <div class="flex items-center space-x-2 order-2 sm:order-3">
