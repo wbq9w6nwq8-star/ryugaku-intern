@@ -11,23 +11,38 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 NEWS_JSON_PATH = "news.json"
 MAX_ARCHIVE_ITEMS = 120
 
+# 大学広報・体験記を徹底排除し、企業の公式募集・イベント発表だけを狙うクエリ
+EXCLUSIONS = '-"大学" -"学部" -"交換留学" -"体験記" -"ランキング" -"入試"'
+
 SEARCH_QUERIES = [
     {
         "category": "インターン",
-        "query": '("インターン" OR "サマーインターン" OR "ウィンターインターン") AND ("募集" OR "エントリー" OR "開始" OR "開催" OR "締切") when:7d'
+        "query": f'site:prtimes.jp ("インターン" OR "サマーインターン" OR "ウィンターインターン") ("募集" OR "エントリー" OR "開催") when:14d'
     },
     {
         "category": "外資・商社",
-        "query": '("外資" OR "総合商社" OR "コンサル" OR "投資銀行" OR "グローバル採用") AND ("インターン" OR "新卒" OR "募集" OR "説明会" OR "選考") when:14d'
+        "query": f'("外資" OR "総合商社" OR "コンサル" OR "投資銀行" OR "グローバル採用") ("新卒" OR "インターン" OR "募集" OR "説明会") {EXCLUSIONS} when:14d'
     },
     {
         "category": "ボスキャリ",
-        "query": '("ボストンキャリアフォーラム" OR "ボスキャリ" OR "海外大" OR "留学生") AND ("採用" OR "インターン" OR "選考" OR "セミナー" OR "募集") when:14d'
+        "query": f'("ボストンキャリアフォーラム" OR "ボスキャリ" OR "キャリアフォーラム" OR "海外大生") ("採用" OR "選考" OR "募集" OR "セミナー" OR "企業") {EXCLUSIONS} when:30d'
     },
     {
         "category": "就活戦略",
-        "query": '("就活" OR "新卒" OR "キャリア") AND ("ワークショップ" OR "オンライン説明会" OR "セミナー開催" OR "エントリー開始") when:7d'
+        "query": f'site:prtimes.jp ("新卒採用" OR "就活") ("ワークショップ" OR "説明会" OR "選考" OR "イベント") when:14d'
     }
+]
+
+# タイトルに含まれていたら無条件で弾くNGワード（大学広報・体験記対策）
+NG_KEYWORDS = [
+    "体験記", "交換留学", "派遣留学", "オープンキャンパス", "入試", "偏差値",
+    "学園祭", "大学プレスセンター", "教授が", "准教授", "高校生向け", "中学生"
+]
+
+# タイトルまたは本文に最低1つは含まれていてほしい「動きのあるワード」
+ACTION_KEYWORDS = [
+    "募集", "エントリー", "開催", "締切", "インターン", "選考", "説明会",
+    "ワークショップ", "セミナー", "フォーラム", "採用", "受付開始", "解禁"
 ]
 
 def make_article_id(title):
@@ -41,7 +56,18 @@ def clean_category(cat_str):
             return valid
     return "就活戦略"
 
-def fetch_rss_items(query_info, max_age_days=14):
+def is_high_quality_title(title):
+    """ルールベースで大学広報や体験記を即座に弾く"""
+    if any(ng in title for ng in NG_KEYWORDS):
+        return False
+    # 「〜大学 - 」のように大学公式ページが配信元の記事を除外
+    if "大学 -" in title or "大学｜" in title:
+        return False
+    if not any(act in title for act in ACTION_KEYWORDS):
+        return False
+    return True
+
+def fetch_rss_items(query_info, max_age_days=21):
     url = f"https://news.google.com/rss/search?q={urllib.parse.quote(query_info['query'])}&hl=ja&gl=JP&ceid=JP:ja"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     items = []
@@ -57,6 +83,10 @@ def fetch_rss_items(query_info, max_age_days=14):
             pub_date_raw = (item.findtext("pubDate") or "").strip()
 
             if not title or not link:
+                continue
+
+            # ノイズ記事をここでフィルタリング
+            if not is_high_quality_title(title):
                 continue
 
             try:
@@ -77,7 +107,7 @@ def fetch_rss_items(query_info, max_age_days=14):
                 "date": date_str,
                 "timestamp": ts
             })
-            if len(items) >= 5:
+            if len(items) >= 8:
                 break
     except Exception as e:
         print(f"RSS fetch error ({query_info['category']}): {e}")
@@ -86,29 +116,29 @@ def fetch_rss_items(query_info, max_age_days=14):
 
 def build_fallback_summary(title, category):
     return (
-        f"【ニュースの概要と背景】\n"
-        f"「{title}」に関する最新動向です。{category}分野では近年、選考スケジュールの早期化やオンラインでのワークショップ・説明会の開催が加速しており、海外滞在中の方や留学生にとっても現地からアプローチしやすい環境が整いつつあります。\n\n"
+        f"【募集・イベントの概要】\n"
+        f"「{title}」に関する公式発表・最新情報です。{category}領域における具体的なインターン募集や採用イベントの動きとして注目されます。\n\n"
         f"【注目すべきポイント】\n"
-        f"単なる情報収集にとどめず、募集対象（卒業年度や専攻・語学条件など）とエントリー締切日時（日本時間か現地時間か）を正確に把握することが重要です。特にインターンや初期セミナーへの参加は、その後の特別選考ルートや早期内定に直結するケースが多く見られます。\n\n"
-        f"【今すぐ取るべきネクストアクション】\n"
-        f"1. 元記事および公式採用ページから募集要項・開催日程を確認する\n"
-        f"2. マイページ登録やプレエントリーを済ませ、締切をカレンダーに登録する\n"
-        f"3. 必要に応じて英文・和文レジュメやガクチカ（留学・海外生活での経験）をアップデートしておく"
+        f"早期のインターンや企業主催ワークショップへの参加は、その後の特別選考ルートや本選考の優遇に直結するケースが多くあります。募集対象や参加形式（オンライン／対面）を確認しておきましょう。\n\n"
+        f"【今すぐ取るべきアクション】\n"
+        f"1. 元のプレスリリース・採用ページで応募資格とエントリー締切を確認する\n"
+        f"2. 定員制のイベントや説明会は枠が埋まる前に予約を完了させる"
     )
 
-def generate_ai_contents(new_items):
+def screen_and_generate_ai_contents(new_items):
+    """Gemini APIで『本当に掲載すべき採用・募集情報か』を厳格審査し、合格したものだけ要約を生成"""
     if not new_items:
-        return new_items
+        return []
 
     if GEMINI_API_KEY:
         try:
-            titles_text = "\n".join([f"{i+1}. [{it['category']}] {it['title']}" for i, it in enumerate(new_items)])
+            titles_text = "\n".join([f"{i}: [{it['category']}] {it['title']}" for i, it in enumerate(new_items)])
             prompt = (
-                "以下の最新ニュースについて、海外大生・留学生・グローバル就活生向けに2種類の解説を作成してください。\n"
-                "1. comment: 一覧カード用の短い注目ポイント（70〜90文字）\n"
-                "2. summary: 記事をタップした際に表示する、サイト独自の詳しいAI要約・解説記事（300〜450文字程度。改行を入れて『【概要と背景】』『【なぜ今注目すべきか】』『【具体的なネクストアクション】』の3構成で分かりやすく記述）\n\n"
-                "出力は必ず以下のJSON配列形式のみとしてください：\n"
-                "[{\"comment\": \"...\", \"summary\": \"...\"}, ...]\n\n"
+                "あなたは優秀なキャリアメディアの編集長です。以下のニュース候補から、"
+                "『企業が学生向けに開催するインターン募集・採用説明会・ワークショップ・キャリアフォーラム等の実務的な募集/イベント情報』だけを厳選してください。\n"
+                "※大学の交換留学報告、学内イベント、個人の就活体験記、一般論コラムはすべて is_relevant: false にして厳しく除外してください。\n\n"
+                "各記事（index番号対応）について以下のJSON配列を返してください：\n"
+                "[{\"index\": 0, \"is_relevant\": true, \"comment\": \"一覧用80字以内の要点\", \"summary\": \"詳細モーダル用350字程度のAI解説（【概要】【注目ポイント】【ネクストアクション】の3構成）\"}, ...]\n\n"
                 f"{titles_text}"
             )
             api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
@@ -123,24 +153,22 @@ def generate_ai_contents(new_items):
                 text_out = result["candidates"][0]["content"]["parts"][0]["text"]
                 parsed = json.loads(text_out)
                 if isinstance(parsed, list):
-                    for idx, item in enumerate(new_items):
-                        if idx < len(parsed) and isinstance(parsed[idx], dict):
-                            item["ai_comment"] = parsed[idx].get("comment") or "最新の募集・イベント動向です。詳細を確認して早めにエントリー準備を進めましょう。"
-                            item["ai_summary"] = parsed[idx].get("summary") or build_fallback_summary(item["title"], item["category"])
-                    return new_items
+                    approved = []
+                    for entry in parsed:
+                        idx = entry.get("index")
+                        if entry.get("is_relevant") is True and isinstance(idx, int) and 0 <= idx < len(new_items):
+                            item = new_items[idx]
+                            item["ai_comment"] = entry.get("comment") or "最新の募集・イベント動向です。詳細を確認して早めにエントリー準備を進めましょう。"
+                            item["ai_summary"] = entry.get("summary") or build_fallback_summary(item["title"], item["category"])
+                            approved.append(item)
+                    return approved
         except Exception as e:
-            print(f"Gemini API fallback: {e}")
+            print(f"Gemini screening fallback: {e}")
 
+    # API未設定またはエラー時のフォールバック
     for item in new_items:
-        t = item["title"]
-        if "インターン" in t:
-            item["ai_comment"] = "インターン募集・開催の最新情報です。本選考の優遇枠に直結するケースが多いため、応募締切と参加条件を早めに確認しましょう。"
-        elif any(w in t for w in ["ワークショップ", "セミナー", "説明会", "フォーラム"]):
-            item["ai_comment"] = "企業と直接接点を持てるイベント・ワークショップ情報です。オンライン参加枠の有無や予約締切を今すぐチェックしておきましょう。"
-        else:
-            item["ai_comment"] = "直近で動きのあった採用・キャリア関連ニュースです。エントリー時期を逃さないよう詳細を確認しておきましょう。"
-        item["ai_summary"] = build_fallback_summary(t, item["category"])
-
+        item["ai_comment"] = "最新のインターン募集・採用イベント情報です。応募条件と締切を早めに確認しましょう。"
+        item["ai_summary"] = build_fallback_summary(item["title"], item["category"])
     return new_items
 
 def main():
@@ -153,13 +181,17 @@ def main():
         except Exception as e:
             print(f"Existing news.json load error: {e}")
 
+    # 既存のタイムラインから、大学の体験記などノイズだった過去記事もクリーニングして引き継ぐ
     normalized_existing = []
     for item in existing_items:
+        title = item.get("title", "")
+        if any(ng in title for ng in NG_KEYWORDS) or "大学 -" in title:
+            continue
         item["category"] = clean_category(item.get("category", ""))
         if not item.get("id"):
-            item["id"] = make_article_id(item.get("title", ""))
+            item["id"] = make_article_id(title)
         if not item.get("ai_summary"):
-            item["ai_summary"] = build_fallback_summary(item.get("title", ""), item["category"])
+            item["ai_summary"] = build_fallback_summary(title, item["category"])
         if not item.get("timestamp"):
             try:
                 dt = parsedate_to_datetime(item.get("date", ""))
@@ -181,9 +213,10 @@ def main():
             existing_titles.add(key)
             unique_new.append(it)
 
-    unique_new = generate_ai_contents(unique_new)
+    # AI編集長による厳格審査＆長文要約生成
+    approved_new = screen_and_generate_ai_contents(unique_new)
 
-    combined = unique_new + normalized_existing
+    combined = approved_new + normalized_existing
     combined.sort(key=lambda x: x.get("timestamp", 0), reverse=True)
     combined = combined[:MAX_ARCHIVE_ITEMS]
 
@@ -196,7 +229,7 @@ def main():
     with open(NEWS_JSON_PATH, "w", encoding="utf-8") as f:
         json.dump(output_data, f, ensure_ascii=False, indent=2)
 
-    print(f"Updated news.json: +{len(unique_new)} new items (Total timeline: {len(combined)} items)")
+    print(f"Updated news.json: +{len(approved_new)} approved items (Total timeline: {len(combined)} items)")
 
 if __name__ == "__main__":
     main()
