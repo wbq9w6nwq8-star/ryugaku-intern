@@ -8,19 +8,19 @@ const ARCHIVE_STORAGE_KEY = 'atrium_career_news_timeline_v2';
 const LIVE_CAREER_QUERIES = [
   {
     category: 'インターン',
-    query: '("インターン" OR "サマーインターン" OR "ウィンターインターン") AND ("募集" OR "エントリー" OR "開始" OR "締切") when:14d'
+    query: 'site:prtimes.jp ("インターン" OR "サマーインターン" OR "ウィンターインターン") ("募集" OR "エントリー" OR "開催") when:14d'
   },
   {
     category: '外資・商社',
-    query: '("外資" OR "総合商社" OR "コンサル" OR "投資銀行" OR "三菱商事" OR "三井物産") AND ("新卒" OR "インターン" OR "採用" OR "選考" OR "説明会") when:14d'
+    query: '("外資" OR "総合商社" OR "コンサル" OR "投資銀行") ("新卒" OR "インターン" OR "募集" OR "説明会") -"大学" -"体験記" -"交換留学" when:14d'
   },
   {
     category: 'ボスキャリ',
-    query: '("ボストンキャリアフォーラム" OR "ボスキャリ" OR "海外大生" OR "留学" OR "グローバル採用") AND ("就活" OR "選考" OR "募集" OR "企業" OR "イベント") when:30d'
+    query: '("ボストンキャリアフォーラム" OR "ボスキャリ" OR "キャリアフォーラム" OR "海外大生") ("採用" OR "選考" OR "募集" OR "セミナー") -"大学" -"体験記" when:30d'
   },
   {
     category: '就活戦略',
-    query: '("就活" OR "新卒採用" OR "キャリア") AND ("ワークショップ" OR "セミナー" OR "オンライン説明会" OR "選考対策" OR "イベント開催") when:14d'
+    query: 'site:prtimes.jp ("新卒採用" OR "就活") ("ワークショップ" OR "説明会" OR "イベント") when:14d'
   }
 ];
 
