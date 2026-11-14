@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <a href="terms.html" class="hover:text-slate-900 transition">利用規約</a>
             <button onclick="openModal('info-modal')" class="hover:text-slate-900 transition cursor-pointer">運営概要</button>
             <button onclick="openModal('privacy-modal')" class="hover:text-slate-900 transition cursor-pointer">プライバシーポリシー</button>
-            <a href="https://x.com/ryugakuintern" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-slate-700 font-semibold hover:text-indigo-600 transition">
+            <a href="https://x.com/atrium_ryugaku" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-slate-700 font-semibold hover:text-indigo-600 transition">
               <span>公式X</span>
             </a>
           </div>
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <p><strong>運営主体：</strong>Atrium 運営事務局（現役英国正規留学生によるプロジェクト）</p>
             <p><strong>事業内容：</strong>海外大生・バイリンガル学生向けの匿名情報交換コミュニティ運営およびキャリア・求人情報の掲載</p>
             <p><strong>連絡先メールアドレス：</strong><a href="mailto:ryugakuintern.official@gmail.com" class="text-indigo-600 underline">ryugakuintern.official@gmail.com</a></p>
-            <p><strong>公式SNS：</strong><a href="https://x.com/ryugakuintern" target="_blank" rel="noopener noreferrer" class="text-indigo-600 underline">https://x.com/ryugakuintern</a></p>
+            <p><strong>公式SNS：</strong><a href="https://x.com/atrium_ryugaku" target="_blank" rel="noopener noreferrer" class="text-indigo-600 underline">https://x.com/ryugakuintern</a></p>
           </div>
         </div>
       </div>
