@@ -97,7 +97,8 @@
     </div>
   </section>
   <script src="clock.js"></script>
-
+<!-- ローカル天気＆都市選択ウィジェット -->
+<div id="local-life-widget" class="px-4"></div>
   <!-- Atrium Pulse（リアルタイムつぶやきセクション：都市フリー入力対応） -->
   <section id="pulse" class="max-w-6xl mx-auto px-4 sm:px-6 my-8 scroll-mt-20">
     <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 text-slate-900 shadow-xs">
@@ -267,6 +268,7 @@
   <div id="common-footer"></div>
   <script src="common.js"></script>
   <script src="news.js"></script>
+  <script src="local-hub.js"></script>
   <script>
     let currentCategory = 'all';
     function setCategory(category, btnElement) {
