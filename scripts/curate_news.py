@@ -150,7 +150,6 @@ def discover_available_models(api_key):
 
             if "generateContent" not in methods:
                 continue
-            # 画像・音楽・旧世代・制限の厳しい特殊モデルを徹底除外
             if any(ex in lname for ex in [
                 "omni", "audio", "tts", "image", "vision", "embedding", "aqa",
                 "nano-banana", "lyria", "veo", "imagen", "1.0", "1.5", "2.0", "2.5"
@@ -175,6 +174,7 @@ def discover_available_models(api_key):
     except Exception as e:
         print(f"Model discovery warning ({e}), using known fallbacks: {known_fallbacks}")
         return known_fallbacks
+
 
 def extract_article_body_text(url):
     try:
@@ -375,8 +375,6 @@ def analyze_single_article_with_gemini(item, body_text, model_candidates):
                 if isinstance(parsed, list) and len(parsed) > 0:
                     parsed = parsed[0]
                 if isinstance(parsed, dict) and "is_relevant" in parsed:
-                    
-                if isinstance(parsed, dict) and "is_relevant" in parsed:
                     summary_len = len(parsed.get("summary") or "")
                     print(f"Success with [{model_name}] ({summary_len} chars): {item['title'][:30]}...")
                     return parsed
@@ -392,7 +390,6 @@ def analyze_single_article_with_gemini(item, body_text, model_candidates):
 
 
 def generate_share_pages(items):
-    """Xで共有ボタンを押しただけで、記事内容入りのリンク付きサムネカード（タップで記事モーダルへ直行）が出るHTMLを自動生成"""
     os.makedirs("share", exist_ok=True)
 
     for item in items:
@@ -408,7 +405,6 @@ def generate_share_pages(items):
         cat_esc = raw_cat.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
         comment_esc = raw_comment.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
 
-        # 記事タイトル・カテゴリ・AI視点がデザインされた1200x630の動的OGPカード画像URL
         card_text = (
             f"【{raw_cat}｜Atrium】\n"
             f"{raw_title[:48]}\n\n"
@@ -556,7 +552,6 @@ def main():
     combined.sort(key=lambda x: x.get("timestamp", 0), reverse=True)
     combined = combined[:MAX_ARCHIVE_ITEMS]
 
-    # 全記事のXリンクカード用HTML（share/art_xxx.html）を自動生成
     generate_share_pages(combined)
 
     jst_now = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M JST")
