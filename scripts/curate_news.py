@@ -11,8 +11,9 @@ from email.utils import parsedate_to_datetime
 
 GEMINI_API_KEY = (os.environ.get("GEMINI_API_KEY") or "").strip()
 NEWS_JSON_PATH = "news.json"
+SITE_BASE_URL = "https://ryugaku-intern.com"
 MAX_ARCHIVE_ITEMS = 200
-MAX_NEW_ARTICLES_PER_RUN = 4  # 1記事あたり1000文字以上の長文を生成するため1回4件に集中
+MAX_NEW_ARTICLES_PER_RUN = 4
 
 EXCLUSIONS = '-"大学" -"学部" -"歯学部" -"歯科" -"看護" -"薬学" -"介護" -"交換留学" -"体験記" -"社員旅行" -"懇親会"'
 
@@ -39,7 +40,6 @@ SEARCH_QUERIES = [
     }
 ]
 
-# 1段階目チェック：医療福祉・特定大学広報・社内イベント（「社員旅行」「懇親会」等）を完全排除
 NG_KEYWORDS = [
     "歯学部", "歯科", "歯科医", "歯科衛生", "医学部", "薬学部", "薬剤師", "看護", "獣医",
     "介護", "福祉", "保育", "幼稚園", "栄養士", "理学療法", "作業療法", "柔道整復",
@@ -53,7 +53,6 @@ SPECIFIC_UNI_PATTERN = re.compile(
     r'(?:[^\s「『（(]{2,10})(?:大学|短期大学|専門学校|高校|高等学校)(?:が|で|の|にて|主催|開催|、|・|\s*[-｜|])'
 )
 
-# 単なる「開催」だけでは通さず、学生のキャリア・就活・奨学金に直結する語を必須化
 REQUIRED_CAREER_SIGNALS = [
     "インターン", "新卒", "就活", "採用", "選考", "エントリー", "ボスキャリ", "キャリアフォーラム",
     "説明会", "奨学金", "給付", "財団", "海外大生", "留学生", "卒向け", "年卒"
@@ -127,8 +126,6 @@ def extract_keywords_fallback(title, category):
 
 
 def discover_available_models(api_key):
-    """APIから現在有効なモデル一覧を動的に取得し、404エラーを完全に防ぐ"""
-    # 過去のログで動作確認済みのモデル＋最新候補をバックアップとして保持
     known_fallbacks = [
         "gemini-3.8-flash",
         "gemini-3.5-flash-lite",
@@ -154,7 +151,6 @@ def discover_available_models(api_key):
 
             if "generateContent" not in methods:
                 continue
-            # 特殊用途モデルや429が出やすい実験モデル（omni等）を除外
             if any(ex in lname for ex in ["omni", "audio", "tts", "image", "vision", "embedding", "aqa", "1.0", "1.5", "2.0", "2.5"]):
                 continue
 
@@ -169,7 +165,6 @@ def discover_available_models(api_key):
         flash_models.sort(reverse=True)
         lite_models.sort(reverse=True)
 
-        # 標準Flash（安定＆高品質）→ Pro（最高品質）→ Lite（高速予備）の順で候補を構築
         discovered = flash_models[:2] + pro_models[:2] + lite_models[:2]
         for fb in known_fallbacks:
             if fb not in discovered:
@@ -183,7 +178,6 @@ def discover_available_models(api_key):
 
 
 def extract_article_body_text(url):
-    """元記事URLからOGP説明文と本文テキスト（最大4000文字）を抽出する"""
     try:
         req = urllib.request.Request(
             url,
@@ -266,7 +260,6 @@ def fetch_rss_items(query_info, max_age_days=35):
 
 
 def build_rich_fallback(title, category, snippet=""):
-    """万が一APIが全モデル429等の場合でも、1000文字近い 상세な解説を提供するフォールバック"""
     clean_t = re.sub(r'\s*-\s*[^-]+$', '', (title or "").strip())
     cat = clean_category(category)
     grad_match = re.search(r'(2[6-9]卒|202[6-9]年卒|海外大生|留学生)', clean_t)
@@ -297,7 +290,6 @@ def build_rich_fallback(title, category, snippet=""):
 
 
 def analyze_single_article_with_gemini(item, body_text, model_candidates):
-    """第2段階チェック＆1,000〜1,500文字の徹底深掘り解説記事生成"""
     if not GEMINI_API_KEY:
         return None
 
@@ -396,8 +388,69 @@ def analyze_single_article_with_gemini(item, body_text, model_candidates):
     return None
 
 
+def generate_share_pages(items):
+    """Xで共有ボタンを押しただけで、記事内容入りのリンク付きサムネカード（タップで記事モーダルへ直行）が出るHTMLを自動生成"""
+    os.makedirs("share", exist_ok=True)
+
+    for item in items:
+        art_id = item.get("id")
+        if not art_id:
+            continue
+
+        raw_title = item.get("title") or "Atrium 就活・留学ニュース"
+        raw_cat = item.get("category") or "就活戦略"
+        raw_comment = item.get("ai_comment") or ""
+
+        title_esc = raw_title.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
+        cat_esc = raw_cat.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
+        comment_esc = raw_comment.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
+
+        # 記事タイトル・カテゴリ・AI視点がデザインされた1200x630の動的OGPカード画像URL
+        card_text = (
+            f"【{raw_cat}｜Atrium】\n"
+            f"{raw_title[:48]}\n\n"
+            f"AI視点: {raw_comment[:54]}...\n\n"
+            f"▶ タップしてAI徹底解説レポートを読む"
+        )
+        encoded_text = urllib.parse.quote(card_text)
+        dynamic_og_img = f"https://placehold.co/1200x630/0f172a/ffffff/png?text={encoded_text}&font=noto-sans-jp"
+
+        target_url = f"{SITE_BASE_URL}/news.html?article={urllib.parse.quote(art_id)}"
+        share_path = f"share/{art_id}.html"
+        item["share_url"] = share_path
+
+        html_content = f"""<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【{cat_esc}】{title_esc} | Atrium</title>
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Atrium | 海外大生キャリア＆コミュニティ">
+  <meta property="og:title" content="【{cat_esc}】{title_esc}">
+  <meta property="og:description" content="{comment_esc}">
+  <meta property="og:url" content="{SITE_BASE_URL}/{share_path}">
+  <meta property="og:image" content="{dynamic_og_img}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="【{cat_esc}】{title_esc}">
+  <meta name="twitter:description" content="{comment_esc}">
+  <meta name="twitter:image" content="{dynamic_og_img}">
+  <meta http-equiv="refresh" content="0; url={target_url}">
+  <script>window.location.replace("{target_url}");</script>
+</head>
+<body style="background:#0f172a;color:#f8fafc;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;">
+  <p style="font-size:14px;">Atriumの解説記事へ移動しています... <a href="{target_url}" style="color:#818cf8;">移動しない場合はこちら</a></p>
+</body>
+</html>"""
+
+        with open(share_path, "w", encoding="utf-8") as sf:
+            sf.write(html_content)
+
+
 def main():
-    print("Starting Atrium Deep AI News Curator (1000+ chars Long-Form Edition)...")
+    print("Starting Atrium Deep AI News Curator (1000+ chars & OGP Link Card Edition)...")
     model_candidates = discover_available_models(GEMINI_API_KEY) if GEMINI_API_KEY else []
 
     existing_items = []
@@ -409,7 +462,6 @@ def main():
         except Exception as e:
             print(f"Existing news.json load error: {e}")
 
-    # 既存アーカイブから「社員旅行・懇親会・歯学部」などのノイズ記事を掃除し、短い要約も1000字クラスへ底上げ
     normalized_existing = []
     upgraded_count = 0
 
@@ -425,7 +477,6 @@ def main():
         item["id"] = make_article_id(title)
         item.pop("rss_snippet", None)
 
-        # 既存記事の要約が600文字未満で薄い場合、1回の実行につき最大2件までAIで1000文字超に書き直す
         current_summary = item.get("ai_summary") or ""
         if len(current_summary) < 650 and GEMINI_API_KEY and upgraded_count < 2:
             print(f"Upgrading short existing article with AI: {title[:38]}...")
@@ -501,6 +552,9 @@ def main():
     combined = approved_new + normalized_existing
     combined.sort(key=lambda x: x.get("timestamp", 0), reverse=True)
     combined = combined[:MAX_ARCHIVE_ITEMS]
+
+    # 全記事のXリンクカード用HTML（share/art_xxx.html）を自動生成
+    generate_share_pages(combined)
 
     jst_now = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M JST")
     output_data = {
