@@ -2,7 +2,8 @@ let aiNewsCache = [];
 let currentNewsCat = 'all';
 let currentSearchQuery = '';
 let newsLimitCount = null;
-let displayCount = 20; // 初期表示20件
+let displayCount = 20;
+let currentModalItem = null;
 
 const ARCHIVE_STORAGE_KEY = 'atrium_career_news_timeline_v5';
 const LEGACY_KEYS = [
@@ -48,7 +49,6 @@ const FEATURED_SCHOLARSHIPS = [
   }
 ];
 
-// ノイズを除外したライブ検索クエリ
 const LIVE_CAREER_QUERIES = [
   {
     category: 'インターン',
@@ -72,7 +72,6 @@ const LIVE_CAREER_QUERIES = [
   }
 ];
 
-// 厳格ダブルチェック用：除外するノイズワード（歯学部・医療福祉職・特定大学の学内イベント・社内行事等）
 const STRICT_NG_WORDS = [
   '歯学部', '歯科', '歯科医', '歯科衛生', '医学部', '薬学部', '薬剤師', '看護', '獣医',
   '介護', '福祉', '保育', '幼稚園', '栄養士', '理学療法', '作業療法', '柔道整復',
@@ -120,7 +119,6 @@ function cleanCategoryName(cat) {
   return '就活戦略';
 }
 
-// ダブルチェック関数：記事が海外大生・就活サイトに本当に適しているかを厳格判定
 function isValidArticleForSite(title, category = '') {
   if (!title || title.length < 12) return false;
   const t = String(title);
@@ -213,7 +211,6 @@ function generateSpecificComment(title, category) {
   return `${subjectPrefix}${targetStr}最新の採用・エントリー関連トピックです。応募資格（卒年・専攻）と日本時間での締切日時を早めに把握しておきましょう。`;
 }
 
-// ★ここが質問いただいた関数です（サーバー側の1,000文字超AI解説を優先表示し、未生成時のみ長文フォールバックを作成）
 function generateDeepSummary(item) {
   if (item.ai_summary && item.ai_summary.length > 400) {
     return item.ai_summary;
@@ -242,6 +239,204 @@ function generateDeepSummary(item) {
     `3. 必要な提出書類（和文・英文レジュメ、エントリーシート、成績証明書等）をリストアップし、今週中に下書きに着手する`
   );
 }
+
+// ===== CanvasでX投稿用の記事専用サムネイル画像（1200×630px）を自動描画する関数群 =====
+function drawRoundedRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function wrapCanvasLines(ctx, text, maxWidth, maxLines) {
+  const chars = Array.from(String(text || '').replace(/\s+/g, ' ').trim());
+  const lines = [];
+  let current = '';
+
+  for (let i = 0; i < chars.length; i++) {
+    const testLine = current + chars[i];
+    if (ctx.measureText(testLine).width > maxWidth && current.length > 0) {
+      lines.push(current);
+      current = chars[i];
+      if (lines.length >= maxLines) {
+        let last = lines[maxLines - 1];
+        while (ctx.measureText(last + '...').width > maxWidth && last.length > 0) {
+          last = last.slice(0, -1);
+        }
+        lines[maxLines - 1] = last + '...';
+        return lines;
+      }
+    } else {
+      current = testLine;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+function renderArticleShareCardCanvas(item) {
+  const canvas = document.getElementById('modal-share-canvas');
+  if (!canvas || !item) return;
+
+  const ctx = canvas.getContext('2d');
+  const W = 1200;
+  const H = 630;
+  canvas.width = W;
+  canvas.height = H;
+
+  const fontStack = '"Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif';
+
+  // 1. 背景グラデーション（Atriumのダークスレート×インディゴ基調）
+  const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+  bgGrad.addColorStop(0, '#0f172a');
+  bgGrad.addColorStop(0.6, '#1e1b4b');
+  bgGrad.addColorStop(1, '#0f172a');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // 背景の装飾グロー
+  const glow = ctx.createRadialGradient(W - 150, 100, 20, W - 150, 100, 420);
+  glow.addColorStop(0, 'rgba(99, 102, 241, 0.28)');
+  glow.addColorStop(1, 'rgba(99, 102, 241, 0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, W, H);
+
+  // 2. メインの白カード枠
+  ctx.fillStyle = '#ffffff';
+  drawRoundedRect(ctx, 44, 38, W - 88, H - 76, 28);
+  ctx.fill();
+
+  // 左端のインディゴアクセントバー
+  ctx.fillStyle = '#4f46e5';
+  drawRoundedRect(ctx, 44, 38, 16, H - 76, 8);
+  ctx.fill();
+
+  // 3. 上部ヘッダー（カテゴリバッジ ＆ ブランドロゴ）
+  const catText = cleanCategoryName(item.category);
+  ctx.font = `bold 24px ${fontStack}`;
+  const catWidth = Math.max(140, ctx.measureText(catText).width + 48);
+
+  ctx.fillStyle = '#eef2ff';
+  drawRoundedRect(ctx, 96, 74, catWidth, 46, 23);
+  ctx.fill();
+  ctx.strokeStyle = '#c7d2fe';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.fillStyle = '#4338ca';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(catText, 96 + 24, 97);
+
+  // 日付表示
+  ctx.font = `bold 20px ${fontStack}`;
+  ctx.fillStyle = '#64748b';
+  ctx.fillText(item.date || '最新情報', 96 + catWidth + 20, 97);
+
+  // 右上ロゴ表記
+  ctx.font = `900 24px ${fontStack}`;
+  ctx.fillStyle = '#0f172a';
+  const brandLabel = 'ATRIUM INTELLIGENCE';
+  const brandW = ctx.measureText(brandLabel).width;
+  ctx.fillText(brandLabel, W - 92 - brandW, 97);
+
+  // 4. 記事タイトル（大きく太字・最大3行）
+  ctx.fillStyle = '#0f172a';
+  ctx.font = `900 40px ${fontStack}`;
+  ctx.textBaseline = 'top';
+  const titleLines = wrapCanvasLines(ctx, item.title || '', W - 196, 3);
+  let currentY = 144;
+  titleLines.forEach(line => {
+    ctx.fillText(line, 96, currentY);
+    currentY += 54;
+  });
+
+  // 5. AI視点の要点ボックス（「途中まで読めて続きが気になる」デザイン）
+  const boxY = 326;
+  const boxH = 166;
+  ctx.fillStyle = '#f8fafc';
+  drawRoundedRect(ctx, 96, boxY, W - 192, boxH, 18);
+  ctx.fill();
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  const summaryLen = generateDeepSummary(item).length;
+  ctx.font = `bold 21px ${fontStack}`;
+  ctx.fillStyle = '#4f46e5';
+  ctx.fillText(`AI視点の核心ポイント（本編解説：約${summaryLen}字）`, 122, boxY + 20);
+
+  ctx.font = `bold 24px ${fontStack}`;
+  ctx.fillStyle = '#334155';
+  const commentText = item.ai_comment || generateSpecificComment(item.title, item.category);
+  const commentLines = wrapCanvasLines(ctx, commentText, W - 244, 2);
+  let commentY = boxY + 58;
+  commentLines.forEach(line => {
+    ctx.fillText(line, 122, commentY);
+    commentY += 36;
+  });
+
+  ctx.font = `bold 19px ${fontStack}`;
+  ctx.fillStyle = '#6366f1';
+  ctx.fillText('...【業界構造の背景】【海外大生の攻略法】【ネクストアクション】の続きはリンク先へ', 122, boxY + 132);
+
+  // 6. フッター誘導バー
+  ctx.fillStyle = '#0f172a';
+  drawRoundedRect(ctx, 96, 514, W - 192, 54, 14);
+  ctx.fill();
+
+  ctx.textBaseline = 'middle';
+  ctx.font = `bold 21px ${fontStack}`;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('続き・AI徹底解説レポート全文はポスト内のリンクから開けます', 124, 541);
+
+  ctx.font = `bold 20px ${fontStack}`;
+  ctx.fillStyle = '#a5b4fc';
+  const domainText = 'ryugaku-intern.com →';
+  const domW = ctx.measureText(domainText).width;
+  ctx.fillText(domainText, W - 124 - domW, 541);
+}
+
+window.downloadArticleShareImage = function() {
+  const canvas = document.getElementById('modal-share-canvas');
+  if (!canvas || !currentModalItem) return;
+
+  const link = document.createElement('a');
+  link.download = `atrium_${currentModalItem.id || 'news'}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+
+  const dlBtn = document.getElementById('modal-download-img');
+  if (dlBtn) {
+    const orig = dlBtn.textContent;
+    dlBtn.textContent = '画像を保存しました';
+    setTimeout(() => { dlBtn.textContent = orig; }, 2000);
+  }
+};
+
+window.copyArticleShareImage = async function() {
+  const canvas = document.getElementById('modal-share-canvas');
+  const copyImgBtn = document.getElementById('modal-copy-img');
+  if (!canvas) return;
+
+  try {
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    if (copyImgBtn) {
+      copyImgBtn.textContent = 'コピー完了（Xの投稿画面で貼り付け可）';
+      setTimeout(() => { copyImgBtn.textContent = 'サムネ画像をコピー'; }, 3000);
+    }
+  } catch (e) {
+    window.downloadArticleShareImage();
+  }
+};
+// =========================================================================
 
 function parseTimestamp(dateStr) {
   if (!dateStr) return 0;
@@ -516,32 +711,56 @@ function ensureArticleModal() {
 
   const modal = document.createElement('div');
   modal.id = 'ai-article-modal';
-  modal.className = 'fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto';
+  modal.className = 'fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto';
   modal.innerHTML = `
-    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 my-8 relative max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
-      <button onclick="window.closeArticleModal()" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm transition cursor-pointer">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-8 shadow-2xl border border-slate-200 my-6 relative max-h-[92vh] flex flex-col" onclick="event.stopPropagation()">
+      <button onclick="window.closeArticleModal()" class="absolute top-4 right-4 sm:top-5 sm:right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm transition cursor-pointer z-10">
         ×
       </button>
 
-      <div class="flex flex-wrap items-center gap-2 mb-3 pr-8 shrink-0">
+      <div class="flex flex-wrap items-center gap-2 mb-2.5 pr-8 shrink-0">
         <span id="modal-article-cat" class="text-xs font-bold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full border border-indigo-100"></span>
         <span id="modal-article-freshness" class="hidden text-[11px] font-extrabold px-2.5 py-0.5 rounded-full"></span>
         <span id="modal-article-date" class="text-xs font-mono text-slate-400"></span>
       </div>
 
-      <h2 id="modal-article-title" class="text-base sm:text-xl font-extrabold text-slate-900 leading-snug mb-3 shrink-0"></h2>
+      <h2 id="modal-article-title" class="text-base sm:text-xl font-extrabold text-slate-900 leading-snug mb-2.5 shrink-0"></h2>
 
-      <div id="modal-article-keywords" class="flex flex-wrap gap-1.5 mb-4 shrink-0"></div>
+      <div id="modal-article-keywords" class="flex flex-wrap gap-1.5 mb-3.5 shrink-0"></div>
 
-      <div class="bg-slate-50 rounded-2xl p-4 sm:p-6 border border-slate-200/80 mb-5 overflow-y-auto flex-1">
-        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-200/70">
-          <span class="text-xs font-extrabold text-indigo-600 tracking-wide">AI徹底解説・選考攻略レポート</span>
-          <span id="modal-summary-length" class="text-[11px] font-semibold text-slate-400">Atrium Deep Intelligence</span>
+      <!-- スクロール領域（X用サムネイル画像ジェネレーター ＋ 1000字超AI徹底解説レポート） -->
+      <div class="overflow-y-auto flex-1 space-y-4 pr-1 mb-4">
+        <!-- Xシェア用・動的サムネイルカード生成ボックス -->
+        <div class="bg-slate-900 rounded-2xl p-3.5 sm:p-4 text-white">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+            <div>
+              <span class="text-[11px] font-extrabold text-indigo-300 tracking-wide">X投稿用・記事専用サムネイル画像（自動生成）</span>
+              <p class="text-[10px] text-slate-400">画像をコピー（または保存）してXの投稿画面に貼り付けると、記事要約入りの大きなカードとして表示されます。</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button id="modal-copy-img" type="button" onclick="window.copyArticleShareImage()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition cursor-pointer">
+                サムネ画像をコピー
+              </button>
+              <button id="modal-download-img" type="button" onclick="window.downloadArticleShareImage()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold px-3 py-1.5 rounded-lg border border-slate-700 transition cursor-pointer">
+                画像保存
+              </button>
+            </div>
+          </div>
+          <canvas id="modal-share-canvas" width="1200" height="630" class="w-full h-auto rounded-xl border border-slate-700/80 shadow-md block"></canvas>
         </div>
-        <div id="modal-article-summary" class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap"></div>
+
+        <!-- AI長文解説本文 -->
+        <div class="bg-slate-50 rounded-2xl p-4 sm:p-6 border border-slate-200/80">
+          <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-200/70">
+            <span class="text-xs font-extrabold text-indigo-600 tracking-wide">AI徹底解説・選考攻略レポート</span>
+            <span id="modal-summary-length" class="text-[11px] font-semibold text-slate-400">Atrium Deep Intelligence</span>
+          </div>
+          <div id="modal-article-summary" class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap"></div>
+        </div>
       </div>
 
-      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-slate-100 shrink-0">
+      <!-- 下部固定アクションバー -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-3 border-t border-slate-100 shrink-0">
         <div class="flex items-center gap-2">
           <a id="modal-x-share" href="#" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-initial inline-flex items-center justify-center bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition">
             Xでこの記事を共有
@@ -566,6 +785,7 @@ window.openArticleModal = function(articleId) {
   ensureArticleModal();
   const item = aiNewsCache.find(i => i.id === articleId);
   if (!item) return;
+  currentModalItem = item;
 
   const modal = document.getElementById('ai-article-modal');
   const timeInfo = formatTimelineDate(item);
@@ -597,7 +817,11 @@ window.openArticleModal = function(articleId) {
     <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-md">#${escapeHTML(kw)}</span>
   `).join('');
 
-  const xText = `【${item.category}｜Atrium就活・留学ニュース】\n${item.title}\n\nAI視点：${(item.ai_comment || '').slice(0, 80)}...\n\nAI徹底解説レポート（約${longSummary.length}字）はこちら\n`;
+  // 記事専用サムネイル画像をCanvasに描画
+  renderArticleShareCardCanvas(item);
+
+  const kwHashtags = keywords.slice(0, 3).map(k => `#${k.replace(/\s+/g, '')}`).join(' ');
+  const xText = `【${item.category}｜Atrium就活・留学インテリジェンス】\n${item.title}\n\nAI視点：${(item.ai_comment || '').slice(0, 72)}...\n\n続き・AI徹底解説レポート（約${longSummary.length}字）はこちら\n${kwHashtags}\n`;
   const xIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(xText)}&url=${encodeURIComponent(shareUrl)}`;
   document.getElementById('modal-x-share').href = xIntentUrl;
 
@@ -831,7 +1055,7 @@ function renderAiNews() {
         </div>
 
         <div class="mt-3.5 pt-2.5 border-t border-slate-200/60 flex items-center justify-between">
-          <span class="text-[10px] font-bold text-slate-400">タップして長文解説レポート（約${summaryLen}字）を開く</span>
+          <span class="text-[10px] font-bold text-slate-400">タップして長文解説（約${summaryLen}字）＆X用サムネを開く</span>
           <span class="text-[11px] font-bold text-indigo-600 group-hover:translate-x-0.5 transition">詳細解説を読む →</span>
         </div>
       </article>
