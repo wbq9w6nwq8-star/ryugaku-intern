@@ -1,11 +1,13 @@
 let aiNewsCache = [];
 let currentNewsCat = 'all';
 let currentSearchQuery = '';
+let currentSortMode = 'added'; // 'added' (弊サイト掲載順・デフォルト) | 'published' (元記事の新着順)
 let newsLimitCount = null;
 let displayCount = 20;
 
-const ARCHIVE_STORAGE_KEY = 'atrium_career_news_timeline_v5';
+const ARCHIVE_STORAGE_KEY = 'atrium_career_news_timeline_v6';
 const LEGACY_KEYS = [
+  'atrium_career_news_timeline_v5',
   'atrium_career_news_timeline_v4',
   'atrium_career_news_timeline_v3',
   'atrium_career_news_timeline_v2',
@@ -134,7 +136,7 @@ function isValidArticleForSite(title, category = '') {
   const validSignals = [
     'インターン', '新卒', '就活', '採用', '選考', 'エントリー', '説明会',
     'ボスキャリ', 'キャリアフォーラム', '海外大', '留学',
-    '外資', '商社', 'コンサル', '奨学金', '財団', '給付', '卒向け', '年卒'
+    '外資', '商社', 'コンサル', '奨学金', '財団', '給付', '卒向け', '年卒', 'グローバル'
   ];
   if (!validSignals.some(sig => t.includes(sig))) {
     return false;
@@ -245,31 +247,58 @@ function parseTimestamp(dateStr) {
   return isNaN(t) ? 0 : t;
 }
 
+// 現在のソートモード（サイト掲載順 / 元記事新着順）に応じた日付・バッジ表示
 function formatTimelineDate(item) {
-  const ts = item.timestamp || parseTimestamp(item.date);
-  if (!ts) return { label: item.date || '最新', badgeText: 'NEW', badgeClass: 'bg-rose-600 text-white' };
+  const pubTs = item.pub_ts || parseTimestamp(item.date) || item.timestamp || 0;
+  const addedTs = item.added_at || item.timestamp || pubTs;
+  const activeTs = currentSortMode === 'added' ? addedTs : pubTs;
 
-  const diffHours = Math.floor((Date.now() - ts) / (1000 * 60 * 60));
-  const d = new Date(ts);
-  const dateFormatted = `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
+  const dPub = pubTs ? new Date(pubTs) : new Date();
+  const pubFormatted = `${dPub.getFullYear()}/${String(dPub.getMonth() + 1).padStart(2, '0')}/${String(dPub.getDate()).padStart(2, '0')}`;
+
+  if (!activeTs) {
+    return { label: `元記事: ${item.date || '最新'}`, badgeText: 'NEW', badgeClass: 'bg-rose-600 text-white' };
+  }
+
+  const diffHours = Math.floor((Date.now() - activeTs) / (1000 * 60 * 60));
+  const prefix = currentSortMode === 'added' ? '掲載' : '公開';
 
   if (diffHours >= 0 && diffHours < 24) {
     const hrs = Math.max(1, diffHours);
     return {
-      label: dateFormatted,
-      badgeText: `NEW・${hrs}時間前`,
+      label: `元記事: ${pubFormatted}`,
+      badgeText: `NEW・${hrs}時間前に${prefix}`,
       badgeClass: 'bg-rose-600 text-white border border-rose-600 shadow-2xs'
     };
   }
   if (diffHours >= 24 && diffHours < 72) {
     const days = Math.floor(diffHours / 24);
     return {
-      label: dateFormatted,
-      badgeText: `新着・${days}日前`,
+      label: `元記事: ${pubFormatted}`,
+      badgeText: `${days}日前に${prefix}`,
       badgeClass: 'bg-amber-50 text-amber-800 border border-amber-300'
     };
   }
-  return { label: dateFormatted, badgeText: '', badgeClass: '' };
+  return { label: `元記事: ${pubFormatted}`, badgeText: '', badgeClass: '' };
+}
+
+function sortTimelineItems(items) {
+  return [...items].sort((a, b) => {
+    if (currentSortMode === 'published') {
+      const pubA = a.pub_ts || parseTimestamp(a.date) || a.timestamp || 0;
+      const pubB = b.pub_ts || parseTimestamp(b.date) || b.timestamp || 0;
+      return pubB - pubA;
+    } else {
+      // サイト掲載順（news.jsonの公式AI記事を最優先しつつ added_at の新しい順）
+      const staticA = a.isStaticJson ? 1 : 0;
+      const staticB = b.isStaticJson ? 1 : 0;
+      if (staticA !== staticB) return staticB - staticA;
+
+      const addA = a.added_at || a.timestamp || a.pub_ts || 0;
+      const addB = b.added_at || b.timestamp || b.pub_ts || 0;
+      return addB - addA;
+    }
+  });
 }
 
 function mergeAndSaveTimeline(newItems) {
@@ -294,7 +323,8 @@ function mergeAndSaveTimeline(newItems) {
     if (!isValidArticleForSite(cleanTitle, item.category)) return;
 
     const key = cleanTitle.slice(0, 48);
-    const ts = item.timestamp || parseTimestamp(item.date) || Date.now();
+    const pubTs = item.pub_ts || parseTimestamp(item.date) || item.timestamp || Date.now();
+    const addedTs = item.added_at || item.timestamp || pubTs;
     const id = item.id || generateArticleId(cleanTitle);
     const cat = cleanCategoryName(item.category);
     const keywords = (Array.isArray(item.keywords) && item.keywords.length > 0)
@@ -311,22 +341,22 @@ function mergeAndSaveTimeline(newItems) {
       id,
       category: cat,
       title: cleanTitle,
-      timestamp: ts,
-      date: item.date || new Date(ts).toLocaleDateString('ja-JP'),
+      pub_ts: pubTs,
+      added_at: addedTs,
+      timestamp: addedTs,
+      date: item.date || new Date(pubTs).toLocaleDateString('ja-JP'),
       keywords,
       ai_comment: specificComment
     };
     normalizedItem.ai_summary = generateDeepSummary(normalizedItem);
 
     const existing = map.get(key);
-    if (!existing || normalizedItem.timestamp > existing.timestamp || item.isStaticJson) {
+    if (!existing || item.isStaticJson || (!existing.isStaticJson && normalizedItem.added_at > existing.added_at)) {
       map.set(key, normalizedItem);
     }
   });
 
-  const merged = Array.from(map.values())
-    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
-    .slice(0, 300);
+  const merged = sortTimelineItems(Array.from(map.values())).slice(0, 300);
 
   try {
     localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(merged));
@@ -339,7 +369,7 @@ function parseRssItemsFromXml(rawText, category) {
   const items = [];
   const itemRegex = /<item[\s>]([\s\S]*?)<\/item>/gi;
   let match;
-  while ((match = itemRegex.exec(rawText)) !== null && items.length < 12) {
+  while ((match = itemRegex.exec(rawText)) !== null && items.length < 10) {
     const block = match[1];
     const titleMatch = block.match(/<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i);
     const linkMatch = block.match(/<link[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i);
@@ -350,15 +380,17 @@ function parseRssItemsFromXml(rawText, category) {
       if (!isValidArticleForSite(cleanTitle, category)) continue;
 
       const pubDateStr = dateMatch ? dateMatch[1].trim() : '';
-      const ts = parseTimestamp(pubDateStr) || Date.now();
+      const pubTs = parseTimestamp(pubDateStr) || Date.now();
       const keywords = extractArticleKeywords(cleanTitle, category);
       const baseItem = {
         id: generateArticleId(cleanTitle),
         category,
         title: cleanTitle,
         link: linkMatch[1].trim(),
-        date: new Date(ts).toLocaleDateString('ja-JP'),
-        timestamp: ts,
+        date: new Date(pubTs).toLocaleDateString('ja-JP'),
+        pub_ts: pubTs,
+        added_at: pubTs,
+        timestamp: pubTs,
         keywords,
         ai_comment: generateSpecificComment(cleanTitle, category)
       };
@@ -380,15 +412,17 @@ async function fetchCategoryLiveNews(catConfig) {
       for (const i of d.items) {
         const cleanTitle = decodeEntities((i.title || '').replace(/\s*-\s*[^-]+$/, ''));
         if (!isValidArticleForSite(cleanTitle, catConfig.category)) continue;
-        const ts = parseTimestamp(i.pubDate) || Date.now();
+        const pubTs = parseTimestamp(i.pubDate) || Date.now();
         const keywords = extractArticleKeywords(cleanTitle, catConfig.category);
         const baseItem = {
           id: generateArticleId(cleanTitle),
           category: catConfig.category,
           title: cleanTitle,
           link: i.link,
-          date: new Date(ts).toLocaleDateString('ja-JP'),
-          timestamp: ts,
+          date: new Date(pubTs).toLocaleDateString('ja-JP'),
+          pub_ts: pubTs,
+          added_at: pubTs,
+          timestamp: pubTs,
           keywords,
           ai_comment: generateSpecificComment(cleanTitle, catConfig.category)
         };
@@ -415,7 +449,6 @@ async function fetchCategoryLiveNews(catConfig) {
   }
 }
 
-// 記事ごとに生成されたOGPカード付きページ（share/art_xxx.html）があればそちらを優先し、X上で記事専用サムネカードを展開させる
 function getShareableArticleUrl(item) {
   const origin = window.location.origin;
   if (item && item.share_url) {
@@ -428,6 +461,25 @@ function getShareableArticleUrl(item) {
   const id = (item && item.id) ? item.id : item;
   return `${baseUrl}?article=${encodeURIComponent(id)}`;
 }
+
+// 並び順切り替え関数（「サイト掲載順」⇔「元記事の新着順」）
+window.setNewsSortMode = function(mode) {
+  currentSortMode = mode;
+  displayCount = 20;
+
+  const btnAdded = document.getElementById('sort-btn-added');
+  const btnPub = document.getElementById('sort-btn-published');
+  if (btnAdded && btnPub) {
+    if (mode === 'added') {
+      btnAdded.className = 'px-3 py-1.5 rounded-lg text-[11px] font-extrabold bg-indigo-600 text-white shadow-2xs transition cursor-pointer';
+      btnPub.className = 'px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer';
+    } else {
+      btnPub.className = 'px-3 py-1.5 rounded-lg text-[11px] font-extrabold bg-indigo-600 text-white shadow-2xs transition cursor-pointer';
+      btnAdded.className = 'px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer';
+    }
+  }
+  renderAiNews();
+};
 
 function ensureSearchAndKeywordBar() {
   if (newsLimitCount) return;
@@ -443,7 +495,7 @@ function ensureSearchAndKeywordBar() {
   const quickKeywords = ['サマーインターン', '27卒', '28卒', '海外大生向け', '外資・コンサル', '総合商社', '給付型・支援', 'オンライン開催'];
 
   searchContainer.innerHTML = `
-    <div class="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
+    <div class="flex flex-col md:flex-row gap-2.5 items-stretch md:items-center justify-between">
       <div class="relative flex-1">
         <input
           id="news-keyword-input"
@@ -459,8 +511,31 @@ function ensureSearchAndKeywordBar() {
           クリア
         </button>
       </div>
-      <div id="news-count-indicator" class="text-[11px] font-bold text-slate-500 shrink-0 px-1"></div>
+
+      <!-- 並び順切り替えスイッチ（サイト掲載順 / 元記事の新着順） -->
+      <div class="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+        <div class="inline-flex items-center bg-white p-1 rounded-xl border border-slate-200">
+          <button
+            id="sort-btn-added"
+            type="button"
+            onclick="window.setNewsSortMode('added')"
+            class="px-3 py-1.5 rounded-lg text-[11px] font-extrabold bg-indigo-600 text-white shadow-2xs transition cursor-pointer"
+          >
+            サイト掲載順（新着解説）
+          </button>
+          <button
+            id="sort-btn-published"
+            type="button"
+            onclick="window.setNewsSortMode('published')"
+            class="px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
+          >
+            元記事の発行日順
+          </button>
+        </div>
+        <div id="news-count-indicator" class="text-[11px] font-bold text-slate-500 shrink-0 px-1"></div>
+      </div>
     </div>
+
     <div class="flex items-center flex-wrap gap-1.5 mt-2.5 pt-2.5 border-t border-slate-200/60">
       <span class="text-[10px] font-bold text-slate-400 mr-1">注目ワード:</span>
       ${quickKeywords.map(kw => `
@@ -665,12 +740,21 @@ async function loadAiNews(limit = null) {
     const res = await fetch('news.json?v=' + Date.now());
     if (res.ok) {
       const data = await res.json();
-      const staticItems = (data.items || []).map(item => ({
-        ...item,
-        id: item.id || generateArticleId(item.title),
-        isStaticJson: true,
-        timestamp: item.timestamp || parseTimestamp(item.date) || (Date.now() - 86400000)
-      }));
+      const rawItems = data.items || [];
+      const total = rawItems.length;
+      const staticItems = rawItems.map((item, idx) => {
+        const pubTs = item.pub_ts || parseTimestamp(item.date) || item.timestamp || (Date.now() - 86400000);
+        // news.json 内の並び順（上が最新掲載）を維持できるよう added_at を補正
+        const addedTs = item.added_at || (Date.now() - idx * 1000);
+        return {
+          ...item,
+          id: item.id || generateArticleId(item.title),
+          isStaticJson: true,
+          pub_ts: pubTs,
+          added_at: addedTs,
+          timestamp: addedTs
+        };
+      });
       aiNewsCache = mergeAndSaveTimeline(staticItems);
       const updatedEl = document.getElementById('ai-news-updated');
       if (updatedEl && data.updated_at) {
@@ -688,11 +772,6 @@ async function loadAiNews(limit = null) {
     const liveItems = results.flat();
     if (liveItems.length > 0) {
       aiNewsCache = mergeAndSaveTimeline(liveItems);
-      const updatedEl = document.getElementById('ai-news-updated');
-      if (updatedEl) {
-        const nowStr = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-        updatedEl.innerText = `自動更新: 本日 ${nowStr} （アーカイブ総数: ${aiNewsCache.length}件）`;
-      }
       renderAiNews();
       checkDeepLinkArticle();
     }
@@ -759,7 +838,7 @@ function renderAiNews() {
   const grid = document.getElementById('ai-news-grid');
   if (!grid) return;
 
-  let list = aiNewsCache;
+  let list = sortTimelineItems(aiNewsCache);
 
   if (currentNewsCat !== 'all') {
     const cleanCat = cleanCategoryName(currentNewsCat);
@@ -786,7 +865,7 @@ function renderAiNews() {
   const countEl = document.getElementById('news-count-indicator');
   if (countEl) {
     countEl.textContent = currentSearchQuery
-      ? `「${currentSearchQuery}」の検索結果: ${totalMatching}件`
+      ? `「${currentSearchQuery}」: ${totalMatching}件`
       : `表示中: ${Math.min(totalMatching, maxToShow)} / 全${totalMatching}件`;
   }
 
