@@ -13,22 +13,22 @@ GEMINI_API_KEY = (os.environ.get("GEMINI_API_KEY") or "").strip()
 NEWS_JSON_PATH = "news.json"
 SITE_BASE_URL = "https://ryugaku-intern.com"
 MAX_ARCHIVE_ITEMS = 200
-MAX_NEW_ARTICLES_PER_RUN = 4
+MAX_NEW_ARTICLES_PER_RUN = 6  # 毎回安定して新着が並ぶよう最大6件に拡大
 
-EXCLUSIONS = '-"大学" -"学部" -"歯学部" -"歯科" -"看護" -"薬学" -"介護" -"交換留学" -"体験記" -"社員旅行" -"懇親会"'
+EXCLUSIONS = '-"歯学部" -"歯科" -"看護" -"薬学" -"介護" -"交換留学" -"体験記" -"社員旅行" -"懇親会"'
 
 SEARCH_QUERIES = [
     {
         "category": "インターン",
-        "query": f'site:prtimes.jp ("サマーインターン" OR "ウィンターインターン" OR "長期インターン" OR "インターンシップ") ("募集" OR "エントリー" OR "開催") {EXCLUSIONS} when:14d'
+        "query": f'site:prtimes.jp ("サマーインターン" OR "ウィンターインターン" OR "長期インターン" OR "インターンシップ") ("募集" OR "エントリー" OR "開催") {EXCLUSIONS} when:30d'
     },
     {
         "category": "外資・商社",
-        "query": f'("外資" OR "総合商社" OR "戦略コンサル" OR "投資銀行" OR "グローバル採用") ("新卒" OR "インターン" OR "募集" OR "本選考" OR "説明会") {EXCLUSIONS} when:14d'
+        "query": f'("外資" OR "総合商社" OR "戦略コンサル" OR "投資銀行" OR "グローバル採用") ("新卒" OR "インターン" OR "募集" OR "本選考" OR "説明会") {EXCLUSIONS} when:30d'
     },
     {
         "category": "ボスキャリ",
-        "query": f'("ボストンキャリアフォーラム" OR "ボスキャリ" OR "キャリアフォーラム" OR "海外大生") ("採用" OR "選考" OR "募集" OR "セミナー" OR "企業") {EXCLUSIONS} when:30d'
+        "query": f'("ボストンキャリアフォーラム" OR "ボスキャリ" OR "キャリアフォーラム" OR "海外大生") ("採用" OR "選考" OR "募集" OR "セミナー" OR "企業") {EXCLUSIONS} when:45d'
     },
     {
         "category": "奨学金",
@@ -36,7 +36,7 @@ SEARCH_QUERIES = [
     },
     {
         "category": "就活戦略",
-        "query": f'site:prtimes.jp ("新卒採用" OR "就活" OR "就活生" OR "グローバルキャリア") ("ワークショップ" OR "オンライン説明会" OR "選考対策" OR "キャリアセミナー") {EXCLUSIONS} when:14d'
+        "query": f'("新卒採用" OR "就活" OR "就活生" OR "グローバルキャリア") ("ワークショップ" OR "オンライン説明会" OR "選考対策" OR "キャリアセミナー") {EXCLUSIONS} when:30d'
     }
 ]
 
@@ -55,7 +55,7 @@ SPECIFIC_UNI_PATTERN = re.compile(
 
 REQUIRED_CAREER_SIGNALS = [
     "インターン", "新卒", "就活", "採用", "選考", "エントリー", "ボスキャリ", "キャリアフォーラム",
-    "説明会", "奨学金", "給付", "財団", "海外大生", "留学生", "卒向け", "年卒"
+    "説明会", "奨学金", "給付", "財団", "海外大生", "留学生", "卒向け", "年卒", "グローバル"
 ]
 
 
@@ -127,9 +127,9 @@ def extract_keywords_fallback(title, category):
 
 def discover_available_models(api_key):
     known_fallbacks = [
+        "gemini-3-flash-preview",
         "gemini-3.8-flash",
         "gemini-flash-latest",
-        "gemini-3-flash-preview",
         "gemini-3.5-flash-lite"
     ]
     api_host = "generativelanguage" + ".googleapis.com"
@@ -209,7 +209,7 @@ def extract_article_body_text(url):
         return ""
 
 
-def fetch_rss_items(query_info, max_age_days=35):
+def fetch_rss_items(query_info, max_age_days=45):
     host = "news" + ".google.com"
     url = f"https://{host}/rss/search?q={urllib.parse.quote(query_info['query'])}&hl=ja&gl=JP&ceid=JP:ja"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -236,10 +236,10 @@ def fetch_rss_items(query_info, max_age_days=35):
                 if (now - dt).days > max_age_days:
                     continue
                 date_str = dt.astimezone(timezone(timedelta(hours=9))).strftime("%Y/%m/%d")
-                ts = int(dt.timestamp() * 1000)
+                pub_ts = int(dt.timestamp() * 1000)
             except Exception:
                 date_str = now.astimezone(timezone(timedelta(hours=9))).strftime("%Y/%m/%d")
-                ts = int(now.timestamp() * 1000)
+                pub_ts = int(now.timestamp() * 1000)
 
             items.append({
                 "id": make_article_id(title),
@@ -247,10 +247,11 @@ def fetch_rss_items(query_info, max_age_days=35):
                 "link": link,
                 "category": query_info["category"],
                 "date": date_str,
-                "timestamp": ts,
+                "pub_ts": pub_ts,       # 元記事の公開日時
+                "timestamp": pub_ts,    # 承認時にサイト掲載日時（added_at）へ更新
                 "rss_snippet": desc_clean[:500]
             })
-            if len(items) >= 5:
+            if len(items) >= 8:
                 break
     except Exception as e:
         print(f"RSS fetch error ({query_info['category']}): {e}")
@@ -322,22 +323,13 @@ def analyze_single_article_with_gemini(item, body_text, model_candidates):
 1. comment（110〜140文字）:
    タイムラインの一覧カードに表示する「AI視点の鋭い要点」。定型文は一切使わず、この記事固有の企業名・主催団体・対象卒年・プログラムの特徴と、なぜ今チェックすべきかを具体的に凝縮すること。
 2. summary（必ず1,000〜1,400文字以上の長文で徹底解説すること）:
-   記事をタップした読者は「この記事の詳しい中身と、自分がどう動くべきかの本質的な攻略法」を知りたくて開いています。薄っぺらい要約ではなく、以下の5部構成（各見出しの前に改行を入れる）で、具体例や背景知識を交えて1,000文字以上で濃密に執筆してください：
+   以下の5部構成（各見出しの前に改行を入れる）で、具体例や背景知識を交えて1,000文字以上で濃密に執筆してください：
 
    【1. ニュースの核心と募集・発表ファクトの徹底整理】
-   （どの企業・団体が、どの層を対象に、どのようなプログラム・選考・インターン・奨学金を発表したのか。本文やタイトルから読み取れる日時・形式・定員・特徴などのファクトを漏れなく具体的に整理する）
-
    【2. 業界動向・採用構造から見た本質的な意味】
-   （なぜこの企業・団体がいまこの施策を打っているのか。早期選考化、ジョブ型採用、グローバル人材獲得競争、あるいは留学支援のトレンドなど、マクロな構造から見たこの記事の重要性を深く解説する）
-
    【3. 海外大生・グローバル就活生への影響と特有の注意点】
-   （海外滞在中・留学中の学生がこの情報をどう活用すべきか。オンライン参加の可否、時差への対応、6〜9月の一時帰国スケジュールとの兼ね合い、ボスキャリや本選考優遇ルートへの直結度、奨学金なら正規留学/交換留学の対象区分や併給条件など、海外大生ならではの視点を掘り下げる）
-
    【4. 選考突破・採択に向けた実践的アプローチ】
-   （このインターンや選考、イベント、奨学金に応募する際、ES・レジュメ・面接・Webテスト等でどのような点が見られるか、海外大生はどう強みをアピールすべきかの具体的な対策論）
-
    【5. 今すぐ実行すべきネクストアクション】
-   （読者が今日この画面を閉じた直後に取るべき具体的な行動ステップを3点、箇条書きで明確に提示する）
 
 3. keywords（3〜5個）:
    記事検索・タグ絞り込み用の具体的なキーワード配列（例: ["三井物産", "サマーインターン", "28卒", "海外大生向け"]）。
@@ -448,8 +440,20 @@ def generate_share_pages(items):
             sf.write(html_content)
 
 
+def parse_date_to_ms(date_str):
+    try:
+        parts = re.split(r'[/\-.年月日]', str(date_str).strip())
+        parts = [int(p) for p in parts if p.strip().isdigit()]
+        if len(parts) >= 3:
+            dt = datetime(parts[0], parts[1], parts[2], tzinfo=timezone(timedelta(hours=9)))
+            return int(dt.timestamp() * 1000)
+    except Exception:
+        pass
+    return 0
+
+
 def main():
-    print("Starting Atrium Deep AI News Curator (1000+ chars & OGP Link Card Edition)...")
+    print("Starting Atrium Deep AI News Curator (Dual Sort: Added Order & Published Order)...")
     model_candidates = discover_available_models(GEMINI_API_KEY) if GEMINI_API_KEY else []
 
     existing_items = []
@@ -475,6 +479,12 @@ def main():
         item["category"] = cat
         item["id"] = make_article_id(title)
         item.pop("rss_snippet", None)
+
+        # 元記事の公開日タイムスタンプ（pub_ts）とサイト掲載タイムスタンプ（added_at）を整備
+        inferred_pub_ts = item.get("pub_ts") or parse_date_to_ms(item.get("date")) or item.get("timestamp") or 0
+        item["pub_ts"] = inferred_pub_ts
+        item["added_at"] = item.get("added_at") or item.get("timestamp") or inferred_pub_ts
+        item["timestamp"] = item["added_at"]
 
         current_summary = item.get("ai_summary") or ""
         if len(current_summary) < 650 and GEMINI_API_KEY and upgraded_count < 2:
@@ -517,12 +527,17 @@ def main():
 
     targets = candidates[:MAX_NEW_ARTICLES_PER_RUN]
     approved_new = []
+    run_base_ms = int(time.time() * 1000)
+    jst_added_str = datetime.now(timezone(timedelta(hours=9))).strftime("%Y/%m/%d %H:%M")
 
     for idx, item in enumerate(targets):
         print(f"[{idx + 1}/{len(targets)}] Scraping & Writing 1000+ chars Deep Analysis: {item['title'][:40]}...")
         body_text = extract_article_body_text(item["link"])
         ai_res = analyze_single_article_with_gemini(item, body_text, model_candidates)
         snippet = item.pop("rss_snippet", "")
+
+        # サイト掲載順で確実に一番上に並ぶよう、現在時刻ベースの added_at を付与
+        added_ts = run_base_ms + (len(targets) - idx) * 1000
 
         if ai_res is not None:
             if ai_res.get("is_relevant") is False:
@@ -531,6 +546,9 @@ def main():
             fb_comment, fb_summary = build_rich_fallback(item["title"], item["category"], snippet)
             item["ai_comment"] = (ai_res.get("comment") or fb_comment).strip()
             item["ai_summary"] = (ai_res.get("summary") or fb_summary).strip()
+            item["added_at"] = added_ts
+            item["added_date"] = jst_added_str
+            item["timestamp"] = added_ts
             kws = ai_res.get("keywords")
             item["keywords"] = (
                 [str(k).lstrip("#").strip() for k in kws[:5] if str(k).strip()]
@@ -542,6 +560,9 @@ def main():
             fb_comment, fb_summary = build_rich_fallback(item["title"], item["category"], snippet)
             item["ai_comment"] = fb_comment
             item["ai_summary"] = fb_summary
+            item["added_at"] = added_ts
+            item["added_date"] = jst_added_str
+            item["timestamp"] = added_ts
             item["keywords"] = extract_keywords_fallback(item["title"], item["category"])
             approved_new.append(item)
 
@@ -549,7 +570,8 @@ def main():
             time.sleep(5)
 
     combined = approved_new + normalized_existing
-    combined.sort(key=lambda x: x.get("timestamp", 0), reverse=True)
+    # デフォルトは「Atriumでの掲載順（added_at の新しい順）」でソートして保存
+    combined.sort(key=lambda x: x.get("added_at") or x.get("timestamp") or 0, reverse=True)
     combined = combined[:MAX_ARCHIVE_ITEMS]
 
     generate_share_pages(combined)
