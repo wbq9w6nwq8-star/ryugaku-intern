@@ -128,9 +128,9 @@ def extract_keywords_fallback(title, category):
 def discover_available_models(api_key):
     known_fallbacks = [
         "gemini-3.8-flash",
-        "gemini-3.5-flash-lite",
-        "gemini-3-pro",
-        "gemini-3-flash"
+        "gemini-flash-latest",
+        "gemini-3-flash-preview",
+        "gemini-3.5-flash-lite"
     ]
     api_host = "generativelanguage" + ".googleapis.com"
     list_url = f"https://{api_host}/v1beta/models?key={api_key}"
@@ -140,9 +140,8 @@ def discover_available_models(api_key):
         with urllib.request.urlopen(req, timeout=12) as res:
             data = json.loads(res.read().decode("utf-8"))
 
-        pro_models = []
         flash_models = []
-        lite_models = []
+        pro_models = []
 
         for m in data.get("models", []):
             name = m.get("name", "").replace("models/", "")
@@ -151,31 +150,31 @@ def discover_available_models(api_key):
 
             if "generateContent" not in methods:
                 continue
-            if any(ex in lname for ex in ["omni", "audio", "tts", "image", "vision", "embedding", "aqa", "1.0", "1.5", "2.0", "2.5"]):
+            # 画像・音楽・旧世代・制限の厳しい特殊モデルを徹底除外
+            if any(ex in lname for ex in [
+                "omni", "audio", "tts", "image", "vision", "embedding", "aqa",
+                "nano-banana", "lyria", "veo", "imagen", "1.0", "1.5", "2.0", "2.5"
+            ]):
                 continue
 
-            if "pro" in lname:
-                pro_models.append(name)
-            elif "lite" in lname:
-                lite_models.append(name)
-            elif "flash" in lname:
+            if "flash" in lname and "lite" not in lname:
                 flash_models.append(name)
+            elif "pro" in lname:
+                pro_models.append(name)
 
-        pro_models.sort(reverse=True)
         flash_models.sort(reverse=True)
-        lite_models.sort(reverse=True)
+        pro_models.sort(reverse=True)
 
-        discovered = flash_models[:2] + pro_models[:2] + lite_models[:2]
+        discovered = flash_models[:2] + pro_models[:1]
         for fb in known_fallbacks:
             if fb not in discovered:
                 discovered.append(fb)
 
-        print(f"Discovered active Gemini models: {discovered[:5]}")
-        return discovered[:5]
+        print(f"Discovered active Gemini models: {discovered[:4]}")
+        return discovered[:4]
     except Exception as e:
         print(f"Model discovery warning ({e}), using known fallbacks: {known_fallbacks}")
         return known_fallbacks
-
 
 def extract_article_body_text(url):
     try:
@@ -373,6 +372,10 @@ def analyze_single_article_with_gemini(item, body_text, model_candidates):
                 result = json.loads(res.read().decode("utf-8"))
                 text_out = result["candidates"][0]["content"]["parts"][0]["text"]
                 parsed = json.loads(text_out)
+                if isinstance(parsed, list) and len(parsed) > 0:
+                    parsed = parsed[0]
+                if isinstance(parsed, dict) and "is_relevant" in parsed:
+                    
                 if isinstance(parsed, dict) and "is_relevant" in parsed:
                     summary_len = len(parsed.get("summary") or "")
                     print(f"Success with [{model_name}] ({summary_len} chars): {item['title'][:30]}...")
