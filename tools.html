@@ -1,54 +1,57 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" class="scroll-smooth">
 <head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9644749026345882" crossorigin="anonymous"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>海外大生・就活便利ツールボックス | Atrium (RyugakuIntern)</title>
-  <meta name="description" content="海外大生のための時差面接日程調整メール自動生成、海外大GPA換算シミュレーター、卒業時期別ボスキャリ＆就活逆算ロードマップ、英語レジュメ⇔日本語履歴書変換ツール。" />
-  <link rel="icon" href="favicon.png" />
-  <link rel="stylesheet" href="css/style.css" />
+  <title>海外大生・就活便利ツールボックス | Atrium</title>
+  <meta name="description" content="海外大生のための時差面接日程調整メール自動生成（サマータイム・全世界都市検索対応）、海外大GPA換算シミュレーター、卒業時期別ボスキャリ＆就活逆算ロードマップ、英語レジュメ⇔日本語履歴書変換ツール。" />
+  <link rel="icon" type="image/png" href="favicon.png?v=99" />
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon.png?v=99" />
+  <link rel="shortcut icon" href="favicon.png?v=99" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="custom.css" />
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
-  <!-- 共通ヘッダー -->
-  <div id="site-header"></div>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen antialiased flex flex-col">
+  <!-- 全ページ共通ヘッダー -->
+  <div id="common-header"></div>
 
-  <!-- ヒーローヘッダー -->
-  <section class="bg-white border-b border-slate-200 py-8 sm:py-12 px-4">
+  <!-- ヒーロー＆4ツール切り替えタブ -->
+  <section class="bg-white border-b border-slate-200 py-8 sm:py-10 px-4">
     <div class="max-w-5xl mx-auto">
       <div class="inline-flex items-center space-x-2 bg-indigo-50 text-indigo-700 text-xs font-extrabold px-3 py-1 rounded-full border border-indigo-100 mb-3">
-        <span>⚡ 海外正規大生・交換留学生 専用ユーティリティ</span>
+        <span>Overseas Student Career Utilities</span>
       </div>
       <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
         海外大生・就活便利ツールボックス
       </h1>
       <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed max-w-3xl">
-        「サマータイム込みの時差計算ミス」「海外大のGPAや学位の日本語表記」「ボスキャリや本選考の逆算スケジュール」など、海外大生特有の面倒な作業を10秒で片付ける4つの実用ツールです。すべてブラウザ上で即座に動作します。
+        サマータイム込みの時差計算ミス、海外大のGPAや学位の日本語表記、ボスキャリや本選考の逆算スケジュールなど、海外大生特有の煩雑な作業を10秒で解決する4つの実用ツールです。
       </p>
 
-      <!-- 4ツール切り替えタブナビゲーション -->
+      <!-- タブボタン -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mt-6" id="tool-tabs">
         <button type="button" onclick="switchToolTab('timezone')" id="tab-btn-timezone" class="tool-tab-btn flex flex-col items-start p-3.5 rounded-2xl border text-left transition cursor-pointer bg-slate-900 text-white border-slate-900 shadow-sm">
-          <span class="text-xs font-extrabold opacity-80">TOOL 01</span>
-          <span class="text-xs sm:text-sm font-extrabold mt-0.5">🌍 時差面接・日程メール生成</span>
+          <span class="text-[11px] font-extrabold opacity-80">TOOL 01</span>
+          <span class="text-xs sm:text-sm font-extrabold mt-0.5">時差面接・日程メール生成</span>
         </button>
         <button type="button" onclick="switchToolTab('roadmap')" id="tab-btn-roadmap" class="tool-tab-btn flex flex-col items-start p-3.5 rounded-2xl border text-left transition cursor-pointer bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200">
-          <span class="text-xs font-extrabold text-indigo-600">TOOL 02</span>
-          <span class="text-xs sm:text-sm font-extrabold mt-0.5">🗓️ 逆算就活・ボスキャリ計画</span>
+          <span class="text-[11px] font-extrabold text-indigo-600">TOOL 02</span>
+          <span class="text-xs sm:text-sm font-extrabold mt-0.5">逆算就活・ボスキャリ計画</span>
         </button>
         <button type="button" onclick="switchToolTab('gpa')" id="tab-btn-gpa" class="tool-tab-btn flex flex-col items-start p-3.5 rounded-2xl border text-left transition cursor-pointer bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200">
-          <span class="text-xs font-extrabold text-indigo-600">TOOL 03</span>
-          <span class="text-xs sm:text-sm font-extrabold mt-0.5">📊 海外大GPA・ES表現換算</span>
+          <span class="text-[11px] font-extrabold text-indigo-600">TOOL 03</span>
+          <span class="text-xs sm:text-sm font-extrabold mt-0.5">海外大GPA・ES表現換算</span>
         </button>
         <button type="button" onclick="switchToolTab('resume')" id="tab-btn-resume" class="tool-tab-btn flex flex-col items-start p-3.5 rounded-2xl border text-left transition cursor-pointer bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200">
-          <span class="text-xs font-extrabold text-indigo-600">TOOL 04</span>
-          <span class="text-xs sm:text-sm font-extrabold mt-0.5">📄 英語レジュメ⇔履歴書変換</span>
+          <span class="text-[11px] font-extrabold text-indigo-600">TOOL 04</span>
+          <span class="text-xs sm:text-sm font-extrabold mt-0.5">英語レジュメ⇔履歴書変換</span>
         </button>
       </div>
     </div>
   </section>
 
-  <!-- メインコンテンツ領域 -->
+  <!-- メインコンテンツ -->
   <main class="max-w-5xl w-full mx-auto px-4 py-8 flex-1">
 
     <!-- ==========================================
@@ -60,28 +63,29 @@
           <div>
             <span class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">Timezone & Interview Scheduler</span>
             <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5">日本企業との「時差面接」日程調整メール自動生成</h2>
-            <p class="text-xs text-slate-500 mt-1">サマータイム（夏時間 / 冬時間）を自動判定し、現地時間から日本時間（JST）への変換と丁寧なビジネスメール出力を同時に行います。</p>
+            <p class="text-xs text-slate-500 mt-1">候補日ごとのサマータイム（夏時間 / 冬時間）を自動判定し、現地時間から日本時間（JST）への変換とビジネスメール生成を同時に行います。</p>
           </div>
           <button type="button" onclick="shareCurrentTool('timezone', '日本企業との「時差面接」日程調整メール自動生成ツール')" class="self-start sm:self-auto text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl transition cursor-pointer shrink-0">
-            🔗 このツールをシェア
+            このツールを共有
           </button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <!-- 左側：入力フォーム -->
+          <!-- 左側：設定＆候補日時 -->
           <div class="lg:col-span-6 space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-extrabold text-slate-700 mb-1.5">1. 現在の滞在都市（タイムゾーン）</label>
-                <select id="tz-city" onchange="updateTimezoneMail()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:border-indigo-500">
-                  <option value="Europe/London" data-label="英国（ロンドン等）">🇬🇧 ロンドン・英国 (GMT/BST)</option>
-                  <option value="America/New_York" data-label="米国東部（NY・ボストン・トロント等）">🇺🇸 ニューヨーク・ボストン・トロント (EST/EDT)</option>
-                  <option value="America/Los_Angeles" data-label="米国西海岸（LA・SF・シアトル・バンクーバー等）">🇺🇸 LA・サンフランシスコ・バンクーバー (PST/PDT)</option>
-                  <option value="America/Chicago" data-label="米国中部（シカゴ・テキサス等）">🇺🇸 シカゴ・オースティン (CST/CDT)</option>
-                  <option value="Europe/Paris" data-label="欧州中央（パリ・ベルリン・アムステルダム等）">🇪🇺 パリ・ベルリン・欧州中央 (CET/CEST)</option>
-                  <option value="Australia/Sydney" data-label="豪州東部（シドニー・メルボルン等）">🇦🇺 シドニー・メルボルン (AEST/AEDT)</option>
-                  <option value="Asia/Singapore" data-label="シンガポール・香港・マレーシア">🇸🇬 シンガポール・香港・KL (SGT/HKT)</option>
-                  <option value="Pacific/Auckland" data-label="ニュージーランド（オークランド等）">🇳🇿 オークランド (NZST/NZDT)</option>
+                <select id="tz-city" onchange="onTzCitySelectChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:border-indigo-500">
+                  <option value="Europe/London" data-label="英国（ロンドン等）">ロンドン・英国 (GMT/BST)</option>
+                  <option value="America/New_York" data-label="米国東部・カナダ東部（NY・ボストン・トロント等）">NY・ボストン・トロント (EST/EDT)</option>
+                  <option value="America/Los_Angeles" data-label="北米西海岸（LA・SF・シアトル・バンクーバー等）">LA・SF・バンクーバー (PST/PDT)</option>
+                  <option value="America/Chicago" data-label="米国中部（シカゴ・テキサス等）">シカゴ・テキサス (CST/CDT)</option>
+                  <option value="Europe/Paris" data-label="欧州中央（パリ・ベルリン・アムステルダム等）">パリ・ベルリン・欧州中央 (CET/CEST)</option>
+                  <option value="Australia/Sydney" data-label="豪州東部（シドニー・メルボルン等）">シドニー・メルボルン (AEST/AEDT)</option>
+                  <option value="Asia/Singapore" data-label="シンガポール・マレーシア・香港">シンガポール・KL・香港 (SGT/MYT)</option>
+                  <option value="Pacific/Auckland" data-label="ニュージーランド（オークランド等）">オークランド (NZST/NZDT)</option>
+                  <option value="__custom__">その他（都市名を自由入力して時差を自動計算）</option>
                 </select>
               </div>
               <div>
@@ -94,10 +98,24 @@
               </div>
             </div>
 
+            <!-- 「その他（都市名を自由入力）」選択時に開く検索ボックス -->
+            <div id="tz-custom-city-box" class="hidden bg-indigo-50/70 border border-indigo-200 rounded-2xl p-3.5 space-y-2">
+              <label class="block text-xs font-extrabold text-indigo-950">滞在している都市名を入力（日本語または英語）</label>
+              <div class="flex gap-2">
+                <input type="text" id="tz-custom-city-input" placeholder="都市名を入力（例: マドリード, バンクーバー, ソウル, Honolulu）" onkeydown="if(event.key==='Enter'){event.preventDefault();resolveCustomTzCity();}" class="flex-1 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-indigo-500" />
+                <button type="button" onclick="resolveCustomTzCity()" id="tz-custom-search-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold px-4 py-2 rounded-xl transition cursor-pointer shrink-0">
+                  時差を自動取得
+                </button>
+              </div>
+              <p id="tz-custom-status" class="text-[11px] font-bold text-indigo-700">
+                都市名を入力して「時差を自動取得」を押すと、その都市のタイムゾーンとサマータイム規則を自動で反映します。
+              </p>
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-bold text-slate-600 mb-1">宛先（企業名・担当者名）</label>
-                <input type="text" id="tz-company" oninput="updateTimezoneMail()" placeholder="例：〇〇株式会社 新卒採用担当様" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-indigo-500" />
+                <input type="text" id="tz-company" oninput="updateTimezoneMail()" placeholder="例：〇〇株式会社 新卒採用ご担当者様" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-indigo-500" />
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-600 mb-1">自分の氏名・大学名</label>
@@ -105,7 +123,7 @@
               </div>
             </div>
 
-            <!-- 候補日時リスト（現地時間で入力） -->
+            <!-- 候補日時リスト -->
             <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/80">
               <div class="flex items-center justify-between mb-3">
                 <label class="text-xs font-extrabold text-slate-800">3. 面接可能な「現地日時」を入力</label>
@@ -115,28 +133,26 @@
               </div>
               <div id="tz-slots-container" class="space-y-2.5"></div>
               <p class="text-[11px] text-slate-500 mt-3 leading-relaxed">
-                💡 現地時間（あなたの時計）で入力してください。右側のプレビューに<strong>日本時間（JST）へ自動変換された日時</strong>と、深夜・早朝かどうかの判定が表示されます。
+                あなたの現地時間（現地の時計）で日付と時間を指定してください。候補日の日付に応じて<strong>サマータイム（夏時間 / 冬時間）を自動判定</strong>し、正確な日本時間（JST）へ変換します。
               </p>
             </div>
           </div>
 
-          <!-- 右側：JST変換プレビュー＆コピペ用メール -->
+          <!-- 右側：JST変換＆サマータイム判定プレビュー＋メール出力 -->
           <div class="lg:col-span-6 flex flex-col justify-between space-y-4">
-            <!-- 変換確認バッジ枠 -->
             <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-extrabold text-indigo-900">⏱️ 現地時間 ⇔ 日本時間（JST）自動変換チェック</span>
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                <span class="text-xs font-extrabold text-indigo-950">現地時間 ⇔ 日本時間（JST）自動変換＆サマータイム判定</span>
                 <span id="tz-offset-badge" class="text-[11px] font-mono font-bold bg-white text-indigo-700 px-2.5 py-0.5 rounded-full border border-indigo-200"></span>
               </div>
               <div id="tz-conversion-preview" class="space-y-1.5 text-xs text-slate-700"></div>
             </div>
 
-            <!-- 生成されたメール文面 -->
             <div class="flex-1 flex flex-col">
               <div class="flex items-center justify-between mb-1.5">
-                <label class="text-xs font-extrabold text-slate-700">生成されたメール文面（そのまま編集も可能）</label>
+                <label class="text-xs font-extrabold text-slate-700">生成されたメール文面（そのまま編集・コピー可能）</label>
                 <button type="button" onclick="copyTextarea('tz-mail-output', 'tz-copy-btn')" id="tz-copy-btn" class="text-xs font-extrabold bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-xl transition cursor-pointer shadow-2xs">
-                  📋 文面をコピーする
+                  文面をコピーする
                 </button>
               </div>
               <textarea id="tz-mail-output" rows="13" class="w-full flex-1 bg-slate-900 text-slate-100 font-mono text-xs leading-relaxed p-4 rounded-2xl border border-slate-800 focus:outline-none focus:border-indigo-500"></textarea>
@@ -155,14 +171,13 @@
           <div>
             <span class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">Reverse Career Roadmap Generator</span>
             <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5">卒業時期別・逆算就活＆ボスキャリロードマップ生成機</h2>
-            <p class="text-xs text-slate-500 mt-1">卒業予定年月と志望業界を選ぶだけで、いつ何に出願すべきかを自動算出。カレンダー登録（.ics）にも対応しています。</p>
+            <p class="text-xs text-slate-500 mt-1">卒業予定年月と志望業界を選ぶだけで、いつ何に出願すべきかを自動算出。カレンダー一括登録（.ics）にも対応しています。</p>
           </div>
           <button type="button" onclick="shareCurrentTool('roadmap', '卒業時期別・逆算就活＆ボスキャリロードマップ生成機')" class="self-start sm:self-auto text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl transition cursor-pointer shrink-0">
-            🔗 このツールをシェア
+            このツールを共有
           </button>
         </div>
 
-        <!-- 条件選択バー -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80 mb-6">
           <div>
             <label class="block text-xs font-extrabold text-slate-700 mb-1.5">1. 卒業予定時期</label>
@@ -177,28 +192,25 @@
           <div>
             <label class="block text-xs font-extrabold text-slate-700 mb-1.5">2. 第一志望の業界・ルート</label>
             <select id="rm-industry" onchange="renderRoadmap()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:border-indigo-500">
-              <option value="gaishi">💼 外資系コンサル・外資系投資銀行 (IBD/マーケット)</option>
-              <option value="shosha">🌍 総合商社・デベロッパー・日系グローバル難関</option>
-              <option value="nikkei">🏢 日系大手メーカー・金融・インフラ・IT</option>
-              <option value="startup">🚀 メガベンチャー・AI/SaaSスタートアップ</option>
+              <option value="gaishi">外資系コンサル・外資系投資銀行 (IBD/マーケット)</option>
+              <option value="shosha">総合商社・デベロッパー・日系グローバル難関</option>
+              <option value="nikkei">日系大手メーカー・金融・インフラ・IT</option>
+              <option value="startup">メガベンチャー・AI/SaaSスタートアップ</option>
             </select>
           </div>
           <div class="flex flex-col justify-end">
             <div class="flex gap-2">
               <button type="button" onclick="downloadRoadmapIcs()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-2.5 px-3 rounded-xl transition cursor-pointer shadow-2xs">
-                📅 カレンダー一括登録 (.ics)
+                カレンダー登録 (.ics)
               </button>
               <button type="button" onclick="copyRoadmapText()" id="rm-copy-btn" class="bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl border border-slate-200 transition cursor-pointer">
-                📋 コピー
+                コピー
               </button>
             </div>
           </div>
         </div>
 
-        <!-- 戦略サマリーバナー -->
         <div id="rm-summary-box" class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4 mb-6 text-xs sm:text-sm text-slate-700 leading-relaxed"></div>
-
-        <!-- タイムラインカード一覧 -->
         <div id="rm-timeline" class="space-y-3"></div>
       </div>
     </section>
@@ -215,20 +227,19 @@
             <p class="text-xs text-slate-500 mt-1">英国（First / 2:1）、北米（4.0スケール）、豪州（HD/D・7.0スケール）などを日本の4.0GPA目安に変換し、ES用の説明文を生成します。</p>
           </div>
           <button type="button" onclick="shareCurrentTool('gpa', '海外大GPA・成績 ⇔ 日本企業ES表記 換算シミュレーター')" class="self-start sm:self-auto text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl transition cursor-pointer shrink-0">
-            🔗 このツールをシェア
+            このツールを共有
           </button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <!-- 左：入力 -->
           <div class="lg:col-span-5 space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200/80">
             <div>
               <label class="block text-xs font-extrabold text-slate-700 mb-1.5">1. 大学の成績評価システム（国・地域）</label>
               <select id="gpa-system" onchange="onGpaSystemChange()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:border-indigo-500">
-                <option value="uk">🇬🇧 イギリス式（First / 2:1 / 2:2・パーセント評価）</option>
-                <option value="us">🇺🇸 アメリカ・カナダ式（4.0スケール GPA）</option>
-                <option value="au">🇦🇺 オーストラリア式（HD / D / Cr・7.0スケール）</option>
-                <option value="eu">🇪🇺 欧州・ECTS / 10点・20点満点スケール</option>
+                <option value="uk">イギリス式（First / 2:1 / 2:2・パーセント評価）</option>
+                <option value="us">アメリカ・カナダ式（4.0スケール GPA）</option>
+                <option value="au">オーストラリア式（HD / D / Cr・7.0スケール）</option>
+                <option value="eu">欧州・ECTS / 10点・20点満点スケール</option>
               </select>
             </div>
 
@@ -243,12 +254,11 @@
             </div>
 
             <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 text-[11px] text-slate-500 leading-relaxed">
-              💡 <strong>なぜ説明が必要？</strong><br />
-              例えば英国大学の「65%（Upper Second / 2:1）」は現地では優秀な成績ですが、日本の人事担当者が数字だけ見ると「100点満点で65点＝C評価？」と誤解されるケースが頻発します。ESの備考欄に換算基準を添えるだけで書類通過率が安定します。
+              <strong>なぜ補足説明が必要？</strong><br />
+              例えば英国大学の「65%（Upper Second / 2:1）」は現地では優秀な成績ですが、日本の人事担当者が数字だけ見ると「100点満点で65点＝C評価？」と誤解されるケースがあります。ESの備考欄に換算基準を添えるだけで書類選考の誤解を防げます。
             </div>
           </div>
 
-          <!-- 右：換算結果とコピペ表現 -->
           <div class="lg:col-span-7 space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4">
@@ -267,7 +277,7 @@
               <div class="flex items-center justify-between mb-2">
                 <span class="text-xs font-extrabold text-slate-800">① ESの「GPA・成績記入欄（短文・備考枠）」用テキスト</span>
                 <button type="button" onclick="copyTextarea('gpa-short-output', 'gpa-copy-short')" id="gpa-copy-short" class="text-xs font-bold bg-white hover:bg-slate-100 text-indigo-600 border border-indigo-200 px-3 py-1 rounded-lg transition cursor-pointer">
-                  📋 コピー
+                  コピー
                 </button>
               </div>
               <textarea id="gpa-short-output" rows="2" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs sm:text-sm text-slate-800 focus:outline-none"></textarea>
@@ -277,7 +287,7 @@
               <div class="flex items-center justify-between mb-2">
                 <span class="text-xs font-extrabold text-slate-800">② ES・面接の「学業で力を入れたこと」アピール文テンプレート</span>
                 <button type="button" onclick="copyTextarea('gpa-long-output', 'gpa-copy-long')" id="gpa-copy-long" class="text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1 rounded-lg transition cursor-pointer">
-                  📋 アピール文をコピー
+                  アピール文をコピー
                 </button>
               </div>
               <textarea id="gpa-long-output" rows="5" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs sm:text-sm text-slate-800 leading-relaxed focus:outline-none"></textarea>
@@ -299,20 +309,19 @@
             <p class="text-xs text-slate-500 mt-1">海外大の学位・専攻名（BA/BSc/Joint Honours/Minor等）や現地インターン・TA経験を、日本の履歴書・ESにそのまま使える自然な日本語表記に変換します。</p>
           </div>
           <button type="button" onclick="shareCurrentTool('resume', '英語レジュメ⇔日本語履歴書「学歴・職歴」自動変換メーカー')" class="self-start sm:self-auto text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl transition cursor-pointer shrink-0">
-            🔗 このツールをシェア
+            このツールを共有
           </button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <!-- 左：学歴・職歴の入力 -->
           <div class="lg:col-span-6 space-y-4">
             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
               <span class="text-xs font-extrabold text-indigo-600">STEP 1：海外大学の学歴・学位情報を入力</span>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-[11px] font-bold text-slate-600 mb-1">大学名（英語 または カタカナ）</label>
-                  <input type="text" id="cv-uni" oninput="updateResumeConversion()" placeholder="例：University of Exeter / UCLA" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800" />
+                  <label class="block text-[11px] font-bold text-slate-600 mb-1">大学名（英語 または 日本語併記）</label>
+                  <input type="text" id="cv-uni" oninput="updateResumeConversion()" placeholder="大学名を入力" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-bold text-slate-600 mb-1">学位種別 (Degree)</label>
@@ -331,11 +340,11 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label class="block text-[11px] font-bold text-slate-600 mb-1">主専攻 (Major / Joint Honours)</label>
-                  <input type="text" id="cv-major" oninput="updateResumeConversion()" placeholder="例：Politics and International Relations" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800" />
+                  <input type="text" id="cv-major" oninput="updateResumeConversion()" placeholder="例：Economics / International Relations" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-bold text-slate-600 mb-1">副専攻 (Minor / Concentration・任意)</label>
-                  <input type="text" id="cv-minor" oninput="updateResumeConversion()" placeholder="例：Data Science / Economics" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800" />
+                  <input type="text" id="cv-minor" oninput="updateResumeConversion()" placeholder="例：Data Science" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800" />
                 </div>
               </div>
 
@@ -358,7 +367,7 @@
                 <div class="flex flex-wrap gap-1.5">
                   <button type="button" onclick="insertRolePreset('Research Intern')" class="text-[11px] bg-white hover:bg-indigo-50 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg cursor-pointer">Research Intern</button>
                   <button type="button" onclick="insertRolePreset('Teaching Assistant (TA)')" class="text-[11px] bg-white hover:bg-indigo-50 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg cursor-pointer">Teaching Assistant</button>
-                  <button type="button" onclick="insertRolePreset('Vice President of Japanese Society')" class="text-[11px] bg-white hover:bg-indigo-50 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg cursor-pointer">Vice President (Japanese Society)</button>
+                  <button type="button" onclick="insertRolePreset('Vice President of Japanese Society')" class="text-[11px] bg-white hover:bg-indigo-50 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg cursor-pointer">Vice President (Society)</button>
                   <button type="button" onclick="insertRolePreset('Business Development Intern')" class="text-[11px] bg-white hover:bg-indigo-50 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg cursor-pointer">Business Development Intern</button>
                 </div>
               </div>
@@ -369,21 +378,20 @@
             </div>
           </div>
 
-          <!-- 右：変換結果出力 -->
           <div class="lg:col-span-6 flex flex-col justify-between space-y-4">
             <div class="bg-slate-900 text-slate-100 rounded-2xl p-5 flex-1 flex flex-col justify-between">
               <div>
                 <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
-                  <span class="text-xs font-extrabold text-indigo-400">📄 日本語履歴書・ES 変換結果（コピペ用）</span>
+                  <span class="text-xs font-extrabold text-indigo-400">日本語履歴書・ES 変換結果（コピペ用）</span>
                   <button type="button" onclick="copyTextarea('cv-output', 'cv-copy-btn')" id="cv-copy-btn" class="text-xs font-extrabold bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-xl transition cursor-pointer">
-                    📋 変換結果をコピー
+                    変換結果をコピー
                   </button>
                 </div>
                 <textarea id="cv-output" rows="12" class="w-full bg-slate-950/60 text-slate-100 font-mono text-xs leading-relaxed p-3.5 rounded-xl border border-slate-800 focus:outline-none focus:border-indigo-500"></textarea>
               </div>
 
               <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 leading-relaxed">
-                💡 <strong>日本の履歴書マナー補足：</strong><br />
+                <strong>日本の履歴書マナー補足：</strong><br />
                 海外大学には日本の「〇〇学部〇〇学科」という階層がない場合が多いため、<strong>「大学名 ＋ 学位（学士課程）＋ 専攻名（Major）」</strong>を並べて記載するのが外資・日系大手ともに最も誤解のない標準フォーマットです。
               </div>
             </div>
@@ -392,32 +400,40 @@
       </div>
     </section>
 
-    <!-- サイト内回遊導線（掲示板・AIニュースへのリンク） -->
-    <section class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- サイト内回遊導線 -->
+    <section class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <a href="local.html" class="bg-white hover:bg-indigo-50/40 p-5 rounded-3xl border border-slate-200 hover:border-indigo-300 transition flex items-center justify-between group">
+        <div>
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600">Local Life & Weather</span>
+          <h3 class="text-sm font-extrabold text-slate-900 mt-0.5 group-hover:text-indigo-600 transition">都市別・現地ライフ＆天気・ニュース</h3>
+          <p class="text-xs text-slate-500 mt-1">滞在都市の気温と現地メディア記事を自動翻訳</p>
+        </div>
+        <span class="text-xs font-bold text-indigo-600 shrink-0 ml-2">→</span>
+      </a>
       <a href="board.html" class="bg-white hover:bg-indigo-50/40 p-5 rounded-3xl border border-slate-200 hover:border-indigo-300 transition flex items-center justify-between group">
         <div>
-          <span class="text-[11px] font-extrabold text-indigo-600">Atrium Community Board</span>
-          <h3 class="text-sm sm:text-base font-extrabold text-slate-900 mt-0.5 group-hover:text-indigo-600 transition">💬 匿名掲示板で現地の選考・生活情報を聞く</h3>
-          <p class="text-xs text-slate-500 mt-1">ボスキャリ・夏インターン・現地大学のリアルな口コミスレッド</p>
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600">Community Board</span>
+          <h3 class="text-sm font-extrabold text-slate-900 mt-0.5 group-hover:text-indigo-600 transition">匿名掲示板で現地の選考・生活情報を聞く</h3>
+          <p class="text-xs text-slate-500 mt-1">ボスキャリ・インターン・現地大学のリアルな口コミ</p>
         </div>
-        <span class="text-sm font-bold text-indigo-600 shrink-0 ml-3">掲示板へ →</span>
+        <span class="text-xs font-bold text-indigo-600 shrink-0 ml-2">→</span>
       </a>
       <a href="news.html" class="bg-white hover:bg-indigo-50/40 p-5 rounded-3xl border border-slate-200 hover:border-indigo-300 transition flex items-center justify-between group">
         <div>
-          <span class="text-[11px] font-extrabold text-emerald-600">Daily AI Career Intelligence</span>
-          <h3 class="text-sm sm:text-base font-extrabold text-slate-900 mt-0.5 group-hover:text-indigo-600 transition">📰 AI厳選・海外大生向け就活＆奨学金ニュース</h3>
-          <p class="text-xs text-slate-500 mt-1">毎日自動更新されるインターン募集・ボスキャリ・給付型奨学金情報</p>
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600">Daily AI Career News</span>
+          <h3 class="text-sm font-extrabold text-slate-900 mt-0.5 group-hover:text-indigo-600 transition">AI厳選・海外大生向け就活＆奨学金ニュース</h3>
+          <p class="text-xs text-slate-500 mt-1">毎日自動更新されるインターン・ボスキャリ情報</p>
         </div>
-        <span class="text-sm font-bold text-indigo-600 shrink-0 ml-3">ニュースへ →</span>
+        <span class="text-xs font-bold text-indigo-600 shrink-0 ml-2">→</span>
       </a>
     </section>
 
   </main>
 
-  <!-- 共通フッター -->
-  <div id="site-footer"></div>
+  <!-- 全ページ共通フッター -->
+  <div id="common-footer"></div>
 
-  <script src="js/common.js"></script>
+  <script src="common.js"></script>
   <script>
     /* ==========================================================
        共通ユーティリティ（タブ切り替え・コピー・URLシェア）
@@ -435,10 +451,10 @@
         const labelText = btn.querySelector('span:last-child').textContent;
         if (id === tabId) {
           btn.className = 'tool-tab-btn flex flex-col items-start p-3.5 rounded-2xl border text-left transition cursor-pointer bg-slate-900 text-white border-slate-900 shadow-sm';
-          btn.innerHTML = `<span class="text-xs font-extrabold opacity-80">${numStr}</span><span class="text-xs sm:text-sm font-extrabold mt-0.5">${labelText}</span>`;
+          btn.innerHTML = `<span class="text-[11px] font-extrabold opacity-80">${numStr}</span><span class="text-xs sm:text-sm font-extrabold mt-0.5">${labelText}</span>`;
         } else {
           btn.className = 'tool-tab-btn flex flex-col items-start p-3.5 rounded-2xl border text-left transition cursor-pointer bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200';
-          btn.innerHTML = `<span class="text-xs font-extrabold text-indigo-600">${numStr}</span><span class="text-xs sm:text-sm font-extrabold mt-0.5">${labelText}</span>`;
+          btn.innerHTML = `<span class="text-[11px] font-extrabold text-indigo-600">${numStr}</span><span class="text-xs sm:text-sm font-extrabold mt-0.5">${labelText}</span>`;
         }
       });
 
@@ -455,7 +471,7 @@
       try {
         await navigator.clipboard.writeText(el.value);
         if (btn) {
-          btn.textContent = '✅ コピーしました！';
+          btn.textContent = 'コピーしました！';
           setTimeout(() => { btn.textContent = originalText; }, 2000);
         }
       } catch (e) {
@@ -466,7 +482,7 @@
 
     async function shareCurrentTool(tabId, toolTitle) {
       const shareUrl = `${window.location.origin}${window.location.pathname}?tab=${encodeURIComponent(tabId)}`;
-      const shareText = `【海外大生向け】${toolTitle}｜Atrium (RyugakuIntern)`;
+      const shareText = `【海外大生向け】${toolTitle}｜Atrium`;
       if (navigator.share) {
         try {
           await navigator.share({ title: shareText, text: shareText, url: shareUrl });
@@ -482,9 +498,13 @@
     }
 
     /* ==========================================================
-       TOOL 1: 時差面接・日程調整テキスト自動生成ロジック
+       TOOL 1: 時差面接・日程調整メール生成（自由都市検索＆サマータイム厳密判定）
     ========================================================== */
     let tzSlots = [];
+    let customResolvedTz = {
+      timeZone: 'Europe/London',
+      label: '海外現地'
+    };
 
     function initTzSlots() {
       const d1 = new Date();
@@ -502,6 +522,61 @@
       ];
       renderTzSlotsInput();
       updateTimezoneMail();
+    }
+
+    function onTzCitySelectChange() {
+      const sel = document.getElementById('tz-city');
+      const customBox = document.getElementById('tz-custom-city-box');
+      if (sel.value === '__custom__') {
+        customBox.classList.remove('hidden');
+        document.getElementById('tz-custom-city-input').focus();
+      } else {
+        customBox.classList.add('hidden');
+        updateTimezoneMail();
+      }
+    }
+
+    // 自由入力された都市名から Open-Meteo Geocoding API で IANA タイムゾーンを特定
+    async function resolveCustomTzCity() {
+      const inputEl = document.getElementById('tz-custom-city-input');
+      const statusEl = document.getElementById('tz-custom-status');
+      const query = (inputEl.value || '').trim();
+      if (!query) return;
+
+      statusEl.textContent = `「${query}」のタイムゾーンとサマータイム規則を検索中...`;
+      statusEl.className = 'text-[11px] font-bold text-indigo-600';
+
+      try {
+        let found = null;
+        for (const lang of ['ja', 'en']) {
+          const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=${lang}&format=json`;
+          const res = await fetch(url);
+          const data = await res.json();
+          if (data && data.results && data.results.length > 0 && data.results[0].timezone) {
+            found = data.results[0];
+            break;
+          }
+        }
+
+        if (!found) {
+          statusEl.textContent = '都市が見つかりませんでした。英語表記や近くの主要都市名でお試しください。';
+          statusEl.className = 'text-[11px] font-bold text-rose-600';
+          return;
+        }
+
+        const countryStr = found.country ? `${found.country}・` : '';
+        customResolvedTz = {
+          timeZone: found.timezone,
+          label: `${countryStr}${query}`
+        };
+
+        statusEl.textContent = `設定完了：${customResolvedTz.label}（タイムゾーン: ${found.timezone}）`;
+        statusEl.className = 'text-[11px] font-extrabold text-emerald-700';
+        updateTimezoneMail();
+      } catch (e) {
+        statusEl.textContent = '通信エラーが発生しました。もう一度お試しください。';
+        statusEl.className = 'text-[11px] font-bold text-rose-600';
+      }
     }
 
     function addTzSlot() {
@@ -540,36 +615,60 @@
           <input type="time" value="${slot.start}" onchange="onTzSlotChange(${i}, 'start', this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-mono text-slate-800" />
           <span class="text-xs text-slate-400">〜</span>
           <input type="time" value="${slot.end}" onchange="onTzSlotChange(${i}, 'end', this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-mono text-slate-800" />
-          ${tzSlots.length > 1 ? `<button type="button" onclick="removeTzSlot(${i})" class="ml-auto text-xs text-slate-400 hover:text-rose-600 px-1.5 font-bold cursor-pointer">✕</button>` : ''}
+          ${tzSlots.length > 1 ? `<button type="button" onclick="removeTzSlot(${i})" class="ml-auto text-xs text-slate-400 hover:text-rose-600 px-1.5 font-bold cursor-pointer">×</button>` : ''}
         </div>
       `).join('');
     }
 
-    // 任意のタイムゾーンの「現地日時」を正確なUTCタイムスタンプに変換し、JSTでの月日・曜日・時刻を算出
+    // 指定したタイムゾーン・指定日時における UTC からのオフセット（分）を算出
+    function getTzEpochRepresentation(epochMs, timeZone) {
+      const f = new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', hour12: false
+      });
+      const parts = {};
+      f.formatToParts(new Date(epochMs)).forEach(p => { parts[p.type] = p.value; });
+      const hourVal = parts.hour === '24' ? 0 : Number(parts.hour);
+      return Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day), hourVal, Number(parts.minute), 0);
+    }
+
+    // その候補日の時点でサマータイム（夏時間）が適用されているかを厳密判定
+    function checkIsDstAtMoment(epochMs, timeZone) {
+      try {
+        const year = new Date(epochMs).getUTCFullYear();
+        const janEpoch = Date.UTC(year, 0, 15, 12, 0, 0);
+        const julEpoch = Date.UTC(year, 6, 15, 12, 0, 0);
+        const janOffset = getTzEpochRepresentation(janEpoch, timeZone) - janEpoch;
+        const julOffset = getTzEpochRepresentation(julEpoch, timeZone) - julEpoch;
+        if (janOffset === julOffset) {
+          return { hasDstRule: false, isDstNow: false };
+        }
+        const currentOffset = getTzEpochRepresentation(epochMs, timeZone) - epochMs;
+        // 夏時間は標準時よりオフセットが大きい（時計が1時間進む）
+        const dstOffset = Math.max(janOffset, julOffset);
+        return {
+          hasDstRule: true,
+          isDstNow: Math.abs(currentOffset - dstOffset) < 60000
+        };
+      } catch (e) {
+        return { hasDstRule: false, isDstNow: false };
+      }
+    }
+
     function convertLocalToJst(dateStr, timeStr, timeZone) {
       if (!dateStr || !timeStr) return null;
       const [y, m, d] = dateStr.split('-').map(Number);
       const [hh, mm] = timeStr.split(':').map(Number);
 
       const utcGuess = Date.UTC(y, m - 1, d, hh, mm, 0);
+      // 2段階補正でサマータイム切替日付近も1分の狂いなく正確なUTCに変換
+      const tzRep1 = getTzEpochRepresentation(utcGuess, timeZone);
+      const guess1 = utcGuess - (tzRep1 - utcGuess);
+      const tzRep2 = getTzEpochRepresentation(guess1, timeZone);
+      const actualEpoch = guess1 - (tzRep2 - utcGuess);
 
-      const getParts = (ts, tz) => {
-        const f = new Intl.DateTimeFormat('en-US', {
-          timeZone: tz,
-          year: 'numeric', month: '2-digit', day: '2-digit',
-          hour: '2-digit', minute: '2-digit', hour12: false
-        });
-        const parts = {};
-        f.formatToParts(new Date(ts)).forEach(p => { parts[p.type] = p.value; });
-        const hourVal = parts.hour === '24' ? 0 : Number(parts.hour);
-        return Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day), hourVal, Number(parts.minute), 0);
-      };
-
-      const tzRep = getParts(utcGuess, timeZone);
-      const diffMs = tzRep - utcGuess;
-      const actualEpoch = utcGuess - diffMs;
-
-      const jstEpoch = getParts(actualEpoch, 'Asia/Tokyo');
+      const jstEpoch = getTzEpochRepresentation(actualEpoch, 'Asia/Tokyo');
       const jstDate = new Date(jstEpoch);
       const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
 
@@ -582,7 +681,8 @@
       const jstH = String(jstDate.getUTCHours()).padStart(2, '0');
       const jstM = String(jstDate.getUTCMinutes()).padStart(2, '0');
 
-      const offsetHours = Math.round((jstEpoch - utcGuess) / (1000 * 60 * 60));
+      const offsetHours = Math.round((jstEpoch - utcGuess) / (1000 * 60 * 60) * 10) / 10;
+      const dstInfo = checkIsDstAtMoment(actualEpoch, timeZone);
 
       return {
         localFormatted: `${m}月${d}日(${localWd}) ${timeStr}`,
@@ -590,14 +690,19 @@
         jstDateStr: `${jstMonth}月${jstDay}日(${jstWd})`,
         jstTimeStr: `${jstH}:${jstM}`,
         jstHourNum: jstDate.getUTCHours(),
-        offsetHours
+        offsetHours,
+        dstInfo
       };
     }
 
     function updateTimezoneMail() {
       const citySelect = document.getElementById('tz-city');
-      const timeZone = citySelect.value;
-      const cityLabel = citySelect.options[citySelect.selectedIndex].dataset.label || '海外現地';
+      const isCustom = citySelect.value === '__custom__';
+      const timeZone = isCustom ? customResolvedTz.timeZone : citySelect.value;
+      const cityLabel = isCustom
+        ? customResolvedTz.label
+        : (citySelect.options[citySelect.selectedIndex].dataset.label || '海外現地');
+
       const scenario = document.getElementById('tz-scenario').value;
       const company = (document.getElementById('tz-company').value || '').trim() || '〇〇株式会社 採用ご担当者様';
       const sender = (document.getElementById('tz-sender').value || '').trim() || '〇〇大学 山田太郎';
@@ -607,14 +712,14 @@
 
       const mailLines = [];
       const previewHtmls = [];
-      let detectedOffset = null;
+      let firstSlotConv = null;
 
       tzSlots.forEach((slot, idx) => {
         const startConv = convertLocalToJst(slot.date, slot.start, timeZone);
         const endConv = convertLocalToJst(slot.date, slot.end, timeZone);
         if (!startConv || !endConv) return;
 
-        if (detectedOffset === null) detectedOffset = startConv.offsetHours;
+        if (!firstSlotConv) firstSlotConv = startConv;
 
         const sameJstDay = startConv.jstDateStr === endConv.jstDateStr;
         const jstRange = sameJstDay
@@ -626,14 +731,18 @@
         const isJstBusinessHours = startConv.jstHourNum >= 9 && startConv.jstHourNum <= 19;
         const statusBadge = isJstBusinessHours
           ? `<span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">日本の営業時間内</span>`
-          : `<span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded">※日本の早朝/夜間</span>`;
+          : `<span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded">日本の早朝/夜間</span>`;
+
+        const dstLabel = startConv.dstInfo.hasDstRule
+          ? (startConv.dstInfo.isDstNow ? '夏時間(DST)適用日' : '冬時間(標準時)適用日')
+          : '通年標準時';
 
         previewHtmls.push(`
           <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-white px-3 py-2 rounded-xl border border-indigo-100 gap-1">
             <div>
               <span class="font-bold text-indigo-700">日本時間: ${jstRange}</span>
               <span class="text-slate-400 mx-1">/</span>
-              <span class="text-slate-500">現地: ${localRange}</span>
+              <span class="text-slate-500">現地: ${localRange}（${dstLabel}）</span>
             </div>
             ${statusBadge}
           </div>
@@ -642,15 +751,23 @@
         mailLines.push(`・第${idx + 1}希望：日本時間 ${jstRange}（現地時間：${localRange}）`);
       });
 
-      if (offsetBadge && detectedOffset !== null) {
-        const sign = detectedOffset >= 0 ? `+${detectedOffset}` : `${detectedOffset}`;
-        offsetBadge.textContent = `時差：日本が ${sign}時間（サマータイム自動反映済）`;
+      if (offsetBadge && firstSlotConv) {
+        const oh = firstSlotConv.offsetHours;
+        const sign = oh >= 0 ? `+${oh}` : `${oh}`;
+        const dstStatusText = firstSlotConv.dstInfo.hasDstRule
+          ? (firstSlotConv.dstInfo.isDstNow ? '・夏時間適用中' : '・冬時間適用中')
+          : '・サマータイムなし';
+        offsetBadge.textContent = `時差：日本が ${sign}時間（${timeZone}${dstStatusText}）`;
       }
+
       if (previewContainer) {
         previewContainer.innerHTML = previewHtmls.join('');
       }
 
-      const diffText = detectedOffset !== null ? `（日本との時差：${detectedOffset >= 0 ? '-' + detectedOffset : '+' + Math.abs(detectedOffset)}時間）` : '';
+      const oh = firstSlotConv ? firstSlotConv.offsetHours : 0;
+      const diffText = firstSlotConv
+        ? `（日本との時差：${oh >= 0 ? '-' + oh : '+' + Math.abs(oh)}時間）`
+        : '';
 
       let subject = `【面接日程のご相談】${sender}`;
       let intro = `お世話になっております。${sender}です。\nこの度は面接の機会をいただき、誠にありがとうございます。`;
@@ -696,17 +813,11 @@
     ========================================================== */
     let currentRoadmapEvents = [];
 
-    function addMonths(year, month, delta) {
-      const d = new Date(Date.UTC(year, month - 1 + delta, 1));
-      return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1 };
-    }
-
     function renderRoadmap() {
-      const gradVal = document.getElementById('rm-grad').value; // e.g. "2028-06"
+      const gradVal = document.getElementById('rm-grad').value;
       const industry = document.getElementById('rm-industry').value;
       const [gradY, gradM] = gradVal.split('-').map(Number);
 
-      // ボスキャリ本番年は原則「卒業前年の11月」（12月卒業の場合も前年11月または当年11月）
       const bcfYear = gradM >= 10 ? gradY : gradY - 1;
       const prevYear = bcfYear - 1;
 
@@ -720,7 +831,7 @@
       const summaryBox = document.getElementById('rm-summary-box');
       if (summaryBox) {
         summaryBox.innerHTML = `
-          <div class="font-extrabold text-indigo-950 mb-1">🎯 ${gradY}年${gradM}月卒業 × ${industryNames[industry]} の最重要ポイント</div>
+          <div class="font-extrabold text-indigo-950 mb-1">${gradY}年${gradM}月卒業 × ${industryNames[industry]} の最重要ポイント</div>
           <p class="text-xs text-slate-700">
             あなたのメイン勝負となるボストンキャリアフォーラム（ボスキャリ）は <strong>${bcfYear}年11月</strong> です。
             ただしボスキャリ本番の会場でいきなり面接枠を取るのではなく、<strong>${bcfYear}年8月〜10月の事前オンライン応募＆Webテスト突破</strong>で内定確率の8割が決まります。さらに1年前の <strong>${prevYear}年夏〜冬</strong> に短期インターンや情報収集を始めておくと圧倒的に有利です。
@@ -751,25 +862,25 @@
         },
         {
           y: bcfYear, m: 8,
-          badge: '🔥 最重要ピーク①（事前応募開始）',
+          badge: '最重要ピーク①（事前応募開始）',
           title: 'ボスキャリ参加企業の「事前オンライン応募」一斉スタート',
           desc: '人気企業（外資・総合商社・メガバンク等）は8月〜9月中に1次締切を迎えます。現地の新学期開始と重なるため、8月中にES・レジュメを出し切るのが鉄則。'
         },
         {
           y: bcfYear, m: 10,
-          badge: '🔥 最重要ピーク②（時差オンライン面接）',
+          badge: '最重要ピーク②（時差オンライン面接）',
           title: 'ボスキャリ事前オンライン面接ラッシュ（1次〜2次選考）',
           desc: '現地授業と並行して日本時間に合わせたZoom面接が集中。ここで「ボストン会場での最終面接チケット（ディナー招待）」を獲得する。'
         },
         {
           y: bcfYear, m: 11,
-          badge: '🏆 ボスキャリ本番（内定獲得）',
+          badge: 'ボスキャリ本番（内定獲得）',
           title: 'ボストンキャリアフォーラム本番（対面最終面接・オファー獲得）',
           desc: '3日間で最終面接・社員面談・ウォークインを実施。多くの海外大生がここで最初の内定（オファー）を獲得します。'
         },
         {
           y: gradY, m: 2,
-          badge: '卒業年の冬〜春（本選考・駆け込み）',
+          badge: '卒業年の冬〜春（本選考・フォロー）',
           title: industry === 'shosha'
             ? '総合商社・日系難関の国内本選考／海外大生特別ルート受験'
             : '東京ウインターキャリアフォーラム・国内通年選考のフォローアップ',
@@ -781,7 +892,7 @@
 
       const timelineEl = document.getElementById('rm-timeline');
       if (timelineEl) {
-        timelineEl.innerHTML = milestones.map((item, idx) => `
+        timelineEl.innerHTML = milestones.map((item) => `
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 hover:bg-indigo-50/40 p-4 rounded-2xl border border-slate-200/90 transition">
             <div class="flex items-start gap-3.5">
               <div class="bg-slate-900 text-white font-mono text-xs font-extrabold px-3 py-2 rounded-xl text-center shrink-0 min-w-[82px]">
@@ -803,7 +914,7 @@
       const lines = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
-        'PRODID:-//Atrium//RyugakuIntern Career Roadmap//JA'
+        'PRODID:-//Atrium//Career Roadmap//JA'
       ];
 
       currentRoadmapEvents.forEach((ev, idx) => {
@@ -839,8 +950,8 @@
       try {
         await navigator.clipboard.writeText(text);
         if (btn) {
-          btn.textContent = '✅ コピー済';
-          setTimeout(() => { btn.textContent = '📋 コピー'; }, 2000);
+          btn.textContent = 'コピー済';
+          setTimeout(() => { btn.textContent = 'コピー'; }, 2000);
         }
       } catch (e) {}
     }
@@ -862,7 +973,7 @@
         {
           label: 'Upper Second-Class Honours (2:1 / 60%〜69%)',
           gpa4: '3.3 〜 3.7 / 4.0',
-          sub: '英国難関企業の足切り基準をクリアする優秀成績',
+          sub: '英国難関企業の選考基準をクリアする優秀成績',
           jpEq: '「優（A 〜 B+）」評価相当',
           pct: '外資・大学院進学の標準クリア基準',
           shortNote: '成績：Upper Second-Class Honours (2:1 / 60〜69% / 4.0スケール換算：3.3〜3.7相当 ※英国式の60%以上は日本の「優・A評価」に該当)',
@@ -900,7 +1011,7 @@
         {
           label: 'GPA 3.0 〜 3.29 (B 中心)',
           gpa4: '3.0 〜 3.29 / 4.0',
-          sub: '米国企業の一般的なGPA足切り（3.0）をクリア',
+          sub: '米国企業の一般的なGPA基準（3.0）をクリア',
           jpEq: '「良〜優（B+）」評価相当',
           pct: '安定した単位取得・専門履修証明',
           shortNote: 'GPA：3.1 / 4.0（4.0満点スケール）',
@@ -915,7 +1026,7 @@
           jpEq: '「秀（S）」評価相当',
           pct: 'コース上位約5〜10%の最優秀水準',
           shortNote: '成績：High Distinction (HD / 7段階GPA：6.5〜7.0 / 4.0スケール換算：3.8〜4.0相当)',
-          longReason: 'オーストラリアの大学評価基準において最高ランクである「High Distinction（4.0GPA換算で3.8〜4.0相当）」を中心に取得しております。落第率の高い現地カリキュラムの中で、'
+          longReason: 'オーストラリアの大学評価基準において最高ランクである「High Distinction（4.0GPA換算で3.8〜4.0相当）」を中心に取得しております。厳しい現地カリキュラムの中で、'
         },
         {
           label: 'Distinction (D / 70%〜79%・GPA 5.5〜6.4)',
@@ -1045,9 +1156,9 @@
     }
 
     function updateResumeConversion() {
-      const uni = (document.getElementById('cv-uni').value || '').trim() || 'University of Exeter（英国・エクセター大学）';
+      const uni = (document.getElementById('cv-uni').value || '').trim() || '〇〇大学（海外正規留学）';
       const degKey = document.getElementById('cv-degree').value;
-      const majorRaw = (document.getElementById('cv-major').value || '').trim() || 'Politics and International Relations';
+      const majorRaw = (document.getElementById('cv-major').value || '').trim() || 'Economics';
       const minorRaw = (document.getElementById('cv-minor').value || '').trim();
       const startVal = document.getElementById('cv-start').value || '2025-09';
       const endVal = document.getElementById('cv-end').value || '2028-06';

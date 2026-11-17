@@ -28,11 +28,13 @@
   <!-- Google検索のサイト名表示を「RyugakuIntern」に指定する -->
 <meta property="og:site_name" content="RyugakuIntern" />
 <script type="application/ld+json">
-  {
+  <meta property="og:site_name" content="Atrium" />
+<script type="application/ld+json">
+{
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "Atrium",
-  "alternateName": ["留学インターン", "アトリウム"],
+  "alternateName": ["留学インターン", "アトリウム", "RyugakuIntern"],
   "url": "https://ryugaku-intern.com/"
 }
 </script>
@@ -88,6 +90,105 @@
             就活ニュースへ
           </a>
         </div>
+      </div>
+    </div>
+  </section>
+  <!-- 海外大生・就活便利ツールボックス（トップページ特設セクション） -->
+  <section id="career-tools-section" class="max-w-6xl mx-auto px-4 sm:px-6 my-8">
+    <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 rounded-3xl p-6 sm:p-8 text-white shadow-md border border-slate-800">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
+        <div>
+          <span class="inline-block text-[10px] font-extrabold uppercase tracking-widest bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2.5 py-0.5 rounded-full mb-2">
+            Overseas Student Career Utilities
+          </span>
+          <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
+            海外大生・就活便利ツールボックス
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 mt-1">
+            時差面接の計算ミス防止、ボスキャリ逆算計画、海外GPA換算、英語レジュメの日本語履歴書変換をワンクリックで。
+          </p>
+        </div>
+        <a href="tools.html" class="self-start sm:self-auto text-xs font-extrabold bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl transition shrink-0 shadow-xs">
+          全ツール一覧を開く →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <a href="tools.html?tab=timezone" class="group bg-slate-800/70 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-400 rounded-2xl p-4 transition flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between text-[11px] font-extrabold text-indigo-400 mb-1.5">
+              <span>TOOL 01</span>
+              <span class="bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded text-[10px]">サマータイム対応</span>
+            </div>
+            <h3 class="text-sm font-extrabold text-white group-hover:text-indigo-300 transition">
+              時差面接・日程調整メール生成
+            </h3>
+            <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+              世界中の都市名から時差と夏時間を自動判定し、日本時間（JST）変換と丁寧なメール文面を即出力。
+            </p>
+          </div>
+          <div class="mt-4 pt-2.5 border-t border-slate-700/60 text-[11px] font-bold text-indigo-300 flex items-center justify-between">
+            <span>日程メールを作る</span>
+            <span class="group-hover:translate-x-1 transition">→</span>
+          </div>
+        </a>
+
+        <a href="tools.html?tab=roadmap" class="group bg-slate-800/70 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-400 rounded-2xl p-4 transition flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between text-[11px] font-extrabold text-indigo-400 mb-1.5">
+              <span>TOOL 02</span>
+              <span class="bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded text-[10px]">カレンダー出力可</span>
+            </div>
+            <h3 class="text-sm font-extrabold text-white group-hover:text-indigo-300 transition">
+              卒業時期別・逆算ボスキャリ計画
+            </h3>
+            <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+              卒業年月と志望業界を選ぶだけで、ボスキャリ事前応募や夏インターンの逆算日程を自動生成。
+            </p>
+          </div>
+          <div class="mt-4 pt-2.5 border-t border-slate-700/60 text-[11px] font-bold text-indigo-300 flex items-center justify-between">
+            <span>ロードマップを見る</span>
+            <span class="group-hover:translate-x-1 transition">→</span>
+          </div>
+        </a>
+
+        <a href="tools.html?tab=gpa" class="group bg-slate-800/70 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-400 rounded-2xl p-4 transition flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between text-[11px] font-extrabold text-indigo-400 mb-1.5">
+              <span>TOOL 03</span>
+              <span class="bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded text-[10px]">英・米・豪・欧対応</span>
+            </div>
+            <h3 class="text-sm font-extrabold text-white group-hover:text-indigo-300 transition">
+              海外大GPA ⇔ 日本のES成績換算
+            </h3>
+            <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+              英国（First / 2:1）や豪州（HD / D）等の成績を4.0GPAに換算し、日本の人事向け説明文を作成。
+            </p>
+          </div>
+          <div class="mt-4 pt-2.5 border-t border-slate-700/60 text-[11px] font-bold text-indigo-300 flex items-center justify-between">
+            <span>GPAを換算する</span>
+            <span class="group-hover:translate-x-1 transition">→</span>
+          </div>
+        </a>
+
+        <a href="tools.html?tab=resume" class="group bg-slate-800/70 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-400 rounded-2xl p-4 transition flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between text-[11px] font-extrabold text-indigo-400 mb-1.5">
+              <span>TOOL 04</span>
+              <span class="bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded text-[10px]">学歴・肩書き変換</span>
+            </div>
+            <h3 class="text-sm font-extrabold text-white group-hover:text-indigo-300 transition">
+              英語レジュメ ⇔ 日本語履歴書変換
+            </h3>
+            <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+              BA/BSc等の学位・専攻名や現地インターン・TAの役職を、日本の履歴書フォーマットへ自然に変換。
+            </p>
+          </div>
+          <div class="mt-4 pt-2.5 border-t border-slate-700/60 text-[11px] font-bold text-indigo-300 flex items-center justify-between">
+            <span>履歴書表記に変換</span>
+            <span class="group-hover:translate-x-1 transition">→</span>
+          </div>
+        </a>
       </div>
     </div>
   </section>

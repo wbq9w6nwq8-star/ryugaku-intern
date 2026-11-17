@@ -61,14 +61,23 @@ function closeModal(id) {
 
 document.addEventListener('DOMContentLoaded', () => {
   const path = window.location.pathname;
-  const current = path.includes('board') ? 'board' : path.includes('news') ? 'news' : 'home';
+  const current = path.includes('local')
+    ? 'local'
+    : path.includes('tools')
+    ? 'tools'
+    : path.includes('board')
+    ? 'board'
+    : path.includes('news')
+    ? 'news'
+    : 'home';
 
   const navClass = (name) =>
     current === name
-      ? 'text-xs lg:text-sm font-extrabold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg transition'
-      : 'text-xs lg:text-sm font-semibold text-slate-600 hover:text-indigo-600 px-2.5 py-1.5 rounded-lg transition';
+      ? 'text-xs lg:text-sm font-extrabold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 transition shrink-0'
+      : 'text-xs lg:text-sm font-semibold text-slate-600 hover:text-indigo-600 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg transition shrink-0';
 
-  const headerContainer = document.getElementById('common-header');
+  // #common-header と #site-header の両方に対応
+  const headerContainer = document.getElementById('common-header') || document.getElementById('site-header');
   if (headerContainer) {
     headerContainer.innerHTML = `
       <header class="border-b border-slate-200/80 bg-white/95 backdrop-blur-md sticky top-0 z-30">
@@ -83,16 +92,17 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           </a>
 
-          <nav class="flex items-center space-x-1 sm:space-x-2 order-3 sm:order-2 w-full sm:w-auto justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
-            <a href="index.html" class="${navClass('home')}">求人・トップ</a>
+          <nav class="flex items-center space-x-1 sm:space-x-1.5 order-3 sm:order-2 w-full sm:w-auto justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100 overflow-x-auto">
+            <a href="index.html" class="${navClass('home')}">トップ</a>
+            <a href="local.html" class="${navClass('local')}">現地ライフ・天気</a>
+            <a href="tools.html" class="${navClass('tools')}">就活ツール</a>
             <a href="board.html" class="${navClass('board')}">匿名掲示板</a>
             <a href="news.html" class="${navClass('news')}">就活ニュース</a>
-            <a href="local.html" class="text-xs sm:text-sm font-bold text-slate-600 hover:text-indigo-600 transition">現地ライフ・天気</a>
           </nav>
 
           <div class="flex items-center space-x-2 order-2 sm:order-3">
             <button onclick="shareSite('https://ryugaku-intern.com/', 'Atrium | 海外大生のための匿名情報交換ボード＆キャリアプラットフォーム')" title="サイトURLをシェア" class="text-xs font-bold text-slate-600 hover:text-indigo-600 bg-slate-100 hover:bg-indigo-50 px-2.5 py-1.5 rounded-lg transition cursor-pointer">
-              🔗 共有
+              共有
             </button>
             <a href="https://tally.so/r/gbeey4" target="_blank" rel="noopener noreferrer" class="hidden md:inline-flex items-center text-xs bg-slate-900 text-white px-3.5 py-2 rounded-xl font-semibold hover:bg-indigo-600 shadow-sm transition">
               企業向け：無料掲載
@@ -103,7 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
-  const footerContainer = document.getElementById('common-footer');
+  // #common-footer と #site-footer の両方に対応
+  const footerContainer = document.getElementById('common-footer') || document.getElementById('site-footer');
   if (footerContainer) {
     footerContainer.innerHTML = `
       <footer class="border-t border-slate-200 bg-white py-10 text-xs text-slate-500 mt-auto">
@@ -117,13 +128,14 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="flex flex-wrap gap-4 sm:gap-6 justify-center items-center">
             <a href="index.html" class="hover:text-slate-900 transition">トップ</a>
+            <a href="local.html" class="hover:text-slate-900 transition">現地ライフ・天気</a>
+            <a href="tools.html" class="hover:text-slate-900 transition">就活ツール</a>
             <a href="board.html" class="hover:text-slate-900 transition">匿名掲示板</a>
-            <a href="news.html" class="hover:text-slate-900 transition">ニュース</a>
-            <a href="tools.html">就活ツール</a>
+            <a href="news.html" class="hover:text-slate-900 transition">就活ニュース</a>
             <a href="terms.html" class="hover:text-slate-900 transition">利用規約</a>
             <button onclick="openModal('info-modal')" class="hover:text-slate-900 transition cursor-pointer">運営概要</button>
             <button onclick="openModal('privacy-modal')" class="hover:text-slate-900 transition cursor-pointer">プライバシーポリシー</button>
-            <a href="https://x.com/atrium_ryugaku" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-slate-700 font-semibold hover:text-indigo-600 transition">
+            <a href="https://x.com/ryugakuintern" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-slate-700 font-semibold hover:text-indigo-600 transition">
               <span>公式X</span>
             </a>
           </div>
@@ -141,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <p><strong>運営主体：</strong>Atrium 運営事務局（現役英国正規留学生によるプロジェクト）</p>
             <p><strong>事業内容：</strong>海外大生・バイリンガル学生向けの匿名情報交換コミュニティ運営およびキャリア・求人情報の掲載</p>
             <p><strong>連絡先メールアドレス：</strong><a href="mailto:ryugakuintern.official@gmail.com" class="text-indigo-600 underline">ryugakuintern.official@gmail.com</a></p>
-            <p><strong>公式SNS：</strong><a href="https://x.com/atrium_ryugaku" target="_blank" rel="noopener noreferrer" class="text-indigo-600 underline">https://x.com/ryugakuintern</a></p>
+            <p><strong>公式SNS：</strong><a href="https://x.com/ryugakuintern" target="_blank" rel="noopener noreferrer" class="text-indigo-600 underline">https://x.com/ryugakuintern</a></p>
           </div>
         </div>
       </div>
@@ -162,16 +174,3 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 });
-(function() {
-  const GA_ID = 'G-F59EV5CL7C';
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-  document.head.appendChild(script);
-
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  window.gtag = gtag;
-  gtag('js', new Date());
-  gtag('config', GA_ID);
-})();
