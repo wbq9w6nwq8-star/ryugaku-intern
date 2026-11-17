@@ -119,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <a href="index.html" class="hover:text-slate-900 transition">トップ</a>
             <a href="board.html" class="hover:text-slate-900 transition">匿名掲示板</a>
             <a href="news.html" class="hover:text-slate-900 transition">ニュース</a>
+            <a href="tools.html">就活ツール</a>
             <a href="terms.html" class="hover:text-slate-900 transition">利用規約</a>
             <button onclick="openModal('info-modal')" class="hover:text-slate-900 transition cursor-pointer">運営概要</button>
             <button onclick="openModal('privacy-modal')" class="hover:text-slate-900 transition cursor-pointer">プライバシーポリシー</button>

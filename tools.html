@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>海外大生・就活便利ツールボックス | Atrium (RyugakuIntern)</title>
+  <meta name="description" content="海外大生のための時差面接日程調整メール自動生成、海外大GPA換算シミュレーター、卒業時期別ボスキャリ＆就活逆算ロードマップ、英語レジュメ⇔日本語履歴書変換ツール。" />
+  <link rel="icon" href="favicon.png" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+  <!-- 共通ヘッダー -->
+  <div id="site-header"></div>
+
+  <!-- ヒーローヘッダー -->
+  <section class="bg-white border-b border-slate-200 py-8 sm:py-12 px-4">
+    <div class="max-w-5xl mx-auto">
+      <div class="inline-flex items-center space-x-2 bg-indigo-50 text-indigo-700 text-xs font-extrabold px-3 py-1 rounded-full border border-indigo-100 mb-3">
+        <span>⚡ 海外正規大生・交換留学生 専用ユーティリティ</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
+        海外大生・就活便利ツールボックス
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed max-w-3xl">
+        「サマータイム込みの時差計算ミス」「海外大のGPAや学位の日本語表記」「ボスキャリや本選考の逆算スケジュール」など、海外大生特有の面倒な作業を10秒で片付ける4つの実用ツールです。すべてブラウザ上で即座に動作します。
+      </p>
+
+      <!-- 4ツール切り替えタブナビゲーション -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mt-6" id="tool-tabs">
+        <button type="button" onclick="switchToolTab('timezone')" id="tab-btn-timezone" class="tool-tab-btn flex flex-col items-start p-3.5 rounded-2xl border text-left transition cursor-pointer bg-slate-900 text-white border-slate-900 shadow-sm">
+          <span class="text-xs font-extrabold opacity-80">TOOL 01</span>
+          <span class="text-xs sm:text-sm font-extrabold mt-0.5">🌍 時差面接・日程メール生成</span>
+        </button>
+        <button type="button" onclick="switchToolTab('roadmap')" id="tab-btn-roadmap" class="tool-tab-btn flex flex-col items-start p-3.5 rounded-2xl border text-left transition cursor-pointer bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200">
+          <span class="text-xs font-extrabold text-indigo-600">TOOL 02</span>
+          <span class="text-xs sm:text-sm font-extrabold mt-0.5">🗓️ 逆算就活・ボスキャリ計画</span>
+        </button>
+        <button type="button" onclick="switchToolTab('gpa')" id="tab-btn-gpa" class="tool-tab-btn flex flex-col items-start p-3.5 rounded-2xl border text-left transition cursor-pointer bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200">
+          <span class="text-xs font-extrabold text-indigo-600">TOOL 03</span>
+          <span class="text-xs sm:text-sm font-extrabold mt-0.5">📊 海外大GPA・ES表現換算</span>
+        </button>
+        <button type="button" onclick="switchToolTab('resume')" id="tab-btn-resume" class="tool-tab-btn flex flex-col items-start p-3.5 rounded-2xl border text-left transition cursor-pointer bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200">
+          <span class="text-xs font-extrabold text-indigo-600">TOOL 04</span>
+          <span class="text-xs sm:text-sm font-extrabold mt-0.5">📄 英語レジュメ⇔履歴書変換</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- メインコンテンツ領域 -->
+  <main class="max-w-5xl w-full mx-auto px-4 py-8 flex-1">
+
+    <!-- ==========================================
+         TOOL 1: 時差面接・日程調整テキスト自動生成ツール
+    =========================================== -->
+    <section id="panel-timezone" class="tool-panel">
+      <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-8 shadow-2xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 mb-6 border-b border-slate-100">
+          <div>
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">Timezone & Interview Scheduler</span>
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5">日本企業との「時差面接」日程調整メール自動生成</h2>
+            <p class="text-xs text-slate-500 mt-1">サマータイム（夏時間 / 冬時間）を自動判定し、現地時間から日本時間（JST）への変換と丁寧なビジネスメール出力を同時に行います。</p>
+          </div>
+          <button type="button" onclick="shareCurrentTool('timezone', '日本企業との「時差面接」日程調整メール自動生成ツール')" class="self-start sm:self-auto text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl transition cursor-pointer shrink-0">
+            🔗 このツールをシェア
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- 左側：入力フォーム -->
+          <div class="lg:col-span-6 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-extrabold text-slate-700 mb-1.5">1. 現在の滞在都市（タイムゾーン）</label>
+                <select id="tz-city" onchange="updateTimezoneMail()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:border-indigo-500">
+                  <option value="Europe/London" data-label="英国（ロンドン等）">🇬🇧 ロンドン・英国 (GMT/BST)</option>
+                  <option value="America/New_York" data-label="米国東部（NY・ボストン・トロント等）">🇺🇸 ニューヨーク・ボストン・トロント (EST/EDT)</option>
+                  <option value="America/Los_Angeles" data-label="米国西海岸（LA・SF・シアトル・バンクーバー等）">🇺🇸 LA・サンフランシスコ・バンクーバー (PST/PDT)</option>
+                  <option value="America/Chicago" data-label="米国中部（シカゴ・テキサス等）">🇺🇸 シカゴ・オースティン (CST/CDT)</option>
+                  <option value="Europe/Paris" data-label="欧州中央（パリ・ベルリン・アムステルダム等）">🇪🇺 パリ・ベルリン・欧州中央 (CET/CEST)</option>
+                  <option value="Australia/Sydney" data-label="豪州東部（シドニー・メルボルン等）">🇦🇺 シドニー・メルボルン (AEST/AEDT)</option>
+                  <option value="Asia/Singapore" data-label="シンガポール・香港・マレーシア">🇸🇬 シンガポール・香港・KL (SGT/HKT)</option>
+                  <option value="Pacific/Auckland" data-label="ニュージーランド（オークランド等）">🇳🇿 オークランド (NZST/NZDT)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-extrabold text-slate-700 mb-1.5">2. メールの場面・トーン</label>
+                <select id="tz-scenario" onchange="updateTimezoneMail()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:border-indigo-500">
+                  <option value="propose">こちらから候補日時を提示する（標準）</option>
+                  <option value="reply">企業からの日程打診に返信・別候補を出す</option>
+                  <option value="casual">カジュアル面談・OBOG訪問の調整</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">宛先（企業名・担当者名）</label>
+                <input type="text" id="tz-company" oninput="updateTimezoneMail()" placeholder="例：〇〇株式会社 新卒採用担当様" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-indigo-500" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">自分の氏名・大学名</label>
+                <input type="text" id="tz-sender" oninput="updateTimezoneMail()" placeholder="例：〇〇大学 3年 山田太郎" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-indigo-500" />
+              </div>
+            </div>
+
+            <!-- 候補日時リスト（現地時間で入力） -->
+            <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/80">
+              <div class="flex items-center justify-between mb-3">
+                <label class="text-xs font-extrabold text-slate-800">3. 面接可能な「現地日時」を入力</label>
+                <button type="button" onclick="addTzSlot()" class="text-xs font-extrabold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg border border-indigo-200 transition cursor-pointer">
+                  ＋ 候補日を追加
+                </button>
+              </div>
+              <div id="tz-slots-container" class="space-y-2.5"></div>
+              <p class="text-[11px] text-slate-500 mt-3 leading-relaxed">
+                💡 現地時間（あなたの時計）で入力してください。右側のプレビューに<strong>日本時間（JST）へ自動変換された日時</strong>と、深夜・早朝かどうかの判定が表示されます。
+              </p>
+            </div>
+          </div>
+
+          <!-- 右側：JST変換プレビュー＆コピペ用メール -->
+          <div class="lg:col-span-6 flex flex-col justify-between space-y-4">
+            <!-- 変換確認バッジ枠 -->
+            <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-extrabold text-indigo-900">⏱️ 現地時間 ⇔ 日本時間（JST）自動変換チェック</span>
+                <span id="tz-offset-badge" class="text-[11px] font-mono font-bold bg-white text-indigo-700 px-2.5 py-0.5 rounded-full border border-indigo-200"></span>
+              </div>
+              <div id="tz-conversion-preview" class="space-y-1.5 text-xs text-slate-700"></div>
+            </div>
+
+            <!-- 生成されたメール文面 -->
+            <div class="flex-1 flex flex-col">
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-extrabold text-slate-700">生成されたメール文面（そのまま編集も可能）</label>
+                <button type="button" onclick="copyTextarea('tz-mail-output', 'tz-copy-btn')" id="tz-copy-btn" class="text-xs font-extrabold bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-xl transition cursor-pointer shadow-2xs">
+                  📋 文面をコピーする
+                </button>
+              </div>
+              <textarea id="tz-mail-output" rows="13" class="w-full flex-1 bg-slate-900 text-slate-100 font-mono text-xs leading-relaxed p-4 rounded-2xl border border-slate-800 focus:outline-none focus:border-indigo-500"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TOOL 2: 卒業時期別・逆算就活＆ボスキャリロードマップ生成機
+    =========================================== -->
+    <section id="panel-roadmap" class="tool-panel hidden">
+      <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-8 shadow-2xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 mb-6 border-b border-slate-100">
+          <div>
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">Reverse Career Roadmap Generator</span>
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5">卒業時期別・逆算就活＆ボスキャリロードマップ生成機</h2>
+            <p class="text-xs text-slate-500 mt-1">卒業予定年月と志望業界を選ぶだけで、いつ何に出願すべきかを自動算出。カレンダー登録（.ics）にも対応しています。</p>
+          </div>
+          <button type="button" onclick="shareCurrentTool('roadmap', '卒業時期別・逆算就活＆ボスキャリロードマップ生成機')" class="self-start sm:self-auto text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl transition cursor-pointer shrink-0">
+            🔗 このツールをシェア
+          </button>
+        </div>
+
+        <!-- 条件選択バー -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80 mb-6">
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">1. 卒業予定時期</label>
+            <select id="rm-grad" onchange="renderRoadmap()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:border-indigo-500">
+              <option value="2027-06">2027年 5月〜7月卒業（北米・英国・欧州 27/28卒）</option>
+              <option value="2027-12">2027年 11月〜12月卒業（豪州・NZ・秋卒業 28卒）</option>
+              <option value="2028-06" selected>2028年 5月〜7月卒業（北米・英国・欧州 28/29卒）</option>
+              <option value="2028-12">2028年 11月〜12月卒業（豪州・NZ・秋卒業 29卒）</option>
+              <option value="2029-06">2029年 5月〜7月卒業（北米・英国・欧州 29/30卒）</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">2. 第一志望の業界・ルート</label>
+            <select id="rm-industry" onchange="renderRoadmap()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:border-indigo-500">
+              <option value="gaishi">💼 外資系コンサル・外資系投資銀行 (IBD/マーケット)</option>
+              <option value="shosha">🌍 総合商社・デベロッパー・日系グローバル難関</option>
+              <option value="nikkei">🏢 日系大手メーカー・金融・インフラ・IT</option>
+              <option value="startup">🚀 メガベンチャー・AI/SaaSスタートアップ</option>
+            </select>
+          </div>
+          <div class="flex flex-col justify-end">
+            <div class="flex gap-2">
+              <button type="button" onclick="downloadRoadmapIcs()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-2.5 px-3 rounded-xl transition cursor-pointer shadow-2xs">
+                📅 カレンダー一括登録 (.ics)
+              </button>
+              <button type="button" onclick="copyRoadmapText()" id="rm-copy-btn" class="bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl border border-slate-200 transition cursor-pointer">
+                📋 コピー
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 戦略サマリーバナー -->
+        <div id="rm-summary-box" class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4 mb-6 text-xs sm:text-sm text-slate-700 leading-relaxed"></div>
+
+        <!-- タイムラインカード一覧 -->
+        <div id="rm-timeline" class="space-y-3"></div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TOOL 3: 海外大GPA ⇔ 日本の成績・ES表現 換算シミュレーター
+    =========================================== -->
+    <section id="panel-gpa" class="tool-panel hidden">
+      <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-8 shadow-2xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 mb-6 border-b border-slate-100">
+          <div>
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">Global GPA & ES Phrase Simulator</span>
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5">海外大GPA・成績 ⇔ 日本企業ES表記 換算シミュレーター</h2>
+            <p class="text-xs text-slate-500 mt-1">英国（First / 2:1）、北米（4.0スケール）、豪州（HD/D・7.0スケール）などを日本の4.0GPA目安に変換し、ES用の説明文を生成します。</p>
+          </div>
+          <button type="button" onclick="shareCurrentTool('gpa', '海外大GPA・成績 ⇔ 日本企業ES表記 換算シミュレーター')" class="self-start sm:self-auto text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl transition cursor-pointer shrink-0">
+            🔗 このツールをシェア
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- 左：入力 -->
+          <div class="lg:col-span-5 space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200/80">
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1.5">1. 大学の成績評価システム（国・地域）</label>
+              <select id="gpa-system" onchange="onGpaSystemChange()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:border-indigo-500">
+                <option value="uk">🇬🇧 イギリス式（First / 2:1 / 2:2・パーセント評価）</option>
+                <option value="us">🇺🇸 アメリカ・カナダ式（4.0スケール GPA）</option>
+                <option value="au">🇦🇺 オーストラリア式（HD / D / Cr・7.0スケール）</option>
+                <option value="eu">🇪🇺 欧州・ECTS / 10点・20点満点スケール</option>
+              </select>
+            </div>
+
+            <div id="gpa-input-wrapper">
+              <label class="block text-xs font-extrabold text-slate-700 mb-1.5">2. 現在の成績・グレードを選択</label>
+              <select id="gpa-grade-select" onchange="updateGpaResult()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:border-indigo-500"></select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">3. 専攻・得意科目（任意・ES例文に反映）</label>
+              <input type="text" id="gpa-major" oninput="updateGpaResult()" placeholder="例：経済学（計量経済学・データ分析）" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-indigo-500" />
+            </div>
+
+            <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 text-[11px] text-slate-500 leading-relaxed">
+              💡 <strong>なぜ説明が必要？</strong><br />
+              例えば英国大学の「65%（Upper Second / 2:1）」は現地では優秀な成績ですが、日本の人事担当者が数字だけ見ると「100点満点で65点＝C評価？」と誤解されるケースが頻発します。ESの備考欄に換算基準を添えるだけで書類通過率が安定します。
+            </div>
+          </div>
+
+          <!-- 右：換算結果とコピペ表現 -->
+          <div class="lg:col-span-7 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4">
+                <span class="text-[11px] font-bold text-indigo-600">日本・米国4.0スケール換算目安</span>
+                <div id="gpa-converted-score" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">3.7 〜 4.0 / 4.0</div>
+                <p id="gpa-converted-sub" class="text-xs text-slate-600 mt-1"></p>
+              </div>
+              <div class="bg-emerald-50/70 border border-emerald-100 rounded-2xl p-4">
+                <span class="text-[11px] font-bold text-emerald-700">日本の成績グレード目安・水準</span>
+                <div id="gpa-jp-equivalent" class="text-lg sm:text-xl font-extrabold text-slate-900 mt-1">「秀・優（S〜A）」中心水準</div>
+                <p id="gpa-percentile" class="text-xs text-slate-600 mt-1"></p>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-extrabold text-slate-800">① ESの「GPA・成績記入欄（短文・備考枠）」用テキスト</span>
+                <button type="button" onclick="copyTextarea('gpa-short-output', 'gpa-copy-short')" id="gpa-copy-short" class="text-xs font-bold bg-white hover:bg-slate-100 text-indigo-600 border border-indigo-200 px-3 py-1 rounded-lg transition cursor-pointer">
+                  📋 コピー
+                </button>
+              </div>
+              <textarea id="gpa-short-output" rows="2" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs sm:text-sm text-slate-800 focus:outline-none"></textarea>
+            </div>
+
+            <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-extrabold text-slate-800">② ES・面接の「学業で力を入れたこと」アピール文テンプレート</span>
+                <button type="button" onclick="copyTextarea('gpa-long-output', 'gpa-copy-long')" id="gpa-copy-long" class="text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1 rounded-lg transition cursor-pointer">
+                  📋 アピール文をコピー
+                </button>
+              </div>
+              <textarea id="gpa-long-output" rows="5" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs sm:text-sm text-slate-800 leading-relaxed focus:outline-none"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TOOL 4: 英語レジュメ ⇔ 日本語履歴書「学歴・職歴」自動変換メーカー
+    =========================================== -->
+    <section id="panel-resume" class="tool-panel hidden">
+      <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-8 shadow-2xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 mb-6 border-b border-slate-100">
+          <div>
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">Bilingual Resume / CV Converter</span>
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5">英語レジュメ ⇔ 日本語履歴書「学歴・職歴」自動変換メーカー</h2>
+            <p class="text-xs text-slate-500 mt-1">海外大の学位・専攻名（BA/BSc/Joint Honours/Minor等）や現地インターン・TA経験を、日本の履歴書・ESにそのまま使える自然な日本語表記に変換します。</p>
+          </div>
+          <button type="button" onclick="shareCurrentTool('resume', '英語レジュメ⇔日本語履歴書「学歴・職歴」自動変換メーカー')" class="self-start sm:self-auto text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl transition cursor-pointer shrink-0">
+            🔗 このツールをシェア
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- 左：学歴・職歴の入力 -->
+          <div class="lg:col-span-6 space-y-4">
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+              <span class="text-xs font-extrabold text-indigo-600">STEP 1：海外大学の学歴・学位情報を入力</span>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 mb-1">大学名（英語 または カタカナ）</label>
+                  <input type="text" id="cv-uni" oninput="updateResumeConversion()" placeholder="例：University of Exeter / UCLA" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800" />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 mb-1">学位種別 (Degree)</label>
+                  <select id="cv-degree" onchange="updateResumeConversion()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800">
+                    <option value="ba">Bachelor of Arts (BA / B.A.)</option>
+                    <option value="bsc">Bachelor of Science (BSc / B.S.)</option>
+                    <option value="bba">Bachelor of Business Administration (BBA)</option>
+                    <option value="beng">Bachelor of Engineering (BEng / B.E.)</option>
+                    <option value="llb">Bachelor of Laws (LLB)</option>
+                    <option value="ma">Master of Arts (MA) / MSc</option>
+                    <option value="exchange">Exchange Program（交換留学・派遣留学）</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 mb-1">主専攻 (Major / Joint Honours)</label>
+                  <input type="text" id="cv-major" oninput="updateResumeConversion()" placeholder="例：Politics and International Relations" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800" />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 mb-1">副専攻 (Minor / Concentration・任意)</label>
+                  <input type="text" id="cv-minor" oninput="updateResumeConversion()" placeholder="例：Data Science / Economics" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 mb-1">入学年月</label>
+                  <input type="month" id="cv-start" value="2025-09" onchange="updateResumeConversion()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800" />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 mb-1">卒業予定年月</label>
+                  <input type="month" id="cv-end" value="2028-06" onchange="updateResumeConversion()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800" />
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+              <span class="text-xs font-extrabold text-indigo-600">STEP 2：英語の役職・インターン・課外活動を日本語変換</span>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-600 mb-1">よく使う英語肩書きクイック挿入</label>
+                <div class="flex flex-wrap gap-1.5">
+                  <button type="button" onclick="insertRolePreset('Research Intern')" class="text-[11px] bg-white hover:bg-indigo-50 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg cursor-pointer">Research Intern</button>
+                  <button type="button" onclick="insertRolePreset('Teaching Assistant (TA)')" class="text-[11px] bg-white hover:bg-indigo-50 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg cursor-pointer">Teaching Assistant</button>
+                  <button type="button" onclick="insertRolePreset('Vice President of Japanese Society')" class="text-[11px] bg-white hover:bg-indigo-50 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg cursor-pointer">Vice President (Japanese Society)</button>
+                  <button type="button" onclick="insertRolePreset('Business Development Intern')" class="text-[11px] bg-white hover:bg-indigo-50 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg cursor-pointer">Business Development Intern</button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-600 mb-1">英語の役職名・活動内容（自由入力）</label>
+                <input type="text" id="cv-role" oninput="updateResumeConversion()" placeholder="例：Research Intern / President of Investment Society" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800" />
+              </div>
+            </div>
+          </div>
+
+          <!-- 右：変換結果出力 -->
+          <div class="lg:col-span-6 flex flex-col justify-between space-y-4">
+            <div class="bg-slate-900 text-slate-100 rounded-2xl p-5 flex-1 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+                  <span class="text-xs font-extrabold text-indigo-400">📄 日本語履歴書・ES 変換結果（コピペ用）</span>
+                  <button type="button" onclick="copyTextarea('cv-output', 'cv-copy-btn')" id="cv-copy-btn" class="text-xs font-extrabold bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-xl transition cursor-pointer">
+                    📋 変換結果をコピー
+                  </button>
+                </div>
+                <textarea id="cv-output" rows="12" class="w-full bg-slate-950/60 text-slate-100 font-mono text-xs leading-relaxed p-3.5 rounded-xl border border-slate-800 focus:outline-none focus:border-indigo-500"></textarea>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 leading-relaxed">
+                💡 <strong>日本の履歴書マナー補足：</strong><br />
+                海外大学には日本の「〇〇学部〇〇学科」という階層がない場合が多いため、<strong>「大学名 ＋ 学位（学士課程）＋ 専攻名（Major）」</strong>を並べて記載するのが外資・日系大手ともに最も誤解のない標準フォーマットです。
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- サイト内回遊導線（掲示板・AIニュースへのリンク） -->
+    <section class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <a href="board.html" class="bg-white hover:bg-indigo-50/40 p-5 rounded-3xl border border-slate-200 hover:border-indigo-300 transition flex items-center justify-between group">
+        <div>
+          <span class="text-[11px] font-extrabold text-indigo-600">Atrium Community Board</span>
+          <h3 class="text-sm sm:text-base font-extrabold text-slate-900 mt-0.5 group-hover:text-indigo-600 transition">💬 匿名掲示板で現地の選考・生活情報を聞く</h3>
+          <p class="text-xs text-slate-500 mt-1">ボスキャリ・夏インターン・現地大学のリアルな口コミスレッド</p>
+        </div>
+        <span class="text-sm font-bold text-indigo-600 shrink-0 ml-3">掲示板へ →</span>
+      </a>
+      <a href="news.html" class="bg-white hover:bg-indigo-50/40 p-5 rounded-3xl border border-slate-200 hover:border-indigo-300 transition flex items-center justify-between group">
+        <div>
+          <span class="text-[11px] font-extrabold text-emerald-600">Daily AI Career Intelligence</span>
+          <h3 class="text-sm sm:text-base font-extrabold text-slate-900 mt-0.5 group-hover:text-indigo-600 transition">📰 AI厳選・海外大生向け就活＆奨学金ニュース</h3>
+          <p class="text-xs text-slate-500 mt-1">毎日自動更新されるインターン募集・ボスキャリ・給付型奨学金情報</p>
+        </div>
+        <span class="text-sm font-bold text-indigo-600 shrink-0 ml-3">ニュースへ →</span>
+      </a>
+    </section>
+
+  </main>
+
+  <!-- 共通フッター -->
+  <div id="site-footer"></div>
+
+  <script src="js/common.js"></script>
+  <script>
+    /* ==========================================================
+       共通ユーティリティ（タブ切り替え・コピー・URLシェア）
+    ========================================================== */
+    function switchToolTab(tabId) {
+      document.querySelectorAll('.tool-panel').forEach(p => p.classList.add('hidden'));
+      const targetPanel = document.getElementById('panel-' + tabId);
+      if (targetPanel) targetPanel.classList.remove('hidden');
+
+      const tabs = ['timezone', 'roadmap', 'gpa', 'resume'];
+      tabs.forEach((id, idx) => {
+        const btn = document.getElementById('tab-btn-' + id);
+        if (!btn) return;
+        const numStr = 'TOOL 0' + (idx + 1);
+        const labelText = btn.querySelector('span:last-child').textContent;
+        if (id === tabId) {
+          btn.className = 'tool-tab-btn flex flex-col items-start p-3.5 rounded-2xl border text-left transition cursor-pointer bg-slate-900 text-white border-slate-900 shadow-sm';
+          btn.innerHTML = `<span class="text-xs font-extrabold opacity-80">${numStr}</span><span class="text-xs sm:text-sm font-extrabold mt-0.5">${labelText}</span>`;
+        } else {
+          btn.className = 'tool-tab-btn flex flex-col items-start p-3.5 rounded-2xl border text-left transition cursor-pointer bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200';
+          btn.innerHTML = `<span class="text-xs font-extrabold text-indigo-600">${numStr}</span><span class="text-xs sm:text-sm font-extrabold mt-0.5">${labelText}</span>`;
+        }
+      });
+
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', `?tab=${encodeURIComponent(tabId)}`);
+      }
+    }
+
+    async function copyTextarea(textareaId, btnId) {
+      const el = document.getElementById(textareaId);
+      const btn = document.getElementById(btnId);
+      if (!el) return;
+      const originalText = btn ? btn.textContent : '';
+      try {
+        await navigator.clipboard.writeText(el.value);
+        if (btn) {
+          btn.textContent = '✅ コピーしました！';
+          setTimeout(() => { btn.textContent = originalText; }, 2000);
+        }
+      } catch (e) {
+        el.select();
+        document.execCommand('copy');
+      }
+    }
+
+    async function shareCurrentTool(tabId, toolTitle) {
+      const shareUrl = `${window.location.origin}${window.location.pathname}?tab=${encodeURIComponent(tabId)}`;
+      const shareText = `【海外大生向け】${toolTitle}｜Atrium (RyugakuIntern)`;
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: shareText, text: shareText, url: shareUrl });
+          return;
+        } catch (e) {}
+      }
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        alert(`ツールのリンクをコピーしました！\n${shareUrl}`);
+      } catch (e) {
+        prompt('以下のURLをコピーしてシェアしてください:', shareUrl);
+      }
+    }
+
+    /* ==========================================================
+       TOOL 1: 時差面接・日程調整テキスト自動生成ロジック
+    ========================================================== */
+    let tzSlots = [];
+
+    function initTzSlots() {
+      const d1 = new Date();
+      d1.setDate(d1.getDate() + 2);
+      const d2 = new Date();
+      d2.setDate(d2.getDate() + 3);
+      const d3 = new Date();
+      d3.setDate(d3.getDate() + 4);
+
+      const fmtDate = (d) => d.toISOString().split('T')[0];
+      tzSlots = [
+        { date: fmtDate(d1), start: '09:00', end: '12:00' },
+        { date: fmtDate(d2), start: '10:00', end: '14:00' },
+        { date: fmtDate(d3), start: '09:00', end: '11:30' }
+      ];
+      renderTzSlotsInput();
+      updateTimezoneMail();
+    }
+
+    function addTzSlot() {
+      const last = tzSlots[tzSlots.length - 1] || { date: new Date().toISOString().split('T')[0], start: '09:00', end: '12:00' };
+      const nextDate = new Date(last.date);
+      nextDate.setDate(nextDate.getDate() + 1);
+      tzSlots.push({
+        date: nextDate.toISOString().split('T')[0],
+        start: last.start,
+        end: last.end
+      });
+      renderTzSlotsInput();
+      updateTimezoneMail();
+    }
+
+    function removeTzSlot(idx) {
+      if (tzSlots.length <= 1) return;
+      tzSlots.splice(idx, 1);
+      renderTzSlotsInput();
+      updateTimezoneMail();
+    }
+
+    function onTzSlotChange(idx, field, val) {
+      if (!tzSlots[idx]) return;
+      tzSlots[idx][field] = val;
+      updateTimezoneMail();
+    }
+
+    function renderTzSlotsInput() {
+      const container = document.getElementById('tz-slots-container');
+      if (!container) return;
+      container.innerHTML = tzSlots.map((slot, i) => `
+        <div class="flex flex-wrap sm:flex-nowrap items-center gap-1.5 bg-white p-2 rounded-xl border border-slate-200">
+          <span class="text-[11px] font-extrabold text-indigo-600 px-1.5">候補${i + 1}</span>
+          <input type="date" value="${slot.date}" onchange="onTzSlotChange(${i}, 'date', this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-mono text-slate-800" />
+          <input type="time" value="${slot.start}" onchange="onTzSlotChange(${i}, 'start', this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-mono text-slate-800" />
+          <span class="text-xs text-slate-400">〜</span>
+          <input type="time" value="${slot.end}" onchange="onTzSlotChange(${i}, 'end', this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-mono text-slate-800" />
+          ${tzSlots.length > 1 ? `<button type="button" onclick="removeTzSlot(${i})" class="ml-auto text-xs text-slate-400 hover:text-rose-600 px-1.5 font-bold cursor-pointer">✕</button>` : ''}
+        </div>
+      `).join('');
+    }
+
+    // 任意のタイムゾーンの「現地日時」を正確なUTCタイムスタンプに変換し、JSTでの月日・曜日・時刻を算出
+    function convertLocalToJst(dateStr, timeStr, timeZone) {
+      if (!dateStr || !timeStr) return null;
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const [hh, mm] = timeStr.split(':').map(Number);
+
+      const utcGuess = Date.UTC(y, m - 1, d, hh, mm, 0);
+
+      const getParts = (ts, tz) => {
+        const f = new Intl.DateTimeFormat('en-US', {
+          timeZone: tz,
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', hour12: false
+        });
+        const parts = {};
+        f.formatToParts(new Date(ts)).forEach(p => { parts[p.type] = p.value; });
+        const hourVal = parts.hour === '24' ? 0 : Number(parts.hour);
+        return Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day), hourVal, Number(parts.minute), 0);
+      };
+
+      const tzRep = getParts(utcGuess, timeZone);
+      const diffMs = tzRep - utcGuess;
+      const actualEpoch = utcGuess - diffMs;
+
+      const jstEpoch = getParts(actualEpoch, 'Asia/Tokyo');
+      const jstDate = new Date(jstEpoch);
+      const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+
+      const localDate = new Date(Date.UTC(y, m - 1, d, hh, mm));
+      const localWd = weekdays[localDate.getUTCDay()];
+
+      const jstMonth = jstDate.getUTCMonth() + 1;
+      const jstDay = jstDate.getUTCDate();
+      const jstWd = weekdays[jstDate.getUTCDay()];
+      const jstH = String(jstDate.getUTCHours()).padStart(2, '0');
+      const jstM = String(jstDate.getUTCMinutes()).padStart(2, '0');
+
+      const offsetHours = Math.round((jstEpoch - utcGuess) / (1000 * 60 * 60));
+
+      return {
+        localFormatted: `${m}月${d}日(${localWd}) ${timeStr}`,
+        localTimeOnly: timeStr,
+        jstDateStr: `${jstMonth}月${jstDay}日(${jstWd})`,
+        jstTimeStr: `${jstH}:${jstM}`,
+        jstHourNum: jstDate.getUTCHours(),
+        offsetHours
+      };
+    }
+
+    function updateTimezoneMail() {
+      const citySelect = document.getElementById('tz-city');
+      const timeZone = citySelect.value;
+      const cityLabel = citySelect.options[citySelect.selectedIndex].dataset.label || '海外現地';
+      const scenario = document.getElementById('tz-scenario').value;
+      const company = (document.getElementById('tz-company').value || '').trim() || '〇〇株式会社 採用ご担当者様';
+      const sender = (document.getElementById('tz-sender').value || '').trim() || '〇〇大学 山田太郎';
+
+      const previewContainer = document.getElementById('tz-conversion-preview');
+      const offsetBadge = document.getElementById('tz-offset-badge');
+
+      const mailLines = [];
+      const previewHtmls = [];
+      let detectedOffset = null;
+
+      tzSlots.forEach((slot, idx) => {
+        const startConv = convertLocalToJst(slot.date, slot.start, timeZone);
+        const endConv = convertLocalToJst(slot.date, slot.end, timeZone);
+        if (!startConv || !endConv) return;
+
+        if (detectedOffset === null) detectedOffset = startConv.offsetHours;
+
+        const sameJstDay = startConv.jstDateStr === endConv.jstDateStr;
+        const jstRange = sameJstDay
+          ? `${startConv.jstDateStr} ${startConv.jstTimeStr}〜${endConv.jstTimeStr}`
+          : `${startConv.jstDateStr} ${startConv.jstTimeStr}〜${endConv.jstDateStr} ${endConv.jstTimeStr}`;
+
+        const localRange = `${startConv.localFormatted}〜${endConv.localTimeOnly}`;
+
+        const isJstBusinessHours = startConv.jstHourNum >= 9 && startConv.jstHourNum <= 19;
+        const statusBadge = isJstBusinessHours
+          ? `<span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">日本の営業時間内</span>`
+          : `<span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded">※日本の早朝/夜間</span>`;
+
+        previewHtmls.push(`
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-white px-3 py-2 rounded-xl border border-indigo-100 gap-1">
+            <div>
+              <span class="font-bold text-indigo-700">日本時間: ${jstRange}</span>
+              <span class="text-slate-400 mx-1">/</span>
+              <span class="text-slate-500">現地: ${localRange}</span>
+            </div>
+            ${statusBadge}
+          </div>
+        `);
+
+        mailLines.push(`・第${idx + 1}希望：日本時間 ${jstRange}（現地時間：${localRange}）`);
+      });
+
+      if (offsetBadge && detectedOffset !== null) {
+        const sign = detectedOffset >= 0 ? `+${detectedOffset}` : `${detectedOffset}`;
+        offsetBadge.textContent = `時差：日本が ${sign}時間（サマータイム自動反映済）`;
+      }
+      if (previewContainer) {
+        previewContainer.innerHTML = previewHtmls.join('');
+      }
+
+      const diffText = detectedOffset !== null ? `（日本との時差：${detectedOffset >= 0 ? '-' + detectedOffset : '+' + Math.abs(detectedOffset)}時間）` : '';
+
+      let subject = `【面接日程のご相談】${sender}`;
+      let intro = `お世話になっております。${sender}です。\nこの度は面接の機会をいただき、誠にありがとうございます。`;
+      let closing = `ご多忙のところ恐れ入りますが、上記日程にてご調整いただけますと幸いです。\n何卒よろしくお願い申し上げます。`;
+
+      if (scenario === 'reply') {
+        subject = `Re: 面接日程のご連絡（${sender}）`;
+        intro = `お世話になっております。${sender}です。\n面接日程のご案内をいただき、誠にありがとうございます。`;
+      } else if (scenario === 'casual') {
+        subject = `【面談日程のご相談】${sender}`;
+        intro = `お世話になっております。${sender}です。\nこの度は面談の機会をいただき、誠にありがとうございます。`;
+      }
+
+      const fullMail = [
+        `件名：${subject}`,
+        ``,
+        `${company}`,
+        ``,
+        intro,
+        ``,
+        `現在、私は${cityLabel}に滞在しております関係で${diffText}、`,
+        `オンラインでの実施をお願いできましたら幸いです。`,
+        ``,
+        `つきましては、以下の日本時間（JST）にて候補日時をお送りいたします。`,
+        ``,
+        `【希望日時（すべて日本時間・JST表記）】`,
+        ...mailLines,
+        ``,
+        `※もし上記日程でご都合がつかない場合は、日本時間の午前・夕方の時間帯を中心に別日程の調整も可能ですので、お気軽にお申し付けください。`,
+        ``,
+        closing,
+        ``,
+        `--------------------------------------------------`,
+        `${sender}`
+      ].join('\n');
+
+      const outEl = document.getElementById('tz-mail-output');
+      if (outEl) outEl.value = fullMail;
+    }
+
+    /* ==========================================================
+       TOOL 2: 卒業時期別・逆算就活＆ボスキャリロードマップ生成機
+    ========================================================== */
+    let currentRoadmapEvents = [];
+
+    function addMonths(year, month, delta) {
+      const d = new Date(Date.UTC(year, month - 1 + delta, 1));
+      return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1 };
+    }
+
+    function renderRoadmap() {
+      const gradVal = document.getElementById('rm-grad').value; // e.g. "2028-06"
+      const industry = document.getElementById('rm-industry').value;
+      const [gradY, gradM] = gradVal.split('-').map(Number);
+
+      // ボスキャリ本番年は原則「卒業前年の11月」（12月卒業の場合も前年11月または当年11月）
+      const bcfYear = gradM >= 10 ? gradY : gradY - 1;
+      const prevYear = bcfYear - 1;
+
+      const industryNames = {
+        gaishi: '外資系コンサル・外資系投資銀行',
+        shosha: '総合商社・デベロッパー・難関グローバル枠',
+        nikkei: '日系大手メーカー・金融・インフラ・IT',
+        startup: 'メガベンチャー・急成長AI/SaaSスタートアップ'
+      };
+
+      const summaryBox = document.getElementById('rm-summary-box');
+      if (summaryBox) {
+        summaryBox.innerHTML = `
+          <div class="font-extrabold text-indigo-950 mb-1">🎯 ${gradY}年${gradM}月卒業 × ${industryNames[industry]} の最重要ポイント</div>
+          <p class="text-xs text-slate-700">
+            あなたのメイン勝負となるボストンキャリアフォーラム（ボスキャリ）は <strong>${bcfYear}年11月</strong> です。
+            ただしボスキャリ本番の会場でいきなり面接枠を取るのではなく、<strong>${bcfYear}年8月〜10月の事前オンライン応募＆Webテスト突破</strong>で内定確率の8割が決まります。さらに1年前の <strong>${prevYear}年夏〜冬</strong> に短期インターンや情報収集を始めておくと圧倒的に有利です。
+          </p>
+        `;
+      }
+
+      const milestones = [
+        {
+          y: prevYear, m: 10,
+          badge: '1年前の秋（準備期）',
+          title: '英語レジュメ・日本語履歴書の原型作成＆先輩ヒアリング',
+          desc: `1年後のボスキャリ（${bcfYear}年11月）を見据え、GPA管理と課外活動（Societyやインターン）の棚卸しを開始。今年のボスキャリ参加先輩から選考フローを聞き出す時期。`
+        },
+        {
+          y: bcfYear, m: 3,
+          badge: '勝負年の春（早期始動）',
+          title: industry === 'gaishi'
+            ? '外資コンサル・IBD サマーインターン早期エントリー＆ケース/Webテスト対策'
+            : '国内サマーインターン情報解禁・Webテスト（玉手箱/TG-WEB）対策開始',
+          desc: '日本国内のサマーインターン募集が本格化。海外滞在中からオンラインで受けられるサマー選考にエントリーし、面接慣れを作っておく。'
+        },
+        {
+          y: bcfYear, m: 6,
+          badge: '勝負年の夏（一時帰国・サマー）',
+          title: '一時帰国サマーインターン参加 ＆ ボスキャリ特設サイト登録',
+          desc: '6月〜8月の夏休み帰国期間を活かして短期インターンや対面イベントに参加。CFN（CareerForum.net）のレジュメ登録を完了させる。'
+        },
+        {
+          y: bcfYear, m: 8,
+          badge: '🔥 最重要ピーク①（事前応募開始）',
+          title: 'ボスキャリ参加企業の「事前オンライン応募」一斉スタート',
+          desc: '人気企業（外資・総合商社・メガバンク等）は8月〜9月中に1次締切を迎えます。現地の新学期開始と重なるため、8月中にES・レジュメを出し切るのが鉄則。'
+        },
+        {
+          y: bcfYear, m: 10,
+          badge: '🔥 最重要ピーク②（時差オンライン面接）',
+          title: 'ボスキャリ事前オンライン面接ラッシュ（1次〜2次選考）',
+          desc: '現地授業と並行して日本時間に合わせたZoom面接が集中。ここで「ボストン会場での最終面接チケット（ディナー招待）」を獲得する。'
+        },
+        {
+          y: bcfYear, m: 11,
+          badge: '🏆 ボスキャリ本番（内定獲得）',
+          title: 'ボストンキャリアフォーラム本番（対面最終面接・オファー獲得）',
+          desc: '3日間で最終面接・社員面談・ウォークインを実施。多くの海外大生がここで最初の内定（オファー）を獲得します。'
+        },
+        {
+          y: gradY, m: 2,
+          badge: '卒業年の冬〜春（本選考・駆け込み）',
+          title: industry === 'shosha'
+            ? '総合商社・日系難関の国内本選考／海外大生特別ルート受験'
+            : '東京ウインターキャリアフォーラム・国内通年選考のフォローアップ',
+          desc: 'ボスキャリ後に納得いくまで就活を続ける場合や、春選考メインの企業（総合商社本選考・メガベンチャー等）をオンライン＋一時帰国で受験。'
+        }
+      ];
+
+      currentRoadmapEvents = milestones;
+
+      const timelineEl = document.getElementById('rm-timeline');
+      if (timelineEl) {
+        timelineEl.innerHTML = milestones.map((item, idx) => `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 hover:bg-indigo-50/40 p-4 rounded-2xl border border-slate-200/90 transition">
+            <div class="flex items-start gap-3.5">
+              <div class="bg-slate-900 text-white font-mono text-xs font-extrabold px-3 py-2 rounded-xl text-center shrink-0 min-w-[82px]">
+                ${item.y}年<br /><span class="text-sm text-indigo-300">${item.m}月</span>
+              </div>
+              <div>
+                <span class="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-100">${item.badge}</span>
+                <h3 class="text-xs sm:text-sm font-extrabold text-slate-900 mt-1">${item.title}</h3>
+                <p class="text-xs text-slate-600 mt-1 leading-relaxed">${item.desc}</p>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function downloadRoadmapIcs() {
+      if (!currentRoadmapEvents.length) return;
+      const lines = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Atrium//RyugakuIntern Career Roadmap//JA'
+      ];
+
+      currentRoadmapEvents.forEach((ev, idx) => {
+        const mm = String(ev.m).padStart(2, '0');
+        const dtStart = `${ev.y}${mm}01`;
+        const dtEnd = `${ev.y}${mm}02`;
+        lines.push(
+          'BEGIN:VEVENT',
+          `UID:atrium-roadmap-${ev.y}${mm}-${idx}@ryugaku-intern.com`,
+          `DTSTART;VALUE=DATE:${dtStart}`,
+          `DTEND;VALUE=DATE:${dtEnd}`,
+          `SUMMARY:【海外大生就活】${ev.title}`,
+          `DESCRIPTION:${ev.desc.replace(/\n/g, ' ')}`,
+          'END:VEVENT'
+        );
+      });
+
+      lines.push('END:VCALENDAR');
+      const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'atrium-career-roadmap.ics';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    async function copyRoadmapText() {
+      const text = currentRoadmapEvents.map(e => `■ ${e.y}年${e.m}月（${e.badge}）\n${e.title}\n└ ${e.desc}`).join('\n\n');
+      const btn = document.getElementById('rm-copy-btn');
+      try {
+        await navigator.clipboard.writeText(text);
+        if (btn) {
+          btn.textContent = '✅ コピー済';
+          setTimeout(() => { btn.textContent = '📋 コピー'; }, 2000);
+        }
+      } catch (e) {}
+    }
+
+    /* ==========================================================
+       TOOL 3: 海外大GPA ⇔ 日本の成績・ES表現 換算シミュレーター
+    ========================================================== */
+    const GPA_DATA = {
+      uk: [
+        {
+          label: 'First-Class Honours (1st / 70%以上)',
+          gpa4: '3.8 〜 4.0 / 4.0',
+          sub: '米国・日本基準で最高評価（Summa Cum Laude相当）',
+          jpEq: '「秀（S / A+）」評価相当',
+          pct: '英国大学全体の上位約10〜15%水準',
+          shortNote: '成績：First-Class Honours（70%以上 / 4.0スケール換算：3.8〜4.0相当、英国大学における最高学位区分）',
+          longReason: '英国の大学評価基準において最高区分である「First-Class Honours（70%以上・4.0GPA換算で3.8〜4.0相当）」を維持しております。英国式評価では70%以上が最優秀層（上位約10〜15%）に位置づけられており、'
+        },
+        {
+          label: 'Upper Second-Class Honours (2:1 / 60%〜69%)',
+          gpa4: '3.3 〜 3.7 / 4.0',
+          sub: '英国難関企業の足切り基準をクリアする優秀成績',
+          jpEq: '「優（A 〜 B+）」評価相当',
+          pct: '外資・大学院進学の標準クリア基準',
+          shortNote: '成績：Upper Second-Class Honours (2:1 / 60〜69% / 4.0スケール換算：3.3〜3.7相当 ※英国式の60%以上は日本の「優・A評価」に該当)',
+          longReason: '英国の大学評価基準において優秀層を示す「Upper Second-Class Honours（通称2:1、4.0GPA換算で3.3〜3.7相当）」を収めております。厳格な絶対評価が採られる英国大学において、現地企業や大学院が求める基準をクリアし、'
+        },
+        {
+          label: 'Lower Second-Class Honours (2:2 / 50%〜59%)',
+          gpa4: '2.7 〜 3.2 / 4.0',
+          sub: '英国Honours学位の標準修了水準',
+          jpEq: '「良（B）」評価相当',
+          pct: '合格ライン40%を大きく上回る堅実な成績',
+          shortNote: '成績：Lower Second-Class Honours (2:2 / 50〜59% / 4.0スケール換算：2.7〜3.2相当 ※英国式の合格基準は40%であり日本の「良・B評価」に該当)',
+          longReason: '英国の厳格な評価基準（及第点40%、70%以上が最高評価）のもと、Second-Class Honours（4.0GPA換算で3.0前後相当）の成績を修め、英語ネイティブの学生と対等に議論・論文執筆を行いながら、'
+        }
+      ],
+      us: [
+        {
+          label: 'GPA 3.7 〜 4.0 (A / A- 中心・Dean\'s List)',
+          gpa4: '3.7 〜 4.0 / 4.0',
+          sub: 'Dean\'s List（学部長表彰）・Magna/Summa Cum Laude水準',
+          jpEq: '「秀・優（S〜A）」評価相当',
+          pct: '学部上位10〜15%のトップクラス水準',
+          shortNote: 'GPA：3.8 / 4.0（Dean\'s List選出 / 学部上位層）',
+          longReason: '北米の大学にてGPA 3.7以上（4.0満点・Dean\'s List水準）を維持しております。毎学期の大量のリーディング課題やディスカッション、エッセイ試験に計画的に取り組み、'
+        },
+        {
+          label: 'GPA 3.3 〜 3.69 (B+ / A- 中心)',
+          gpa4: '3.3 〜 3.69 / 4.0',
+          sub: '外資・総合商社選考でも十分に評価される好成績',
+          jpEq: '「優（A〜B+）」評価相当',
+          pct: '学業と課外活動を高い次元で両立',
+          shortNote: 'GPA：3.5 / 4.0（4.0満点スケール）',
+          longReason: '北米の大学にてGPA 3.3〜3.6水準（4.0満点）の成績を収め、専門科目の履修と課外活動・インターンシップを高いレベルで両立してまいりました。特に'
+        },
+        {
+          label: 'GPA 3.0 〜 3.29 (B 中心)',
+          gpa4: '3.0 〜 3.29 / 4.0',
+          sub: '米国企業の一般的なGPA足切り（3.0）をクリア',
+          jpEq: '「良〜優（B+）」評価相当',
+          pct: '安定した単位取得・専門履修証明',
+          shortNote: 'GPA：3.1 / 4.0（4.0満点スケール）',
+          longReason: '北米の大学にてGPA 3.0以上を維持し、厳しい卒業要件と課題量を着実にクリアしながら、'
+        }
+      ],
+      au: [
+        {
+          label: 'High Distinction (HD / 80%以上・GPA 6.5〜7.0)',
+          gpa4: '3.8 〜 4.0 / 4.0',
+          sub: '豪州7段階評価の最高峰（HD中心）',
+          jpEq: '「秀（S）」評価相当',
+          pct: 'コース上位約5〜10%の最優秀水準',
+          shortNote: '成績：High Distinction (HD / 7段階GPA：6.5〜7.0 / 4.0スケール換算：3.8〜4.0相当)',
+          longReason: 'オーストラリアの大学評価基準において最高ランクである「High Distinction（4.0GPA換算で3.8〜4.0相当）」を中心に取得しております。落第率の高い現地カリキュラムの中で、'
+        },
+        {
+          label: 'Distinction (D / 70%〜79%・GPA 5.5〜6.4)',
+          gpa4: '3.4 〜 3.7 / 4.0',
+          sub: '豪州の優秀成績（優等学位・Honours進学水準）',
+          jpEq: '「優（A）」評価相当',
+          pct: '現地就活・日系難関ともに高評価',
+          shortNote: '成績：Distinction (D / 7段階GPA：6.0前後 / 4.0スケール換算：3.5相当)',
+          longReason: 'オーストラリアの大学にて優秀評価である「Distinction（7段階評価の6.0相当、4.0GPA換算で3.4〜3.7相当）」を維持しております。グループワークや実践的なリサーチ課題において、'
+        },
+        {
+          label: 'Credit (Cr / 60%〜69%・GPA 4.5〜5.4)',
+          gpa4: '3.0 〜 3.3 / 4.0',
+          sub: '豪州大学の良好グレード（Pass=50%の上位区分）',
+          jpEq: '「良〜優（B+）」評価相当',
+          pct: '堅実な専門科目習得を証明',
+          shortNote: '成績：Credit (Cr / 7段階GPA：5.0前後 / 4.0スケール換算：3.1相当)',
+          longReason: 'オーストラリアの大学にて「Credit（4.0GPA換算で3.0〜3.3相当）」の成績を収め、専門領域の知見を深めるとともに、'
+        }
+      ],
+      eu: [
+        {
+          label: 'ECTS Grade A / 10点満点で8.5以上 / 20点満点で16以上',
+          gpa4: '3.8 〜 4.0 / 4.0',
+          sub: '欧州基準で上位10%に入る最優秀グレード',
+          jpEq: '「秀（S）」評価相当',
+          pct: 'ECTS上位10%水準',
+          shortNote: '成績：ECTS Grade A（4.0スケール換算：3.8〜4.0相当、上位10%区分）',
+          longReason: '欧州の大学評価基準（ECTS）において最上位層（Grade A / 4.0GPA換算で3.8〜4.0相当）の成績を収めております。'
+        },
+        {
+          label: 'ECTS Grade B / 10点満点で7.5〜8.4 / 20点満点で14〜15',
+          gpa4: '3.3 〜 3.7 / 4.0',
+          sub: '欧州基準で上位25〜35%の優秀グレード',
+          jpEq: '「優（A）」評価相当',
+          pct: 'ECTS上位35%水準',
+          shortNote: '成績：ECTS Grade B（4.0スケール換算：3.4〜3.7相当）',
+          longReason: '欧州の大学にて優秀区分（ECTS Grade B / 4.0GPA換算で3.5前後相当）の成績を維持し、'
+        }
+      ]
+    };
+
+    function onGpaSystemChange() {
+      const sys = document.getElementById('gpa-system').value;
+      const gradeSelect = document.getElementById('gpa-grade-select');
+      const list = GPA_DATA[sys] || GPA_DATA.uk;
+
+      gradeSelect.innerHTML = list.map((item, idx) => `<option value="${idx}">${item.label}</option>`).join('');
+      updateGpaResult();
+    }
+
+    function updateGpaResult() {
+      const sys = document.getElementById('gpa-system').value;
+      const idx = Number(document.getElementById('gpa-grade-select').value || 0);
+      const major = (document.getElementById('gpa-major').value || '').trim() || '専攻分野（経済・国際関係等）';
+
+      const list = GPA_DATA[sys] || GPA_DATA.uk;
+      const item = list[idx] || list[0];
+
+      document.getElementById('gpa-converted-score').textContent = item.gpa4;
+      document.getElementById('gpa-converted-sub').textContent = item.sub;
+      document.getElementById('gpa-jp-equivalent').textContent = item.jpEq;
+      document.getElementById('gpa-percentile').textContent = item.pct;
+
+      document.getElementById('gpa-short-output').value = item.shortNote;
+      document.getElementById('gpa-long-output').value =
+        `私は大学で${major}を専攻し、${item.longReason}定量的・論理的な分析力と、多様なバックグラウンドを持つ学生と協働して結論を導く推進力を培いました。`;
+    }
+
+    /* ==========================================================
+       TOOL 4: 英語レジュメ ⇔ 日本語履歴書「学歴・職歴」自動変換メーカー
+    ========================================================== */
+    const MAJOR_DICT = [
+      { reg: /politics\s*(and|&)\s*international\s*relations/i, ja: '政治学・国際関係学専攻' },
+      { reg: /international\s*relations/i, ja: '国際関係学専攻' },
+      { reg: /political\s*science|politics/i, ja: '政治学専攻' },
+      { reg: /economics\s*(and|&)\s*finance/i, ja: '経済学・ファイナンス専攻' },
+      { reg: /economics/i, ja: '経済学専攻' },
+      { reg: /business\s*administration|management/i, ja: '経営学専攻' },
+      { reg: /computer\s*science/i, ja: 'コンピュータ科学（情報工学）専攻' },
+      { reg: /data\s*science/i, ja: 'データサイエンス専攻' },
+      { reg: /sociology/i, ja: '社会学専攻' },
+      { reg: /psychology/i, ja: '心理学専攻' },
+      { reg: /philosophy,\s*politics\s*(and|&)\s*economics|ppe/i, ja: '哲学・政治学・経済学（PPE）専攻' },
+      { reg: /media|communications?/i, ja: 'メディア・コミュニケーション学専攻' },
+      { reg: /liberal\s*arts/i, ja: '教養学（リベラルアーツ）専攻' },
+      { reg: /mathematics/i, ja: '数学専攻' },
+      { reg: /accounting/i, ja: '会計学専攻' },
+      { reg: /marketing/i, ja: 'マーケティング専攻' }
+    ];
+
+    const DEGREE_LABELS = {
+      ba: { jpCourse: '学士課程（文系・教養学士）', jpDegree: '学士（教養 / Bachelor of Arts）' },
+      bsc: { jpCourse: '学士課程（理学・社会科学士）', jpDegree: '学士（理学 / Bachelor of Science）' },
+      bba: { jpCourse: '経営学士課程', jpDegree: '学士（経営学 / BBA）' },
+      beng: { jpCourse: '工学士課程', jpDegree: '学士（工学 / BEng）' },
+      llb: { jpCourse: '法学士課程', jpDegree: '学士（法学 / LLB）' },
+      ma: { jpCourse: '修士課程（大学院）', jpDegree: '修士（Master）' },
+      exchange: { jpCourse: '交換留学・派遣留学プログラム', jpDegree: '単位認定留学修了予定' }
+    };
+
+    const ROLE_DICT = [
+      { reg: /research\s*intern/i, title: 'リサーチインターン（市場調査・データ分析業務）', bullet: '海外市場および競合企業の英語リサーチ、調査レポート作成、定量的データ分析に従事' },
+      { reg: /teaching\s*assistant|\bta\b/i, title: 'ティーチング・アシスタント（大学講義補佐・学習指導）', bullet: '学部生向けのチュートリアル進行補助、課題フィードバック、教授陣との講義運営サポートを担当' },
+      { reg: /vice\s*president.*japanese\s*society|japanese\s*society.*vice\s*president/i, title: '日本人学生会（Japanese Society）副代表', bullet: '大学公認ソサエティの副代表としてイベント企画・予算管理・現地学生やスポンサー企業との渉外を統括' },
+      { reg: /president.*society|society.*president/i, title: '大学公認学生団体（Society）代表', bullet: '多国籍メンバーで構成される学内ソサエティの代表として、組織運営および年間プロジェクトを推進' },
+      { reg: /business\s*development\s*intern/i, title: '事業開発（BizDev）・営業推進インターン', bullet: '新規リード開拓、英語・日本語での商談資料作成、パートナー企業とのアライアンス推進業務に従事' }
+    ];
+
+    function translateMajorToJa(rawText, isMinor = false) {
+      if (!rawText) return '';
+      const trimmed = rawText.trim();
+      for (const rule of MAJOR_DICT) {
+        if (rule.reg.test(trimmed)) {
+          return isMinor ? rule.ja.replace(/専攻$/, '副専攻') : rule.ja;
+        }
+      }
+      return isMinor ? `${trimmed}副専攻` : `${trimmed}専攻`;
+    }
+
+    function insertRolePreset(roleText) {
+      const input = document.getElementById('cv-role');
+      if (input) {
+        input.value = roleText;
+        updateResumeConversion();
+      }
+    }
+
+    function updateResumeConversion() {
+      const uni = (document.getElementById('cv-uni').value || '').trim() || 'University of Exeter（英国・エクセター大学）';
+      const degKey = document.getElementById('cv-degree').value;
+      const majorRaw = (document.getElementById('cv-major').value || '').trim() || 'Politics and International Relations';
+      const minorRaw = (document.getElementById('cv-minor').value || '').trim();
+      const startVal = document.getElementById('cv-start').value || '2025-09';
+      const endVal = document.getElementById('cv-end').value || '2028-06';
+      const roleRaw = (document.getElementById('cv-role').value || '').trim() || 'Research Intern';
+
+      const [sY, sM] = startVal.split('-').map(Number);
+      const [eY, eM] = endVal.split('-').map(Number);
+
+      const degInfo = DEGREE_LABELS[degKey] || DEGREE_LABELS.ba;
+      const majorJa = translateMajorToJa(majorRaw, false);
+      const minorJa = minorRaw ? ` / ${translateMajorToJa(minorRaw, true)}` : '';
+
+      let roleTitleJa = `${roleRaw}（インターン・課外活動）`;
+      let roleBulletJa = '英語環境におけるリサーチ、資料作成、および多国籍チームでのプロジェクト推進に従事';
+      for (const r of ROLE_DICT) {
+        if (r.reg.test(roleRaw)) {
+          roleTitleJa = r.title;
+          roleBulletJa = r.bullet;
+          break;
+        }
+      }
+
+      const endAction = degKey === 'exchange' ? '交換留学プログラム 修了予定' : `${degInfo.jpCourse} 卒業予定（学位：${degInfo.jpDegree}）`;
+
+      const output = [
+        `【1. 日本語履歴書「学歴欄」フォーマット】`,
+        `${sY}年${sM}月 ${uni} ${degInfo.jpCourse}（${majorJa}${minorJa}） 入学`,
+        `${eY}年${eM}月 同大学 ${endAction}`,
+        ``,
+        `【2. ESの「学部・学科・専攻」入力欄（文字数制限が厳しい場合）】`,
+        `・学部・学科欄：${degInfo.jpCourse}（${majorJa}）`,
+        `・英語併記案 ：${majorJa} (${majorRaw}${minorRaw ? ', Minor in ' + minorRaw : ''})`,
+        ``,
+        `【3. 職歴・インターン・課外活動欄の日本語表記】`,
+        `・役職・肩書き：${roleTitleJa}`,
+        `・職務要約文 ：${roleBulletJa}`
+      ].join('\n');
+
+      const outEl = document.getElementById('cv-output');
+      if (outEl) outEl.value = output;
+    }
+
+    /* ==========================================================
+       初期化処理（URLパラメータ ?tab=xxx 対応）
+    ========================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      initTzSlots();
+      renderRoadmap();
+      onGpaSystemChange();
+      updateResumeConversion();
+
+      const params = new URLSearchParams(window.location.search);
+      const initialTab = params.get('tab');
+      if (initialTab && ['timezone', 'roadmap', 'gpa', 'resume'].includes(initialTab)) {
+        switchToolTab(initialTab);
+      }
+    });
+  </script>
+</body>
+</html>
